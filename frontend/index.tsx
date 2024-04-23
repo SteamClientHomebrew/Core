@@ -45,13 +45,24 @@ function windowCreated(_context: any)
     // window create event. 
     // you can interact directly with the document and monitor it with dom observers
     // you can then render components in specific pages. 
-    console.log("window created ->", pluginSelf.activeTheme, _context)
+    // console.log("window created ->", pluginSelf.activeTheme, _context)
     const title = _context.m_strTitle
 
     // @ts-ignore
     if (title == LocalizationManager.LocalizeString("#Settings_Title")) {
         RenderSettingsModal(_context)
     }
+
+    // @ts-ignore
+    g_PopupManager.m_mapPopups.data_.forEach((element: any) => {
+        if (element.value_.m_strName == 'SP Desktop_uid0') {
+
+            if (element.value_.m_popup.window.HAS_INJECTED_THEME === undefined) {
+                console.log("patching Steam window because it wasn't already")
+                patch_context(element.value_);
+            }
+        }
+    })
 
     patch_context(_context);
 }

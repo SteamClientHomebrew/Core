@@ -48,9 +48,13 @@ function patch_context(_context: any)
         theme.data.Patches.forEach((patch: any) => {
             const match = title.match(patch.MatchRegexString) || classes.includes(patch.MatchRegexString)
 
+            if (title == "Steam") {
+                _context.m_popup.window.HAS_INJECTED_THEME = true
+            }
+
             if (match) {
 
-                console.log("MATCHED", patch)
+                // console.log("MATCHED", patch)
 
                 if ("TargetCss" in patch) {
                     m_doc.head.appendChild(Object.assign(m_doc.createElement('link'), { 
@@ -68,7 +72,7 @@ function patch_context(_context: any)
         });
     }
 
-    console.log(pluginSelf.conditionals)
+    // console.log(pluginSelf.conditionals)
 
     if (theme.data.hasOwnProperty("Conditions")) { 
 
@@ -82,12 +86,9 @@ function patch_context(_context: any)
                     if ("TargetCss" in patch) {
 
                         const css = patch.TargetCss
-
                         css.affects.forEach((affectee: any) => {
                             if (title.match(affectee) || classes.includes(affectee)) {
-
-                                console.log("INJECTING", css.src, "INTO", title)
-
+                                // console.log("INJECTING", css.src, "INTO", title)
                                 m_doc.head.appendChild(Object.assign(m_doc.createElement('link'), { 
                                     href: get_path(theme["native-name"], css.src), 
                                     rel: 'stylesheet', id: 'millennium-injected' 
@@ -98,12 +99,9 @@ function patch_context(_context: any)
                     if ("TargetJs" in patch) {
 
                         const js = patch.TargetJs
-
                         js.affects.forEach((affectee: any) => {
                             if (title.match(affectee) || classes.includes(affectee)) {
-
-                                console.log("INJECTING", js.src, "INTO", title)
-
+                                // console.log("INJECTING", js.src, "INTO", title)
                                 m_doc.head.appendChild(Object.assign(m_doc.createElement('script'), { 
                                     src: get_path(theme["native-name"], js.src), 
                                     type: 'module', id: 'millennium-injected' 
