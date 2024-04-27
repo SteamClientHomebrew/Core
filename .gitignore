@@ -1,7 +1,8 @@
 node_modules/
-frontend/
-**__pycache__/
-package-lock.json
-package.json
-rollup.config.js
-tsconfig.json
+.venv/Scripts
+# frontend/
+# **__pycache__/
+# package-lock.json
+# package.json
+# rollup.config.js
+# tsconfig.json

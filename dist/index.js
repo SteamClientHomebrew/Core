@@ -80,7 +80,7 @@ var millennium_main = (function (exports, ReactDOM) {
                     _context.m_popup.window.HAS_INJECTED_THEME = true;
                 }
                 if (match) {
-                    // console.log("MATCHED", patch)
+                    console.log("patched", title);
                     if ("TargetCss" in patch) {
                         m_doc.head.appendChild(Object.assign(m_doc.createElement('link'), {
                             href: get_path(theme["native-name"], patch.TargetCss),
@@ -179,10 +179,6 @@ var millennium_main = (function (exports, ReactDOM) {
         });
     }
     function windowCreated(_context) {
-        // window create event. 
-        // you can interact directly with the document and monitor it with dom observers
-        // you can then render components in specific pages. 
-        // console.log("window created ->", pluginSelf.activeTheme, _context)
         const title = _context.m_strTitle;
         // @ts-ignore
         if (title == LocalizationManager.LocalizeString("#Settings_Title")) {
@@ -191,6 +187,7 @@ var millennium_main = (function (exports, ReactDOM) {
         // @ts-ignore
         g_PopupManager.m_mapPopups.data_.forEach((element) => {
             if (element.value_.m_strName == 'SP Desktop_uid0') {
+                // main steam window popup sometimes doesn't get hooked. steam bug
                 if (element.value_.m_popup.window.HAS_INJECTED_THEME === undefined) {
                     console.log("patching Steam window because it wasn't already");
                     patch_context(element.value_);

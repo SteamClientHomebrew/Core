@@ -13,7 +13,7 @@ class Plugin:
     def _load(self):     
         # This code is executed when your plugin loads. 
         # notes: thread safe, running for entire lifespan of millennium
-        print(f"loaded pluginidk with millennium v{Millennium.version()}")
+        print(f"loaded millennium v{Millennium.version()}")
         css_id = Millennium.add_browser_css("skins/Fluenty/src/styles/webkit/webkit.css")
         js_id = Millennium.add_browser_js("skins/SimplyDark/webkit/store.js")
 
