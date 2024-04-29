@@ -3,7 +3,7 @@
 */
 type Millennium = {
     /* call a backend server method */
-    callServerMethod: (methodName: string, kwargs?: object) => any,
+    callServerMethod: (methodName: string, kwargs?: object) => Promise<any>,
     AddWindowCreateHook: (callback: (context: object) => void) => void,
     findElement: (privateDocument: string,  querySelector: string, timeOut?: number) => Promise<HTMLElement[]>,
     /* Expose a function to mainworld so it can be called from the backend */

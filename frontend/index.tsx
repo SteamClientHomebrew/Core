@@ -2,9 +2,9 @@ import { Millennium, pluginSelf } from "./millennium";
 import { parseTheme, patch_context } from "./patcher"
 import { RenderSettingsModal } from "./components/settings"
 
-async function getThemes() {
+async function getTheme() {
     return new Promise(async (resolve: any, _reject: any) => {
-        const result = await Millennium.callServerMethod("find_all_themes")
+        const result = await Millennium.callServerMethod("get_active_theme")
         resolve(JSON.parse(result))
     })
 }
@@ -26,17 +26,17 @@ async function getSystemColor() {
 
 async function getActive() {
     return new Promise(async (resolve: any, _) => {
-        const themes: any = await getThemes() 
+        const theme: any = await getTheme() 
+        console.log(theme)
 
-        themes.forEach((theme: any) => {
-            if (theme["native-name"] == "Fluenty") {
+        if (theme?.success == false) {
+            return
+        }
 
-                if ("Patches" in theme.data) {
-                    theme.data.Patches = parseTheme(theme.data.Patches)    
-                }
-                resolve(theme)
-            }
-        });
+        if ("Patches" in theme.data) {
+            theme.data.Patches = parseTheme(theme.data.Patches)    
+        }
+        resolve(theme)
     })
 }
 

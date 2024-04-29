@@ -2,6 +2,27 @@ import os
 import json
 import Millennium
 
+def is_valid(theme_native_name: str) -> bool:
+    folder_path = os.path.join(Millennium.steam_path(), "steamui", "skins", theme_native_name)
+    file_path = os.path.join(folder_path, "skin.json")
+
+    # Check if the folder exists
+    if not os.path.exists(folder_path):
+        return False
+
+    # Check if the file exists inside the folder
+    if not os.path.isfile(file_path):
+        return False
+
+    # Check if the JSON file is valid
+    try:
+        with open(file_path, 'r') as file:
+            json.load(file)
+    except json.JSONDecodeError:
+        return False
+
+    return True
+
 def find_all_themes() -> str:
 
     themes = [] 
