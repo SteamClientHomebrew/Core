@@ -1,52 +1,48 @@
 import { Millennium, pluginSelf } from "./millennium"; 
-import { parseTheme, patch_context } from "./patcher"
+import { parseTheme, patchDocumentContext } from "./patcher"
 import { RenderSettingsModal } from "./components/settings"
+import { ConditionsStore, ThemeItem } from "./types/theme";
+import { SystemAccentColor } from "./types/colors";
 
-async function getTheme() {
+async function getTheme(): Promise<ThemeItem> {
     return new Promise(async (resolve: any, _reject: any) => {
-        const result = await Millennium.callServerMethod("get_active_theme")
-        resolve(JSON.parse(result))
+        resolve(JSON.parse(await Millennium.callServerMethod("get_active_theme")) as ThemeItem)
     })
 }
 
-async function getConditionals() {
+const getConditionals = (): Promise<ConditionsStore> => {
     return new Promise(async (resolve: any, _reject: any) => {
-        const result = await Millennium.callServerMethod("get_conditionals")
-        resolve(JSON.parse(result))
+        resolve(JSON.parse(await Millennium.callServerMethod("get_conditionals")) as ConditionsStore)
     })
 }
 
-async function getSystemColor() {
+const getSystemColor = (): Promise<SystemAccentColor> => {
     return new Promise(async (resolve: any, _reject: any) => {
-        const result = await Millennium.callServerMethod("get_accent_color")
-        resolve(JSON.parse(result))
+        resolve(JSON.parse(await Millennium.callServerMethod("get_accent_color")) as SystemAccentColor)
     })
 }
-
 
 async function getActive() {
-    return new Promise(async (resolve: any, _) => {
-        const theme: any = await getTheme() 
-        console.log(theme)
+    return new Promise(async (resolve: (value: ThemeItem | PromiseLike<ThemeItem>) => void, reject: any) => {
+        const theme: ThemeItem = await getTheme()
 
-        if (theme?.success == false) {
-            return
-        }
-
-        if ("Patches" in theme.data) {
-            theme.data.Patches = parseTheme(theme.data.Patches)    
+        // failed to parse whatever theme was selected, or the default is active
+        theme?.failed && reject("default")
+        // evaluate overriden patch keys from default patches, if specified. 
+        if (theme?.data?.Patches !== undefined && theme?.data?.UseDefaultPatches) {
+            theme.data.Patches = parseTheme(theme.data.Patches)
         }
         resolve(theme)
     })
 }
 
-function windowCreated(_context: any) 
+function windowCreated(windowContext: any) 
 {
-    const title = _context.m_strTitle
+    const title = windowContext.m_strTitle
 
     // @ts-ignore
     if (title == LocalizationManager.LocalizeString("#Settings_Title")) {
-        RenderSettingsModal(_context)
+        RenderSettingsModal(windowContext)
     }
 
     // @ts-ignore
@@ -55,34 +51,36 @@ function windowCreated(_context: any)
 
             // main steam window popup sometimes doesn't get hooked. steam bug
             if (element.value_.m_popup.window.HAS_INJECTED_THEME === undefined) {
-                console.log("patching Steam window because it wasn't already")
-                patch_context(element.value_);
+                patchDocumentContext(element.value_);
             }
         }
     })
 
-    patch_context(_context);
+    patchDocumentContext(windowContext);
 }
 
 // Entry point on the front end of your plugin
 export default async function PluginMain() {
 
-    const current: any = await getActive()
-    const conditionals: any = await getConditionals()
-    const col: any = await getSystemColor()
+    const current: ThemeItem = await getActive().catch((_: string) => {
+        pluginSelf.isDefaultTheme = true
+        return null
+    })
 
-    console.log('loaded with', current, "conditionals", conditionals)
-    console.log("system colors ->", col)
+    pluginSelf.activeTheme = current
+    
+    const conditionals: ConditionsStore = await getConditionals()
+    const systemColors: SystemAccentColor = await getSystemColor()
 
     pluginSelf.systemColor = `
     :root {
-        --SystemAccentColor: ${col.accent};
-        --SystemAccentColorLight1: ${col.light1};
-        --SystemAccentColorLight2: ${col.light2};
-        --SystemAccentColorLight3: ${col.light3};
-        --SystemAccentColorDark1: ${col.dark1};
-        --SystemAccentColorDark2: ${col.dark2};
-        --SystemAccentColorDark3: ${col.dark3};
+        --SystemAccentColor: ${systemColors.accent};
+        --SystemAccentColorLight1: ${systemColors.light1};
+        --SystemAccentColorLight2: ${systemColors.light2};
+        --SystemAccentColorLight3: ${systemColors.light3};
+        --SystemAccentColorDark1: ${systemColors.dark1};
+        --SystemAccentColorDark2: ${systemColors.dark2};
+        --SystemAccentColorDark3: ${systemColors.dark3};
     }`
 
     pluginSelf.activeTheme = current

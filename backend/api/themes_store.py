@@ -42,7 +42,7 @@ def find_all_themes() -> str:
             try:
                 skin_data = json.load(json_file)
                 # Process the skin_data as needed
-                themes.append({"native-name": theme, "data": skin_data})
+                themes.append({"native": theme, "data": skin_data})
             except json.JSONDecodeError:
                 print(f"Error parsing {skin_json_path}. Invalid JSON format.")
 

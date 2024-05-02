@@ -1,3 +1,6 @@
+import Millennium
+import copy
+
 class WebkitStack:
     _instance = None
 
@@ -27,6 +30,22 @@ class WebkitStack:
 
     def size(self):
         return len(self.stack)
+    
+    def unregister_all(self):
+        for hook in self.stack.copy():
+            Millennium.remove_browser_module(hook)
+            self.stack.remove(hook)
 
     def remove_all(self):
         self.stack.clear()
+
+
+def add_browser_css(css_path: str) -> None:
+    print(f"[debug] adding webkit css module -> {css_path}")
+    stack = WebkitStack()
+    stack.push(Millennium.add_browser_css(css_path))
+
+def add_browser_js(js_path: str) -> None:
+    print(f"[debug] adding webkit js module -> {js_path}")
+    stack = WebkitStack()
+    stack.push(Millennium.add_browser_js(js_path))

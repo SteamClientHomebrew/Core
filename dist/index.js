@@ -11,13 +11,20 @@ async function csm(m, _kw) {
 	const res = await Millennium.callServerMethod(pluginName, m, _kw);
 	return res
 }
-var millennium_main = (function (exports, ReactDOM, react) {
+var millennium_main = (function (exports, react, ReactDOM) {
     'use strict';
 
     function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
     var ReactDOM__default = /*#__PURE__*/_interopDefaultLegacy(ReactDOM);
 
+    // Control what window controls are exposed. 
+    var WindowControls;
+    (function (WindowControls) {
+        WindowControls[WindowControls["Minimize"] = 1] = "Minimize";
+        WindowControls[WindowControls["Maximize"] = 2] = "Maximize";
+        WindowControls[WindowControls["Close"] = 4] = "Close";
+    })(WindowControls || (WindowControls = {}));
     /*
     pluginSelf is a sandbox for data specific to your plugin.
     You can't access other plugins sandboxes and they can't access yours
@@ -37,10 +44,56 @@ var millennium_main = (function (exports, ReactDOM, react) {
         }
     };
 
+    const CommonPatchTypes = [
+        "TargetCss", "TargetJs"
+    ];
+    var ConditionalControlFlowType;
+    (function (ConditionalControlFlowType) {
+        ConditionalControlFlowType[ConditionalControlFlowType["TargetCss"] = 0] = "TargetCss";
+        ConditionalControlFlowType[ConditionalControlFlowType["TargetJs"] = 1] = "TargetJs";
+    })(ConditionalControlFlowType || (ConditionalControlFlowType = {}));
+
+    const DOMModifier = {
+        /**
+         * Append a StyleSheet to DOM from raw text
+         * @param document Target document to append StyleSheet to
+         * @param innerStyle string encoded CSS
+         * @param id HTMLElement id
+         */
+        AddStyleSheetFromText: (document, innerStyle, id) => {
+            document.head.appendChild(Object.assign(document.createElement('style'), { id: id })).innerText = innerStyle;
+        },
+        /**
+         * Append a StyleSheet to DOM from loopbackhost or absolute URI
+         * @param document Target document to append StyleSheet to
+         * @param localPath relative/absolute path to CSS module
+         */
+        AddStyleSheet: (document, localPath) => {
+            document.head.appendChild(Object.assign(document.createElement('link'), {
+                href: localPath,
+                rel: 'stylesheet', id: 'millennium-injected'
+            }));
+        },
+        /**
+         * Append a JavaScript module to DOM from loopbackhost or absolute URI
+         * @param document Target document to append JavaScript to
+         * @param localPath relative/absolute path to CSS module
+         */
+        AddJavaScript: (document, localPath) => {
+            document.head.appendChild(Object.assign(document.createElement('script'), {
+                src: localPath,
+                type: 'module', id: 'millennium-injected'
+            }));
+        }
+    };
+    /**
+     * Interpolates and overrides default patches on a theme.
+     * @param incomingPatches Preprocessed list of patches from a specific theme
+     * @returns Processed patches, interpolated with default patches
+     */
     function parseTheme(incomingPatches) {
         let patches = {
             Patches: [
-                // { MatchRegexString: ".*http.*steam.*", TargetCss: "webkit.css", TargetJs: "webkit.js" },
                 { MatchRegexString: "^Steam$", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
                 { MatchRegexString: "^OverlayBrowser_Browser$", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
                 { MatchRegexString: "^SP Overlay:", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
@@ -59,120 +112,103 @@ var millennium_main = (function (exports, ReactDOM, react) {
         };
         let newMatchRegexStrings = new Set(incomingPatches.map((patch) => patch.MatchRegexString));
         let filteredPatches = patches.Patches.filter((patch) => !newMatchRegexStrings.has(patch.MatchRegexString));
-        let updatedPatches = filteredPatches.concat(incomingPatches);
-        return updatedPatches;
+        return filteredPatches.concat(incomingPatches);
     }
-    function get_path(nativeName, relativePath) {
+    function constructThemePath(nativeName, relativePath) {
         return `skins/${nativeName}/${relativePath}`;
     }
-    function patch_context(_context) {
-        const theme = pluginSelf.activeTheme;
-        const m_doc = _context.m_popup.document;
-        const classes = (_context.m_rgParams.html_class || _context.m_rgParams.body_class || '').split(' ').map((className) => '.' + className);
-        const title = _context.m_strTitle;
-        m_doc.head.appendChild(Object.assign(m_doc.createElement('style'), {
-            id: 'SystemAccentColorInject'
-        })).innerText = pluginSelf.systemColor.replace(/\s/g, ''); // append system colors to the DOM
-        if (theme.data.hasOwnProperty("Patches")) {
-            theme.data.Patches.forEach((patch) => {
-                const match = title.match(patch.MatchRegexString) || classes.includes(patch.MatchRegexString);
-                if (title == "Steam") {
-                    _context.m_popup.window.HAS_INJECTED_THEME = true;
-                }
-                if (match) {
-                    console.log("patched", title);
-                    if ("TargetCss" in patch) {
-                        m_doc.head.appendChild(Object.assign(m_doc.createElement('link'), {
-                            href: get_path(theme["native-name"], patch.TargetCss),
-                            rel: 'stylesheet', id: 'millennium-injected'
-                        }));
-                    }
-                    if ("TargetJs" in patch) {
-                        m_doc.head.appendChild(Object.assign(m_doc.createElement('script'), {
-                            src: get_path(theme["native-name"], patch.TargetJs),
-                            type: 'module', id: 'millennium-injected'
-                        }));
-                    }
-                }
-            });
+    const evaluatePatch = (type, modulePatch, documentTitle, classList, document) => {
+        if (modulePatch[CommonPatchTypes[type]] === undefined) {
+            return;
         }
-        // console.log(pluginSelf.conditionals)
-        if (theme.data.hasOwnProperty("Conditions")) {
-            const conditionals_t = theme.data.Conditions;
-            const saved = pluginSelf.conditionals[theme["native-name"]];
-            for (const key in conditionals_t) {
-                if (conditionals_t.hasOwnProperty(key)) {
-                    if (key in saved) {
-                        const patch = conditionals_t[key].values[saved[key]];
-                        if ("TargetCss" in patch) {
-                            const css = patch.TargetCss;
-                            css.affects.forEach((affectee) => {
-                                if (title.match(affectee) || classes.includes(affectee)) {
-                                    // console.log("INJECTING", css.src, "INTO", title)
-                                    m_doc.head.appendChild(Object.assign(m_doc.createElement('link'), {
-                                        href: get_path(theme["native-name"], css.src),
-                                        rel: 'stylesheet', id: 'millennium-injected'
-                                    }));
-                                }
-                            });
-                        }
-                        if ("TargetJs" in patch) {
-                            const js = patch.TargetJs;
-                            js.affects.forEach((affectee) => {
-                                if (title.match(affectee) || classes.includes(affectee)) {
-                                    // console.log("INJECTING", js.src, "INTO", title)
-                                    m_doc.head.appendChild(Object.assign(m_doc.createElement('script'), {
-                                        src: get_path(theme["native-name"], js.src),
-                                        type: 'module', id: 'millennium-injected'
-                                    }));
-                                }
-                            });
-                        }
-                    }
+        modulePatch[CommonPatchTypes[type]].affects.forEach((affectee) => {
+            if (!documentTitle.match(affectee) && !classList.includes(affectee)) {
+                return;
+            }
+            switch (type) {
+                case ConditionalControlFlowType.TargetCss: {
+                    DOMModifier.AddStyleSheet(document, constructThemePath(pluginSelf.activeTheme.native, modulePatch[CommonPatchTypes[type]].src));
+                }
+                case ConditionalControlFlowType.TargetJs: {
+                    DOMModifier.AddJavaScript(document, constructThemePath(pluginSelf.activeTheme.native, modulePatch[CommonPatchTypes[type]].src));
                 }
             }
+        });
+    };
+    const evaluateConditions = (theme, title, classes, document) => {
+        const themeConditions = theme.data.Conditions;
+        const savedConditions = pluginSelf.conditionals[theme.native];
+        for (const condition in themeConditions) {
+            if (!themeConditions.hasOwnProperty(condition)) {
+                return;
+            }
+            if (condition in savedConditions) {
+                const patch = themeConditions[condition].values[savedConditions[condition]];
+                evaluatePatch(ConditionalControlFlowType.TargetCss, patch, title, classes, document);
+                evaluatePatch(ConditionalControlFlowType.TargetJs, patch, title, classes, document);
+            }
         }
+    };
+    const evaluatePatches = (activeTheme, documentTitle, classList, document, context) => {
+        activeTheme.data.Patches.forEach((patch) => {
+            context.m_popup.window.HAS_INJECTED_THEME = documentTitle === "Steam";
+            if (!documentTitle.match(patch.MatchRegexString) && !classList.includes(patch.MatchRegexString)) {
+                return;
+            }
+            patch?.TargetCss !== undefined && DOMModifier.AddStyleSheet(document, constructThemePath(activeTheme.native, patch.TargetCss));
+            patch?.TargetJs !== undefined && DOMModifier.AddJavaScript(document, constructThemePath(activeTheme.native, patch.TargetJs));
+        });
+    };
+    const getDocumentClassList = (context) => {
+        return (context.m_rgParams.html_class || context.m_rgParams.body_class || '').split(' ').map((className) => '.' + className);
+    };
+    function patchDocumentContext(windowContext) {
+        if (pluginSelf.isDefaultTheme) {
+            return;
+        }
+        const activeTheme = pluginSelf.activeTheme;
+        const document = windowContext.m_popup.document;
+        const classList = getDocumentClassList(windowContext);
+        const documentTitle = windowContext.m_strTitle;
+        // Append System Accent Colors to global document (publically shared)
+        DOMModifier.AddStyleSheetFromText(document, pluginSelf.systemColor, "SystemAccentColorInject");
+        activeTheme.data.hasOwnProperty("Patches") && evaluatePatches(activeTheme, documentTitle, classList, document, windowContext);
+        activeTheme.data.hasOwnProperty("Conditions") && evaluateConditions(activeTheme, documentTitle, classList, document);
     }
 
+    const EditPlugin = () => {
+        return (window.SP_REACT.createElement("div", { className: "_1WKUOT3FdB9-48MMP0Tz9l Focusable", style: { marginTop: 0, marginLeft: 0, marginRight: 15 }, tabIndex: 0 },
+            window.SP_REACT.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 36 36", fill: "none" },
+                window.SP_REACT.createElement("path", { d: "M21.75 18C21.75 18.7417 21.5301 19.4667 21.118 20.0834C20.706 20.7001 20.1203 21.1807 19.4351 21.4645C18.7498 21.7484 17.9958 21.8226 17.2684 21.6779C16.541 21.5332 15.8728 21.1761 15.3484 20.6517C14.8239 20.1272 14.4668 19.459 14.3221 18.7316C14.1774 18.0042 14.2516 17.2502 14.5355 16.5649C14.8193 15.8797 15.2999 15.294 15.9166 14.882C16.5333 14.4699 17.2583 14.25 18 14.25C18.9946 14.25 19.9484 14.6451 20.6517 15.3483C21.3549 16.0516 21.75 17.0054 21.75 18ZM6 14.25C5.25832 14.25 4.5333 14.4699 3.91661 14.882C3.29993 15.294 2.81928 15.8797 2.53545 16.5649C2.25162 17.2502 2.17736 18.0042 2.32206 18.7316C2.46675 19.459 2.8239 20.1272 3.34835 20.6517C3.8728 21.1761 4.54098 21.5332 5.26841 21.6779C5.99584 21.8226 6.74984 21.7484 7.43506 21.4645C8.12029 21.1807 8.70596 20.7001 9.11801 20.0834C9.53007 19.4667 9.75 18.7417 9.75 18C9.75 17.0054 9.35491 16.0516 8.65165 15.3483C7.94839 14.6451 6.99456 14.25 6 14.25ZM30 14.25C29.2583 14.25 28.5333 14.4699 27.9166 14.882C27.2999 15.294 26.8193 15.8797 26.5355 16.5649C26.2516 17.2502 26.1774 18.0042 26.3221 18.7316C26.4668 19.459 26.8239 20.1272 27.3484 20.6517C27.8728 21.1761 28.541 21.5332 29.2684 21.6779C29.9958 21.8226 30.7498 21.7484 31.4351 21.4645C32.1203 21.1807 32.706 20.7001 33.118 20.0834C33.5301 19.4667 33.75 18.7417 33.75 18C33.75 17.0054 33.3549 16.0516 32.6517 15.3483C31.9484 14.6451 30.9946 14.25 30 14.25Z", fill: "currentColor" }))));
+    };
     const PluginViewModal = () => {
         const [plugins, setPlugins] = react.useState([]);
         const [checkedItems, setCheckedItems] = react.useState({});
-        const indent = { "--indent-level": 0 };
         react.useEffect(() => {
             csm("find_all_plugins").then((value) => {
                 const json = JSON.parse(value);
-                console.log(json);
-                json.forEach((plugin, index) => {
-                    if (plugin.enabled) {
-                        setCheckedItems({
-                            ...checkedItems,
-                            [index]: true
-                        });
-                    }
-                });
+                setCheckedItems(json.map((plugin, index) => ({ plugin, index })).filter(({ plugin }) => plugin.enabled)
+                    .reduce((acc, { index }) => ({ ...acc, [index]: true }), {}));
                 setPlugins(json);
             });
         }, []);
         const handleCheckboxChange = (index) => {
-            const updated = !checkedItems[index];
-            if (plugins[index]?.data?.name == "millennium__internal") {
-                return;
-            }
-            setCheckedItems({
-                ...checkedItems,
-                [index]: updated
-            });
-            csm("update_plugin_status", {
-                plugin_name: plugins[index]?.data?.name,
-                enabled: updated
-            });
+            /* Prevent users from disabling this plugin, as its vital */
+            const updated = !checkedItems[index] || plugins[index]?.data?.name === "millennium__internal";
+            setCheckedItems({ ...checkedItems, [index]: updated });
+            csm("update_plugin_status", { plugin_name: plugins[index]?.data?.name, enabled: updated });
+        };
+        const isEditablePlugin = (plugin_name) => {
+            return window.PLUGIN_LIST && window.PLUGIN_LIST[plugin_name]
+                && typeof window.PLUGIN_LIST[plugin_name].renderPluginSettings === 'function' ? true : false;
         };
         return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
             window.SP_REACT.createElement("div", { className: "DialogHeader" }, "Plugins"),
-            window.SP_REACT.createElement("div", { className: "DialogBody aFxOaYcllWYkCfVYQJFs0" }, plugins.map((value, _index) => (window.SP_REACT.createElement("div", { className: "S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel", style: indent, key: _index },
+            window.SP_REACT.createElement("div", { className: "DialogBody aFxOaYcllWYkCfVYQJFs0" }, plugins.map((value, _index) => (window.SP_REACT.createElement("div", { className: "S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel", key: _index },
                 window.SP_REACT.createElement("div", { className: "H9WOq6bV_VhQ4QjJS_Bxg" },
                     window.SP_REACT.createElement("div", { className: "_3b0U-QDD-uhFpw6xM716fw" }, value?.data?.common_name),
-                    window.SP_REACT.createElement("div", { className: "_2ZQ9wHACVFqZcufK_WRGPM" },
+                    window.SP_REACT.createElement("div", { className: "_2ZQ9wHACVFqZcufK_WRGPM", style: { display: "flex", alignItems: "center" } },
+                        isEditablePlugin(value?.data?.name) && window.SP_REACT.createElement(EditPlugin, null),
                         window.SP_REACT.createElement("div", { className: "_3N47t_-VlHS8JAEptE5rlR" },
                             window.SP_REACT.createElement("div", { className: `_24G4gV0rYtRbebXM44GkKk ${checkedItems[_index] ? '_3ld7THBuSMiFtcB_Wo165i' : ''} Focusable`, onClick: () => handleCheckboxChange(_index), tabIndex: 0 },
                                 window.SP_REACT.createElement("div", { className: "_2JtC3JSLKaOtdpAVEACsG1" }),
@@ -227,6 +263,16 @@ var millennium_main = (function (exports, ReactDOM, react) {
                 return m;
         }
     };
+    const findAllModules = (filter) => {
+        const out = [];
+        for (const m of allModules) {
+            if (m.default && filter(m.default))
+                out.push(m.default);
+            if (filter(m))
+                out.push(m);
+        }
+        return out;
+    };
     const CommonUIModule = allModules.find((m) => {
         if (typeof m !== 'object')
             return false;
@@ -254,35 +300,63 @@ var millennium_main = (function (exports, ReactDOM, react) {
         }
         return false;
     });
+    findAllModules((m) => {
+        if (typeof m == "object" && !m.__esModule) {
+            const keys = Object.keys(m);
+            // special case some libraries
+            if (keys.length == 1 && m.version)
+                return false;
+            // special case localization
+            if (keys.length > 1000 && m.AboutSettings)
+                return false;
+            return keys.length > 0 && keys.every(k => !Object.getOwnPropertyDescriptor(m, k)?.get && typeof m[k] == "string");
+        }
+        return false;
+    });
 
     const Dropdown = Object.values(CommonUIModule).find((mod) => mod?.prototype?.SetSelectedOption && mod?.prototype?.BuildMenu);
-    Object.values(CommonUIModule).find((mod) => console.log(mod?.toString()));
+    // Object.values(CommonUIModule).find((mod: any) =>
+    //     console.log(mod?.toString()),
+    // );
     Object.values(CommonUIModule).find((mod) => mod?.toString()?.includes('"dropDownControlRef","description"'));
 
-    // import React, { useEffect, useState } from 'react';
+    const ShowThemeSettings = (themes, active) => {
+        const { theme } = themes.find((theme) => theme.theme.native === active);
+        console.log(theme?.data?.name);
+        const context = {
+            minimumDimensions: {
+                width: 0, height: 0
+            },
+            dimensions: {
+                width: 600, height: 450
+            },
+            title: "Editing " + theme?.data?.name ?? theme?.native,
+            controls: WindowControls.Close | WindowControls.Minimize,
+            emptyDocument: false,
+            autoShow: true
+        };
+        console.log(context);
+        Millennium.createWindow(context);
+    };
     const ThemeViewModal = () => {
         const [themes, setThemes] = react.useState();
         const [active, setActive] = react.useState();
-        const updateThemeCallback = (_data) => {
-            //setSelected(_data)
-            console.log(_data.theme["native-name"]);
-            csm("change_theme", { plugin_name: _data.theme["native-name"] });
+        const updateThemeCallback = (data) => {
+            csm("change_theme", { theme_name: data.theme.native });
             window.location.reload();
         };
         react.useEffect(() => {
             csm("find_all_themes").then((value) => {
-                const json = JSON.parse(value);
-                let themeBuffer = [];
-                json.forEach((theme, index) => {
-                    themeBuffer.push({
-                        label: theme?.data?.name ?? theme["native-name"], data: `theme_${index}`, theme: theme
-                    });
-                });
-                setThemes(themeBuffer);
+                let buffer = JSON.parse(value).map((theme, index) => ({
+                    label: theme?.data?.name ?? theme.native,
+                    theme: theme,
+                    data: "theme" + index
+                }));
+                setThemes(buffer);
             });
             csm("get_active_theme").then((value) => {
                 const json = JSON.parse(value);
-                setActive(json?.data?.name ?? json["native-name"]);
+                json?.failed ? setActive("Default") : setActive(json?.data?.name ?? json.native);
             });
         }, []);
         return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
@@ -292,14 +366,96 @@ var millennium_main = (function (exports, ReactDOM, react) {
                     window.SP_REACT.createElement("div", { className: "H9WOq6bV_VhQ4QjJS_Bxg" },
                         window.SP_REACT.createElement("div", { className: "_3b0U-QDD-uhFpw6xM716fw" }, "Client Theme"),
                         window.SP_REACT.createElement("div", { className: "_2ZQ9wHACVFqZcufK_WRGPM" },
-                            window.SP_REACT.createElement(Dropdown, { rgOptions: themes, selectedOption: 1, strDefaultLabel: active, contextMenuPositionOptions: "Left", onChange: updateThemeCallback }))),
+                            window.SP_REACT.createElement("button", { onClick: () => ShowThemeSettings(themes, active), style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, type: "button", className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable", tabIndex: 0 },
+                                window.SP_REACT.createElement("svg", { height: "16px", xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 36 36", fill: "none" },
+                                    window.SP_REACT.createElement("path", { d: "M28.1684 2.16431L23.5793 6.75343L29.2362 12.4103L33.8253 7.82116L28.1684 2.16431Z", fill: "currentColor" }),
+                                    window.SP_REACT.createElement("path", { d: "M20.76 9.58999L5.67 24.67L4 32L11.33 30.33L26.41 15.24L20.76 9.58999Z", fill: "currentColor" }))),
+                            window.SP_REACT.createElement(Dropdown, { rgOptions: themes, selectedOption: 1, strDefaultLabel: active, onChange: updateThemeCallback }))),
                     window.SP_REACT.createElement("div", { className: "_2OJfkxlD3X9p8Ygu1vR7Lr" }, "Select the theme you want Steam to use (requires reload)")))));
+    };
+
+    const UpToDateModal = () => {
+        return (window.SP_REACT.createElement("div", { className: "__up-to-date-container", style: {
+                display: "flex", flexDirection: "column", alignItems: "center", gap: "20px", height: "100%", justifyContent: "center"
+            } },
+            window.SP_REACT.createElement("div", { className: "__up-to-date-header", style: { marginTop: "-120px", color: "white", fontWeight: "500", fontSize: "15px" } }, "No updates found. You're good to go!"),
+            window.SP_REACT.createElement("svg", { viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg", style: { width: "40px" } },
+                window.SP_REACT.createElement("g", { id: "SVGRepo_bgCarrier", strokeWidth: "0" }),
+                window.SP_REACT.createElement("g", { id: "SVGRepo_tracerCarrier", strokeLinecap: "round", strokeLinejoin: "round" }),
+                window.SP_REACT.createElement("g", { id: "SVGRepo_iconCarrier" },
+                    window.SP_REACT.createElement("path", { fillRule: "evenodd", clipRule: "evenodd", d: "M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12ZM16.0303 8.96967C16.3232 9.26256 16.3232 9.73744 16.0303 10.0303L11.0303 15.0303C10.7374 15.3232 10.2626 15.3232 9.96967 15.0303L7.96967 13.0303C7.67678 12.7374 7.67678 12.2626 7.96967 11.9697C8.26256 11.6768 8.73744 11.6768 9.03033 11.9697L10.5 13.4393L12.7348 11.2045L14.9697 8.96967C15.2626 8.67678 15.7374 8.67678 16.0303 8.96967Z", fill: "#55bd00" })))));
+    };
+    const RenderAvailableUpdates = ({ updates, setUpdates }) => {
+        const [updating, setUpdating] = react.useState([]);
+        const viewMoreClick = (props) => window.open(props?.commit, "_blank");
+        const updateItemMessage = (updateObject, index) => {
+            setUpdating({ ...updating, [index]: true });
+            csm("update_theme", { native: updateObject.native }).then((success) => {
+                /** @todo: prompt user an error occured. */
+                if (!success)
+                    return;
+                csm("get_cached_updates").then((result) => {
+                    setUpdates(JSON.parse(result));
+                });
+            });
+        };
+        return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
+            window.SP_REACT.createElement("div", { className: 'update-container', style: { display: "flex", justifyContent: "space-between" } },
+                window.SP_REACT.createElement("div", { className: 'update-description' },
+                    window.SP_REACT.createElement("div", { className: "DialogSubHeader _2rK4YqGvSzXLj1bPZL8xMJ" }, "Updates Available!"),
+                    window.SP_REACT.createElement("div", { className: "DialogBodyText _3fPiC9QRyT5oJ6xePCVYz8" }, "Millennium found the following updates on your themes."))),
+            updates.map((update, index) => (window.SP_REACT.createElement("div", { className: "S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel", key: index },
+                window.SP_REACT.createElement("div", { className: "H9WOq6bV_VhQ4QjJS_Bxg" },
+                    window.SP_REACT.createElement("div", { className: "update-item-type", style: { color: "white", fontSize: "12px", padding: "4px", background: "#007eff", borderRadius: "6px" } }, "Theme"),
+                    window.SP_REACT.createElement("div", { className: "_3b0U-QDD-uhFpw6xM716fw" }, update.name),
+                    window.SP_REACT.createElement("div", { className: "_2ZQ9wHACVFqZcufK_WRGPM" },
+                        window.SP_REACT.createElement("div", { className: "_3N47t_-VlHS8JAEptE5rlR", style: { gap: "10px", width: "200px" } },
+                            window.SP_REACT.createElement("button", { type: "button", onClick: () => viewMoreClick(update), className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable", tabIndex: 0 }, "View More"),
+                            window.SP_REACT.createElement("button", { type: "button", onClick: () => updateItemMessage(update, index), className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable", tabIndex: 0 }, updating[index] ? "Updating..." : "Update")))),
+                window.SP_REACT.createElement("div", { className: "_2OJfkxlD3X9p8Ygu1vR7Lr" },
+                    window.SP_REACT.createElement("b", null, "Released:"),
+                    " ",
+                    update?.date),
+                window.SP_REACT.createElement("div", { className: "_2OJfkxlD3X9p8Ygu1vR7Lr" },
+                    window.SP_REACT.createElement("b", null, "Patch Notes:"),
+                    " ",
+                    update?.message))))));
+    };
+    const UpdatesViewModal = () => {
+        const [updates, setUpdates] = react.useState(null);
+        const [checkingForUpdates, setCheckingForUpdates] = react.useState(false);
+        react.useEffect(() => {
+            csm("get_cached_updates").then((result) => {
+                console.log(result);
+                setUpdates(JSON.parse(result));
+            });
+        }, []);
+        const checkForUpdates = async () => {
+            if (checkingForUpdates)
+                return;
+            setCheckingForUpdates(true);
+            await csm("initialize_repositories");
+            csm("get_cached_updates").then((result) => {
+                setUpdates(JSON.parse(result));
+                setCheckingForUpdates(false);
+            });
+        };
+        const DialogHeaderStyles = {
+            display: "flex", alignItems: "center", gap: "20px"
+        };
+        return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
+            window.SP_REACT.createElement("div", { className: "DialogHeader", style: DialogHeaderStyles },
+                "Updates",
+                window.SP_REACT.createElement("button", { onClick: checkForUpdates, className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable", style: { width: "80px", height: "18px", "-webkit-app-region": "no-drag", zIndex: "9999" } }, checkingForUpdates ? "Scanning..." : "Rescan")),
+            window.SP_REACT.createElement("div", { className: "DialogBody aFxOaYcllWYkCfVYQJFs0" }, updates && (!updates.length ? window.SP_REACT.createElement(UpToDateModal, null) : window.SP_REACT.createElement(RenderAvailableUpdates, { updates: updates, setUpdates: setUpdates })))));
     };
 
     var Renderer;
     (function (Renderer) {
         Renderer[Renderer["Plugins"] = 0] = "Plugins";
         Renderer[Renderer["Themes"] = 1] = "Themes";
+        Renderer[Renderer["Updates"] = 2] = "Updates";
+        Renderer[Renderer["Unset"] = 3] = "Unset";
     })(Renderer || (Renderer = {}));
     const RenderViewComponent = (componentType) => {
         Millennium.findElement(pluginSelf.settingsDoc, ".DialogContent_InnerWidth").then(element => {
@@ -310,107 +466,151 @@ var millennium_main = (function (exports, ReactDOM, react) {
                 case Renderer.Themes:
                     ReactDOM__default["default"].render(window.SP_REACT.createElement(ThemeViewModal, null), element[0]);
                     break;
+                case Renderer.Updates:
+                    ReactDOM__default["default"].render(window.SP_REACT.createElement(UpdatesViewModal, null), element[0]);
+                    break;
             }
         });
     };
     const PluginComponent = () => {
-        console.log("SETTINGS PANEL DETECTED");
-        const pluginClick = () => {
-            RenderViewComponent(Renderer.Plugins);
-        };
-        const themeClick = () => {
-            RenderViewComponent(Renderer.Themes);
+        const [selected, setSelected] = react.useState();
+        const nativeTabs = pluginSelf.settingsDoc.querySelectorAll(".bkfjn0yka2uHNqEvWZaTJ:not(.MillenniumTab)");
+        nativeTabs.forEach((element) => element.onclick = () => setSelected(Renderer.Unset));
+        const componentUpdate = (type) => {
+            RenderViewComponent(type);
+            setSelected(type);
+            nativeTabs.forEach((element) => {
+                element.classList.remove("Myra7iGjzCdMPzitboVfh");
+            });
         };
         return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
-            window.SP_REACT.createElement("div", { className: "bkfjn0yka2uHNqEvWZaTJ", onClick: pluginClick },
+            window.SP_REACT.createElement("div", { className: `MillenniumTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Plugins ? "Myra7iGjzCdMPzitboVfh" : ""}`, onClick: () => componentUpdate(Renderer.Plugins) },
                 window.SP_REACT.createElement("div", { className: "U6HcKswXzjmWtFxbjxuz4" },
-                    window.SP_REACT.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 36 36", fill: "none" },
-                        window.SP_REACT.createElement("path", { d: "M18 26V31H2V26C2 23.8783 2.84285 21.8434 4.34315 20.3431C5.84344 18.8429 7.87827 18 10 18C12.1217 18 14.1566 18.8429 15.6569 20.3431C17.1571 21.8434 18 23.8783 18 26ZM10 15C10.89 15 11.76 14.7361 12.5001 14.2416C13.2401 13.7471 13.8169 13.0443 14.1575 12.2221C14.4981 11.3998 14.5872 10.495 14.4135 9.6221C14.2399 8.74918 13.8113 7.94736 13.182 7.31802C12.5526 6.68868 11.7508 6.2601 10.8779 6.08647C10.005 5.91283 9.10019 6.00195 8.27792 6.34254C7.45566 6.68314 6.75285 7.25991 6.25839 7.99994C5.76392 8.73996 5.5 9.60999 5.5 10.5C5.49868 11.0913 5.61418 11.6771 5.83986 12.2236C6.06554 12.7702 6.39695 13.2668 6.81508 13.6849C7.23321 14.103 7.72981 14.4345 8.27637 14.6601C8.82293 14.8858 9.40868 15.0013 10 15ZM31.66 18.34C30.8643 17.5434 29.9094 16.9238 28.8578 16.5216C27.8062 16.1194 26.6815 15.9437 25.5574 16.006C24.4332 16.0683 23.3348 16.3672 22.3341 16.8831C21.3334 17.399 20.4528 18.1204 19.75 19C21.2201 21.0373 22.0077 23.4877 22 26V29H34V24C34.0008 22.9491 33.7946 21.9084 33.3931 20.9372C32.9916 19.966 32.4027 19.0835 31.66 18.34ZM26 13C26.89 13 27.76 12.7361 28.5001 12.2416C29.2401 11.7471 29.8169 11.0443 30.1575 10.2221C30.4981 9.39981 30.5872 8.49501 30.4135 7.6221C30.2399 6.74918 29.8113 5.94736 29.182 5.31802C28.5526 4.68868 27.7508 4.2601 26.8779 4.08647C26.005 3.91283 25.1002 4.00195 24.2779 4.34254C23.4557 4.68314 22.7529 5.25991 22.2584 5.99994C21.7639 6.73996 21.5 7.60999 21.5 8.5C21.4987 9.09132 21.6142 9.67708 21.8399 10.2236C22.0655 10.7702 22.397 11.2668 22.8151 11.6849C23.2332 12.103 23.7298 12.4345 24.2764 12.6601C24.8229 12.8858 25.4087 13.0013 26 13Z", fill: "currentColor" }))),
+                    window.SP_REACT.createElement("svg", { version: "1.1", id: "Icons", xmlns: "http://www.w3.org/2000/svg", xmlnsXlink: "http://www.w3.org/1999/xlink", x: "0px", y: "0px", viewBox: "0 0 32 32", xmlSpace: "preserve" },
+                        window.SP_REACT.createElement("g", null,
+                            window.SP_REACT.createElement("path", { d: "M18.3,17.3L15,20.6L11.4,17l3.3-3.3c0.4-0.4,0.4-1,0-1.4s-1-0.4-1.4,0L10,15.6l-1.3-1.3c-0.4-0.4-1-0.4-1.4,0s-0.4,1,0,1.4 L7.6,16l-2.8,2.8C3.6,19.9,3,21.4,3,23c0,1.3,0.4,2.4,1.1,3.5l-2.8,2.8c-0.4,0.4-0.4,1,0,1.4C1.5,30.9,1.7,31,2,31s0.5-0.1,0.7-0.3 l2.8-2.8C6.5,28.6,7.7,29,9,29c1.6,0,3.1-0.6,4.2-1.7l2.8-2.8l0.3,0.3c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3 c0.4-0.4,0.4-1,0-1.4L16.4,22l3.3-3.3c0.4-0.4,0.4-1,0-1.4S18.7,16.9,18.3,17.3z", fill: "currentColor" }),
+                            window.SP_REACT.createElement("path", { d: "M30.7,1.3c-0.4-0.4-1-0.4-1.4,0l-2.8,2.8C25.5,3.4,24.3,3,23,3c-1.6,0-3.1,0.6-4.2,1.7l-3.5,3.5c-0.4,0.4-0.4,1,0,1.4l7,7 c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3l3.5-3.5C28.4,12.1,29,10.6,29,9c0-1.3-0.4-2.4-1.1-3.5l2.8-2.8 C31.1,2.3,31.1,1.7,30.7,1.3z", fill: "currentColor" })))),
                 window.SP_REACT.createElement("div", { className: "_2X9_IsQsEJDpAd2JGrHdJI" }, "Plugins")),
-            window.SP_REACT.createElement("div", { className: "bkfjn0yka2uHNqEvWZaTJ ", onClick: themeClick },
+            window.SP_REACT.createElement("div", { className: `MillenniumTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Themes ? "Myra7iGjzCdMPzitboVfh" : ""}`, onClick: () => componentUpdate(Renderer.Themes) },
                 window.SP_REACT.createElement("div", { className: "U6HcKswXzjmWtFxbjxuz4" },
-                    window.SP_REACT.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 36 36", fill: "none" },
-                        window.SP_REACT.createElement("path", { d: "M18 26V31H2V26C2 23.8783 2.84285 21.8434 4.34315 20.3431C5.84344 18.8429 7.87827 18 10 18C12.1217 18 14.1566 18.8429 15.6569 20.3431C17.1571 21.8434 18 23.8783 18 26ZM10 15C10.89 15 11.76 14.7361 12.5001 14.2416C13.2401 13.7471 13.8169 13.0443 14.1575 12.2221C14.4981 11.3998 14.5872 10.495 14.4135 9.6221C14.2399 8.74918 13.8113 7.94736 13.182 7.31802C12.5526 6.68868 11.7508 6.2601 10.8779 6.08647C10.005 5.91283 9.10019 6.00195 8.27792 6.34254C7.45566 6.68314 6.75285 7.25991 6.25839 7.99994C5.76392 8.73996 5.5 9.60999 5.5 10.5C5.49868 11.0913 5.61418 11.6771 5.83986 12.2236C6.06554 12.7702 6.39695 13.2668 6.81508 13.6849C7.23321 14.103 7.72981 14.4345 8.27637 14.6601C8.82293 14.8858 9.40868 15.0013 10 15ZM31.66 18.34C30.8643 17.5434 29.9094 16.9238 28.8578 16.5216C27.8062 16.1194 26.6815 15.9437 25.5574 16.006C24.4332 16.0683 23.3348 16.3672 22.3341 16.8831C21.3334 17.399 20.4528 18.1204 19.75 19C21.2201 21.0373 22.0077 23.4877 22 26V29H34V24C34.0008 22.9491 33.7946 21.9084 33.3931 20.9372C32.9916 19.966 32.4027 19.0835 31.66 18.34ZM26 13C26.89 13 27.76 12.7361 28.5001 12.2416C29.2401 11.7471 29.8169 11.0443 30.1575 10.2221C30.4981 9.39981 30.5872 8.49501 30.4135 7.6221C30.2399 6.74918 29.8113 5.94736 29.182 5.31802C28.5526 4.68868 27.7508 4.2601 26.8779 4.08647C26.005 3.91283 25.1002 4.00195 24.2779 4.34254C23.4557 4.68314 22.7529 5.25991 22.2584 5.99994C21.7639 6.73996 21.5 7.60999 21.5 8.5C21.4987 9.09132 21.6142 9.67708 21.8399 10.2236C22.0655 10.7702 22.397 11.2668 22.8151 11.6849C23.2332 12.103 23.7298 12.4345 24.2764 12.6601C24.8229 12.8858 25.4087 13.0013 26 13Z", fill: "currentColor" }))),
-                window.SP_REACT.createElement("div", { className: "_2X9_IsQsEJDpAd2JGrHdJI" }, "Themes"))));
+                    window.SP_REACT.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 48 48" },
+                        window.SP_REACT.createElement("g", { id: "_21_-_30", "data-name": "21 - 30" },
+                            window.SP_REACT.createElement("g", { id: "Art" },
+                                window.SP_REACT.createElement("path", { d: "M45.936,18.9a23.027,23.027,0,0,0-1.082-2.1L39.748,30.67a4.783,4.783,0,0,1-.837,1.42,8.943,8.943,0,0,0,7.464-12.115C46.239,19.609,46.093,19.253,45.936,18.9Z", fill: "currentColor" }),
+                                window.SP_REACT.createElement("path", { d: "M16.63,6.4A23.508,23.508,0,0,0,2.683,37.268c.031.063.052.125.083.188a8.935,8.935,0,0,0,15.662,1.526A16.713,16.713,0,0,1,26.165,32.7c.1-.04.2-.07.3-.107a6.186,6.186,0,0,1,3.859-3.453,4.865,4.865,0,0,1,.451-2.184l7.9-17.107A23.554,23.554,0,0,0,16.63,6.4ZM10.5,32.5a4,4,0,1,1,4-4A4,4,0,0,1,10.5,32.5Zm5-11.5a4,4,0,1,1,4-4A4,4,0,0,1,15.5,21Zm12-3.5a4,4,0,1,1,4-4A4,4,0,0,1,27.5,17.5Z", fill: "currentColor" }),
+                                window.SP_REACT.createElement("path", { d: "M45.478,4.151a1.858,1.858,0,0,0-2.4.938L32.594,27.794a2.857,2.857,0,0,0,.535,3.18,4.224,4.224,0,0,0-4.865,2.491c-1.619,3.91.942,5.625-.678,9.535a10.526,10.526,0,0,0,8.5-6.3,4.219,4.219,0,0,0-1.25-4.887,2.85,2.85,0,0,0,3.037-1.837l8.64-23.471A1.859,1.859,0,0,0,45.478,4.151Z", fill: "currentColor" }))))),
+                window.SP_REACT.createElement("div", { className: "_2X9_IsQsEJDpAd2JGrHdJI" }, "Themes")),
+            window.SP_REACT.createElement("div", { className: `MillenniumTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Updates ? "Myra7iGjzCdMPzitboVfh" : ""}`, onClick: () => componentUpdate(Renderer.Updates) },
+                window.SP_REACT.createElement("div", { className: "U6HcKswXzjmWtFxbjxuz4" },
+                    window.SP_REACT.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "1 1 18 18" },
+                        window.SP_REACT.createElement("rect", { x: "0", fill: "currentColor" }),
+                        window.SP_REACT.createElement("g", null,
+                            window.SP_REACT.createElement("path", { fill: "currentColor", d: "M5.7 9c.4-2 2.2-3.5 4.3-3.5 1.5 0 2.7.7 3.5 1.8l1.7-2C14 3.9 12.1 3 10 3 6.5 3 3.6 5.6 3.1 9H1l3.5 4L8 9H5.7zm9.8-2L12 11h2.3c-.5 2-2.2 3.5-4.3 3.5-1.5 0-2.7-.7-3.5-1.8l-1.7 1.9C6 16.1 7.9 17 10 17c3.5 0 6.4-2.6 6.9-6H19l-3.5-4z" })))),
+                window.SP_REACT.createElement("div", { className: "_2X9_IsQsEJDpAd2JGrHdJI" }, "Updates")),
+            window.SP_REACT.createElement("div", { className: "_1UEEmNDZ7Ta3enwTf5T0O0" })));
+    };
+    /**
+     * Hooks settings tabs components, and forces active overlayed panels to re-render
+     * @todo A better, more integrated way of doing this, that doesn't involve runtime patching.
+     */
+    const hookSettingsComponent = () => {
+        const elements = pluginSelf.settingsDoc.querySelectorAll('.bkfjn0yka2uHNqEvWZaTJ:not(.MillenniumTab)');
+        let processingItem = false;
+        elements.forEach((element, index) => {
+            element.addEventListener('click', function (_) {
+                if (processingItem)
+                    return;
+                pluginSelf.settingsDoc.querySelectorAll('._1UEEmNDZ7Ta3enwTf5T0O0').forEach((element) => element.classList.remove("SeoUZ6M01FoetLA2uCUtT"));
+                const click = new MouseEvent("click", { view: pluginSelf.settingsWnd, bubbles: true, cancelable: true });
+                try {
+                    processingItem = true;
+                    if (index + 1 <= elements.length)
+                        elements[index + 1].dispatchEvent(click);
+                    else
+                        elements[index - 2].dispatchEvent(click);
+                    elements[index].dispatchEvent(click);
+                    processingItem = false;
+                }
+                catch (error) {
+                    console.log(error);
+                }
+            });
+        });
     };
     function RenderSettingsModal(_context) {
         pluginSelf.settingsDoc = _context.m_popup.document;
-        console.log("SETTINGS PANEL DETECTED");
+        pluginSelf.settingsWnd = _context.m_popup.window;
         Millennium.findElement(_context.m_popup.document, "._EebF_xe4DGRZ9a0XkyDj.Panel").then(element => {
-            console.log(element);
+            hookSettingsComponent();
             // Create a new div element
-            var newDiv = document.createElement("div");
-            // Prepend the new div to the element
-            element[0].prepend(newDiv);
-            ReactDOM__default["default"].render(window.SP_REACT.createElement(PluginComponent, null), newDiv);
+            var bufferDiv = document.createElement("div");
+            element[0].prepend(bufferDiv);
+            ReactDOM__default["default"].render(window.SP_REACT.createElement(PluginComponent, null), bufferDiv);
         });
     }
 
     async function getTheme() {
         return new Promise(async (resolve, _reject) => {
-            const result = await csm("get_active_theme");
-            resolve(JSON.parse(result));
+            resolve(JSON.parse(await csm("get_active_theme")));
         });
     }
-    async function getConditionals() {
+    const getConditionals = () => {
         return new Promise(async (resolve, _reject) => {
-            const result = await csm("get_conditionals");
-            resolve(JSON.parse(result));
+            resolve(JSON.parse(await csm("get_conditionals")));
         });
-    }
-    async function getSystemColor() {
+    };
+    const getSystemColor = () => {
         return new Promise(async (resolve, _reject) => {
-            const result = await csm("get_accent_color");
-            resolve(JSON.parse(result));
+            resolve(JSON.parse(await csm("get_accent_color")));
         });
-    }
+    };
     async function getActive() {
-        return new Promise(async (resolve, _) => {
+        return new Promise(async (resolve, reject) => {
             const theme = await getTheme();
-            console.log(theme);
-            if (theme?.success == false) {
-                return;
-            }
-            if ("Patches" in theme.data) {
+            // failed to parse whatever theme was selected, or the default is active
+            theme?.failed && reject("default");
+            // evaluate overriden patch keys from default patches, if specified. 
+            if (theme?.data?.Patches !== undefined && theme?.data?.UseDefaultPatches) {
                 theme.data.Patches = parseTheme(theme.data.Patches);
             }
             resolve(theme);
         });
     }
-    function windowCreated(_context) {
-        const title = _context.m_strTitle;
+    function windowCreated(windowContext) {
+        const title = windowContext.m_strTitle;
         // @ts-ignore
         if (title == LocalizationManager.LocalizeString("#Settings_Title")) {
-            RenderSettingsModal(_context);
+            RenderSettingsModal(windowContext);
         }
         // @ts-ignore
         g_PopupManager.m_mapPopups.data_.forEach((element) => {
             if (element.value_.m_strName == 'SP Desktop_uid0') {
                 // main steam window popup sometimes doesn't get hooked. steam bug
                 if (element.value_.m_popup.window.HAS_INJECTED_THEME === undefined) {
-                    console.log("patching Steam window because it wasn't already");
-                    patch_context(element.value_);
+                    patchDocumentContext(element.value_);
                 }
             }
         });
-        patch_context(_context);
+        patchDocumentContext(windowContext);
     }
     // Entry point on the front end of your plugin
     async function PluginMain() {
-        const current = await getActive();
+        const current = await getActive().catch((_) => {
+            pluginSelf.isDefaultTheme = true;
+            return null;
+        });
+        pluginSelf.activeTheme = current;
         const conditionals = await getConditionals();
-        const col = await getSystemColor();
-        console.log('loaded with', current, "conditionals", conditionals);
-        console.log("system colors ->", col);
+        const systemColors = await getSystemColor();
         pluginSelf.systemColor = `
     :root {
-        --SystemAccentColor: ${col.accent};
-        --SystemAccentColorLight1: ${col.light1};
-        --SystemAccentColorLight2: ${col.light2};
-        --SystemAccentColorLight3: ${col.light3};
-        --SystemAccentColorDark1: ${col.dark1};
-        --SystemAccentColorDark2: ${col.dark2};
-        --SystemAccentColorDark3: ${col.dark3};
+        --SystemAccentColor: ${systemColors.accent};
+        --SystemAccentColorLight1: ${systemColors.light1};
+        --SystemAccentColorLight2: ${systemColors.light2};
+        --SystemAccentColorLight3: ${systemColors.light3};
+        --SystemAccentColorDark1: ${systemColors.dark1};
+        --SystemAccentColorDark2: ${systemColors.dark2};
+        --SystemAccentColorDark3: ${systemColors.dark3};
     }`;
         pluginSelf.activeTheme = current;
         pluginSelf.conditionals = conditionals;
@@ -423,7 +623,7 @@ var millennium_main = (function (exports, ReactDOM, react) {
 
     return exports;
 
-})({}, window.SP_REACTDOM, window.SP_REACT);
+})({}, window.SP_REACT, window.SP_REACTDOM);
 
 function globalize() {
 	Object.assign(window.PLUGIN_LIST[pluginName], millennium_main);

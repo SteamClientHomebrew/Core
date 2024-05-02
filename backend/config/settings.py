@@ -3,6 +3,7 @@ import os
 import json
 import io
 from api.themes_store import find_all_themes, is_valid
+from webkit.stack import WebkitStack, add_browser_css, add_browser_js
 
 def get_config() -> json:
 
@@ -52,21 +53,33 @@ def get_active_theme() -> str:
     active_theme = get_active_theme_name()
 
     if not is_valid(active_theme):
-        return '{"success": false}'
+        return '{"failed": true}'
 
     file_path = os.path.join(Millennium.steam_path(), "steamui", "skins", active_theme, "skin.json")
 
     with open(file_path, 'r') as file:
-        return json.dumps({"native-name": active_theme, "data": json.load(file)})
+        return json.dumps({"native": active_theme, "data": json.load(file)})
     
-    return '{"success": false}'
+    return '{"failed": true}'
 
-def change_theme(plugin_name: str) -> None:
+def change_theme(theme_name: str) -> None:
 
     config = get_config()
-    config["active"] = plugin_name
+    config["active"] = theme_name
 
     set_config(json.dumps(config, indent=4))
+
+    stack = WebkitStack()
+    stack.unregister_all() 
+
+    theme = json.loads(get_active_theme())
+    name = get_active_theme_name()
+    
+    if "Steam-WebKit" in theme["data"] and isinstance(theme["data"]["Steam-WebKit"], str):
+        print("pre-initiliazing browser css module")
+        add_browser_css(os.path.join(Millennium.steam_path(), "skins", name, theme["data"]["Steam-WebKit"]))
+
+
 
     
 

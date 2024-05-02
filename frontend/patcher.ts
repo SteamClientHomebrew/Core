@@ -1,117 +1,152 @@
 import { pluginSelf } from "./millennium";
+import { CommonPatchTypes, ConditionalControlFlow, ConditionalControlFlowType, ConditionalPatch, Conditions, ConditionsStore, Patch, Theme, ThemeItem } from "./types/theme";
 
-function parseTheme(incomingPatches: any) {
+const DOMModifier = {
+    /**
+     * Append a StyleSheet to DOM from raw text
+     * @param document Target document to append StyleSheet to
+     * @param innerStyle string encoded CSS
+     * @param id HTMLElement id
+     */
+    AddStyleSheetFromText: (document: Document, innerStyle: string, id: string) => {
+        document.head.appendChild(Object.assign(document.createElement('style'), { id: id })).innerText = innerStyle
+    },
+    /**
+     * Append a StyleSheet to DOM from loopbackhost or absolute URI
+     * @param document Target document to append StyleSheet to
+     * @param localPath relative/absolute path to CSS module
+     */
+    AddStyleSheet: (document: Document, localPath: string) => {
+        document.head.appendChild(Object.assign(document.createElement('link'), { 
+            href: localPath, 
+            rel: 'stylesheet', id: 'millennium-injected' 
+        }));
+    },
+    /**
+     * Append a JavaScript module to DOM from loopbackhost or absolute URI
+     * @param document Target document to append JavaScript to
+     * @param localPath relative/absolute path to CSS module
+     */
+    AddJavaScript: (document: Document, localPath: string) => {
+        document.head.appendChild(Object.assign(document.createElement('script'), { 
+            src: localPath, 
+            type: 'module', id: 'millennium-injected' 
+        }));
+    }
+}
 
-    let patches: any = {
+/**
+ * Interpolates and overrides default patches on a theme. 
+ * @param incomingPatches Preprocessed list of patches from a specific theme
+ * @returns Processed patches, interpolated with default patches
+ */
+function parseTheme(incomingPatches: Patch[]) {
+
+    let patches: Theme = {
         Patches: [
-            // { MatchRegexString: ".*http.*steam.*", TargetCss: "webkit.css", TargetJs: "webkit.js" },
-            { MatchRegexString: "^Steam$", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
+            { MatchRegexString: "^Steam$",                  TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
             { MatchRegexString: "^OverlayBrowser_Browser$", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
-            { MatchRegexString: "^SP Overlay:", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
-            { MatchRegexString: "Menu$", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
-            { MatchRegexString: "Supernav$", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
-            { MatchRegexString: "^notificationtoasts_", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
-            { MatchRegexString: "^SteamBrowser_Find$", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
-            { MatchRegexString: "^OverlayTab\\d+_Find$", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
-            { MatchRegexString: "^Steam Big Picture Mode$", TargetCss: "bigpicture.custom.css", TargetJs: "bigpicture.custom.js" },
-            { MatchRegexString: "^QuickAccess_", TargetCss: "bigpicture.custom.css", TargetJs: "bigpicture.custom.js" },
-            { MatchRegexString: "^MainMenu_", TargetCss: "bigpicture.custom.css", TargetJs: "bigpicture.custom.js" },
-            { MatchRegexString: ".friendsui-container", TargetCss: "friends.custom.css", TargetJs: "friends.custom.js" },
-            { MatchRegexString: ".ModalDialogPopup", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
-            { MatchRegexString: ".FullModalOverlay", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" }
+            { MatchRegexString: "^SP Overlay:",             TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
+            { MatchRegexString: "Menu$",                    TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
+            { MatchRegexString: "Supernav$",                TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
+            { MatchRegexString: "^notificationtoasts_",     TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
+            { MatchRegexString: "^SteamBrowser_Find$",      TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
+            { MatchRegexString: "^OverlayTab\\d+_Find$",    TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
+            { MatchRegexString: "^Steam Big Picture Mode$", TargetCss: "bigpicture.custom.css",  TargetJs: "bigpicture.custom.js"  },
+            { MatchRegexString: "^QuickAccess_",            TargetCss: "bigpicture.custom.css",  TargetJs: "bigpicture.custom.js"  },
+            { MatchRegexString: "^MainMenu_",               TargetCss: "bigpicture.custom.css",  TargetJs: "bigpicture.custom.js"  },
+            { MatchRegexString: ".friendsui-container",     TargetCss: "friends.custom.css",     TargetJs: "friends.custom.js"     },
+            { MatchRegexString: ".ModalDialogPopup",        TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
+            { MatchRegexString: ".FullModalOverlay",        TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" }
         ]
     };
     
-    let newMatchRegexStrings = new Set(incomingPatches.map((patch: any) => patch.MatchRegexString));
-    let filteredPatches = patches.Patches.filter((patch: any) => !newMatchRegexStrings.has(patch.MatchRegexString));
-    let updatedPatches = filteredPatches.concat(incomingPatches);
+    let newMatchRegexStrings: Set<string> = new Set(incomingPatches.map((patch: Patch) => patch.MatchRegexString));
+    let filteredPatches: Patch[] = patches.Patches.filter((patch: Patch) => !newMatchRegexStrings.has(patch.MatchRegexString));
 
-    return updatedPatches;
+    return filteredPatches.concat(incomingPatches) as Patch[];
 }
 
-function get_path(nativeName: string, relativePath: string) {
+function constructThemePath(nativeName: string, relativePath: string) {
     return `skins/${nativeName}/${relativePath}`
 }
 
-function patch_context(_context: any) 
-{
-    const theme = pluginSelf.activeTheme
-    const m_doc = _context.m_popup.document    
-    const classes = (_context.m_rgParams.html_class || _context.m_rgParams.body_class || '').split(' ').map((className: string) => '.' + className);
-    const title = _context.m_strTitle
+const evaluatePatch = (type: ConditionalControlFlowType, modulePatch: ConditionalControlFlow, documentTitle: string, classList: string[], document: Document) => {
 
-    m_doc.head.appendChild(Object.assign(m_doc.createElement('style'), { 
-        id: 'SystemAccentColorInject' 
-    })).innerText = pluginSelf.systemColor.replace(/\s/g, ''); // append system colors to the DOM
-
-    if (theme.data.hasOwnProperty("Patches")) {
-        theme.data.Patches.forEach((patch: any) => {
-            const match = title.match(patch.MatchRegexString) || classes.includes(patch.MatchRegexString)
-
-            if (title == "Steam") {
-                _context.m_popup.window.HAS_INJECTED_THEME = true
-            }
-
-            if (match) {
-                console.log("patched", title)
-
-                if ("TargetCss" in patch) {
-                    m_doc.head.appendChild(Object.assign(m_doc.createElement('link'), { 
-                        href: get_path(theme["native-name"], patch.TargetCss), 
-                        rel: 'stylesheet', id: 'millennium-injected' 
-                    }));
-                }
-                if ("TargetJs" in patch) {
-                    m_doc.head.appendChild(Object.assign(m_doc.createElement('script'), { 
-                        src: get_path(theme["native-name"], patch.TargetJs), 
-                        type: 'module', id: 'millennium-injected' 
-                    }));
-                }
-            }
-        });
+    if ((modulePatch as any)[CommonPatchTypes[type]] === undefined) {
+        return 
     }
 
-    // console.log(pluginSelf.conditionals)
+    ((modulePatch as any)[CommonPatchTypes[type]] as ConditionalPatch).affects.forEach((affectee: string) => {
 
-    if (theme.data.hasOwnProperty("Conditions")) { 
+        if (!documentTitle.match(affectee) && !classList.includes(affectee)) {
+            return 
+        }
 
-        const conditionals_t = theme.data.Conditions
-        const saved = pluginSelf.conditionals[theme["native-name"]]
+        switch (type) {
+            case ConditionalControlFlowType.TargetCss: {
+                DOMModifier.AddStyleSheet(document, constructThemePath(pluginSelf.activeTheme.native, (modulePatch as any)[CommonPatchTypes[type]].src))  
+            }   
+            case ConditionalControlFlowType.TargetJs: {
+                DOMModifier.AddJavaScript(document, constructThemePath(pluginSelf.activeTheme.native, (modulePatch as any)[CommonPatchTypes[type]].src))
+            }     
+        }  
+    });
+}
 
-        for (const key in conditionals_t) {
-            if (conditionals_t.hasOwnProperty(key)) {
-                if (key in saved) {
-                    const patch = conditionals_t[key].values[saved[key]]
-                    if ("TargetCss" in patch) {
+const evaluateConditions = (theme: ThemeItem, title: string, classes: string[], document: Document): void => {
 
-                        const css = patch.TargetCss
-                        css.affects.forEach((affectee: any) => {
-                            if (title.match(affectee) || classes.includes(affectee)) {
-                                // console.log("INJECTING", css.src, "INTO", title)
-                                m_doc.head.appendChild(Object.assign(m_doc.createElement('link'), { 
-                                    href: get_path(theme["native-name"], css.src), 
-                                    rel: 'stylesheet', id: 'millennium-injected' 
-                                }));
-                            }
-                        });
-                    }
-                    if ("TargetJs" in patch) {
+    const themeConditions: Conditions = theme.data.Conditions
+    const savedConditions: ConditionsStore = pluginSelf.conditionals[theme.native]
 
-                        const js = patch.TargetJs
-                        js.affects.forEach((affectee: any) => {
-                            if (title.match(affectee) || classes.includes(affectee)) {
-                                // console.log("INJECTING", js.src, "INTO", title)
-                                m_doc.head.appendChild(Object.assign(m_doc.createElement('script'), { 
-                                    src: get_path(theme["native-name"], js.src), 
-                                    type: 'module', id: 'millennium-injected' 
-                                }));
-                            }
-                        });
-                    }
-                }
-            }
+    for (const condition in themeConditions) {
+
+        if (!themeConditions.hasOwnProperty(condition)) {
+            return 
+        }
+
+        if (condition in savedConditions) {
+            const patch = themeConditions[condition].values[savedConditions[condition]]
+
+            evaluatePatch(ConditionalControlFlowType.TargetCss, patch, title, classes, document)
+            evaluatePatch(ConditionalControlFlowType.TargetJs, patch, title, classes, document)
         }
     }
 }
 
-export { parseTheme, patch_context }
+const evaluatePatches = (activeTheme: ThemeItem, documentTitle: string, classList: string[], document: Document, context: any) => {
+    activeTheme.data.Patches.forEach((patch: Patch) => {
+
+        context.m_popup.window.HAS_INJECTED_THEME = documentTitle === "Steam"
+        if (!documentTitle.match(patch.MatchRegexString) && !classList.includes(patch.MatchRegexString)) {
+            return 
+        }
+        
+        patch?.TargetCss !== undefined && DOMModifier.AddStyleSheet(document, constructThemePath(activeTheme.native, patch.TargetCss))
+        patch?.TargetJs !== undefined && DOMModifier.AddJavaScript(document, constructThemePath(activeTheme.native, patch.TargetJs))
+    });
+}
+
+const getDocumentClassList = (context: any): string[] => {
+    return (context.m_rgParams.html_class || context.m_rgParams.body_class || '').split(' ').map((className: string) => '.' + className)
+}
+
+function patchDocumentContext(windowContext: any) 
+{
+    if (pluginSelf.isDefaultTheme) {
+        return
+    }
+
+    const activeTheme: ThemeItem = pluginSelf.activeTheme
+    const document: Document     = windowContext.m_popup.document    
+    const classList: string[]    = getDocumentClassList(windowContext);
+    const documentTitle: string  = windowContext.m_strTitle
+
+    // Append System Accent Colors to global document (publically shared)
+    DOMModifier.AddStyleSheetFromText(document, pluginSelf.systemColor, "SystemAccentColorInject")
+
+    activeTheme.data.hasOwnProperty("Patches") && evaluatePatches(activeTheme, documentTitle, classList, document, windowContext)
+    activeTheme.data.hasOwnProperty("Conditions") && evaluateConditions(activeTheme, documentTitle, classList, document)
+}
+
+export { parseTheme, patchDocumentContext }

@@ -1,77 +1,130 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import { PluginViewModal } from './panels/plugins'
-import { ThemeViewModal } from './panels/themes'
+import { PluginViewModal } from './router/plugins'
+import { ThemeViewModal } from './router/themes'
+import { UpdatesViewModal } from './router/updates'
 import { Millennium, pluginSelf } from '../millennium';
 
 enum Renderer {
-  Plugins,
-  Themes,
+	Plugins,
+	Themes,
+	Updates,
+	Unset
 }
 
 const RenderViewComponent = (componentType: Renderer): any => {
-  Millennium.findElement(pluginSelf.settingsDoc, ".DialogContent_InnerWidth").then(element => { 
+	Millennium.findElement(pluginSelf.settingsDoc, ".DialogContent_InnerWidth").then(element => { 
 
-    switch (componentType) {
-      case Renderer.Plugins:   
-        ReactDOM.render(<PluginViewModal/>, element[0]);
-        break;   
-      case Renderer.Themes:
-        ReactDOM.render(<ThemeViewModal/>, element[0]);
-        break;  
-    }
-  })
+		switch (componentType) {
+			case Renderer.Plugins:   
+				ReactDOM.render(<PluginViewModal/>, element[0]);
+				break;   
+			case Renderer.Themes:
+				ReactDOM.render(<ThemeViewModal/>, element[0]);
+				break;  
+			case Renderer.Updates:
+				ReactDOM.render(<UpdatesViewModal/>, element[0]);
+				break;  
+		}
+	})
 }
 
 const PluginComponent: React.FC = () => {
-    console.log("SETTINGS PANEL DETECTED");
 
-    const pluginClick = () => {
-      RenderViewComponent(Renderer.Plugins);
-    };
+	const [selected, setSelected] = useState<Renderer>();
+	const nativeTabs = pluginSelf.settingsDoc.querySelectorAll(".bkfjn0yka2uHNqEvWZaTJ:not(.MillenniumTab)")
 
-    const themeClick = () => {
-      RenderViewComponent(Renderer.Themes);
-    };
+	nativeTabs.forEach((element: HTMLElement) => element.onclick = () => setSelected(Renderer.Unset));
 
-    return (
-      <>
-        <div className="bkfjn0yka2uHNqEvWZaTJ" onClick={pluginClick}>
-          <div className="U6HcKswXzjmWtFxbjxuz4">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">
-              <path d="M18 26V31H2V26C2 23.8783 2.84285 21.8434 4.34315 20.3431C5.84344 18.8429 7.87827 18 10 18C12.1217 18 14.1566 18.8429 15.6569 20.3431C17.1571 21.8434 18 23.8783 18 26ZM10 15C10.89 15 11.76 14.7361 12.5001 14.2416C13.2401 13.7471 13.8169 13.0443 14.1575 12.2221C14.4981 11.3998 14.5872 10.495 14.4135 9.6221C14.2399 8.74918 13.8113 7.94736 13.182 7.31802C12.5526 6.68868 11.7508 6.2601 10.8779 6.08647C10.005 5.91283 9.10019 6.00195 8.27792 6.34254C7.45566 6.68314 6.75285 7.25991 6.25839 7.99994C5.76392 8.73996 5.5 9.60999 5.5 10.5C5.49868 11.0913 5.61418 11.6771 5.83986 12.2236C6.06554 12.7702 6.39695 13.2668 6.81508 13.6849C7.23321 14.103 7.72981 14.4345 8.27637 14.6601C8.82293 14.8858 9.40868 15.0013 10 15ZM31.66 18.34C30.8643 17.5434 29.9094 16.9238 28.8578 16.5216C27.8062 16.1194 26.6815 15.9437 25.5574 16.006C24.4332 16.0683 23.3348 16.3672 22.3341 16.8831C21.3334 17.399 20.4528 18.1204 19.75 19C21.2201 21.0373 22.0077 23.4877 22 26V29H34V24C34.0008 22.9491 33.7946 21.9084 33.3931 20.9372C32.9916 19.966 32.4027 19.0835 31.66 18.34ZM26 13C26.89 13 27.76 12.7361 28.5001 12.2416C29.2401 11.7471 29.8169 11.0443 30.1575 10.2221C30.4981 9.39981 30.5872 8.49501 30.4135 7.6221C30.2399 6.74918 29.8113 5.94736 29.182 5.31802C28.5526 4.68868 27.7508 4.2601 26.8779 4.08647C26.005 3.91283 25.1002 4.00195 24.2779 4.34254C23.4557 4.68314 22.7529 5.25991 22.2584 5.99994C21.7639 6.73996 21.5 7.60999 21.5 8.5C21.4987 9.09132 21.6142 9.67708 21.8399 10.2236C22.0655 10.7702 22.397 11.2668 22.8151 11.6849C23.2332 12.103 23.7298 12.4345 24.2764 12.6601C24.8229 12.8858 25.4087 13.0013 26 13Z" fill="currentColor"></path>
-            </svg>
-          </div>
-          <div className="_2X9_IsQsEJDpAd2JGrHdJI">Plugins</div>
-        </div>
-        <div className="bkfjn0yka2uHNqEvWZaTJ " onClick={themeClick}>
-          <div className="U6HcKswXzjmWtFxbjxuz4">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">
-              <path d="M18 26V31H2V26C2 23.8783 2.84285 21.8434 4.34315 20.3431C5.84344 18.8429 7.87827 18 10 18C12.1217 18 14.1566 18.8429 15.6569 20.3431C17.1571 21.8434 18 23.8783 18 26ZM10 15C10.89 15 11.76 14.7361 12.5001 14.2416C13.2401 13.7471 13.8169 13.0443 14.1575 12.2221C14.4981 11.3998 14.5872 10.495 14.4135 9.6221C14.2399 8.74918 13.8113 7.94736 13.182 7.31802C12.5526 6.68868 11.7508 6.2601 10.8779 6.08647C10.005 5.91283 9.10019 6.00195 8.27792 6.34254C7.45566 6.68314 6.75285 7.25991 6.25839 7.99994C5.76392 8.73996 5.5 9.60999 5.5 10.5C5.49868 11.0913 5.61418 11.6771 5.83986 12.2236C6.06554 12.7702 6.39695 13.2668 6.81508 13.6849C7.23321 14.103 7.72981 14.4345 8.27637 14.6601C8.82293 14.8858 9.40868 15.0013 10 15ZM31.66 18.34C30.8643 17.5434 29.9094 16.9238 28.8578 16.5216C27.8062 16.1194 26.6815 15.9437 25.5574 16.006C24.4332 16.0683 23.3348 16.3672 22.3341 16.8831C21.3334 17.399 20.4528 18.1204 19.75 19C21.2201 21.0373 22.0077 23.4877 22 26V29H34V24C34.0008 22.9491 33.7946 21.9084 33.3931 20.9372C32.9916 19.966 32.4027 19.0835 31.66 18.34ZM26 13C26.89 13 27.76 12.7361 28.5001 12.2416C29.2401 11.7471 29.8169 11.0443 30.1575 10.2221C30.4981 9.39981 30.5872 8.49501 30.4135 7.6221C30.2399 6.74918 29.8113 5.94736 29.182 5.31802C28.5526 4.68868 27.7508 4.2601 26.8779 4.08647C26.005 3.91283 25.1002 4.00195 24.2779 4.34254C23.4557 4.68314 22.7529 5.25991 22.2584 5.99994C21.7639 6.73996 21.5 7.60999 21.5 8.5C21.4987 9.09132 21.6142 9.67708 21.8399 10.2236C22.0655 10.7702 22.397 11.2668 22.8151 11.6849C23.2332 12.103 23.7298 12.4345 24.2764 12.6601C24.8229 12.8858 25.4087 13.0013 26 13Z" fill="currentColor"></path>
-            </svg>
-          </div>
-          <div className="_2X9_IsQsEJDpAd2JGrHdJI">Themes</div>
-        </div>
-      </>
-    );
+	const componentUpdate = (type: Renderer) => {
+		RenderViewComponent(type);
+		setSelected(type)
+		nativeTabs.forEach((element: HTMLElement) => {
+		element.classList.remove("Myra7iGjzCdMPzitboVfh");
+		});
+	}
+
+	return (
+		<>
+		<div className={`MillenniumTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Plugins ? "Myra7iGjzCdMPzitboVfh" : ""}`} onClick={() => componentUpdate(Renderer.Plugins)}>
+			<div className="U6HcKswXzjmWtFxbjxuz4">
+			<svg version="1.1" id="Icons" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 32 32" xmlSpace="preserve">
+				<g>
+					<path d="M18.3,17.3L15,20.6L11.4,17l3.3-3.3c0.4-0.4,0.4-1,0-1.4s-1-0.4-1.4,0L10,15.6l-1.3-1.3c-0.4-0.4-1-0.4-1.4,0s-0.4,1,0,1.4 L7.6,16l-2.8,2.8C3.6,19.9,3,21.4,3,23c0,1.3,0.4,2.4,1.1,3.5l-2.8,2.8c-0.4,0.4-0.4,1,0,1.4C1.5,30.9,1.7,31,2,31s0.5-0.1,0.7-0.3 l2.8-2.8C6.5,28.6,7.7,29,9,29c1.6,0,3.1-0.6,4.2-1.7l2.8-2.8l0.3,0.3c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3 c0.4-0.4,0.4-1,0-1.4L16.4,22l3.3-3.3c0.4-0.4,0.4-1,0-1.4S18.7,16.9,18.3,17.3z"  fill="currentColor"></path>
+					<path d="M30.7,1.3c-0.4-0.4-1-0.4-1.4,0l-2.8,2.8C25.5,3.4,24.3,3,23,3c-1.6,0-3.1,0.6-4.2,1.7l-3.5,3.5c-0.4,0.4-0.4,1,0,1.4l7,7 c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3l3.5-3.5C28.4,12.1,29,10.6,29,9c0-1.3-0.4-2.4-1.1-3.5l2.8-2.8 C31.1,2.3,31.1,1.7,30.7,1.3z" fill="currentColor"></path>
+				</g>
+			</svg>
+			</div>
+			<div className="_2X9_IsQsEJDpAd2JGrHdJI">Plugins</div>
+		</div>
+		<div className={`MillenniumTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Themes ? "Myra7iGjzCdMPzitboVfh" : ""}`} onClick={() => componentUpdate(Renderer.Themes)}>
+			<div className="U6HcKswXzjmWtFxbjxuz4">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+				<g id="_21_-_30" data-name="21 - 30">
+					<g id="Art">
+						<path d="M45.936,18.9a23.027,23.027,0,0,0-1.082-2.1L39.748,30.67a4.783,4.783,0,0,1-.837,1.42,8.943,8.943,0,0,0,7.464-12.115C46.239,19.609,46.093,19.253,45.936,18.9Z" fill="currentColor"/>
+						<path d="M16.63,6.4A23.508,23.508,0,0,0,2.683,37.268c.031.063.052.125.083.188a8.935,8.935,0,0,0,15.662,1.526A16.713,16.713,0,0,1,26.165,32.7c.1-.04.2-.07.3-.107a6.186,6.186,0,0,1,3.859-3.453,4.865,4.865,0,0,1,.451-2.184l7.9-17.107A23.554,23.554,0,0,0,16.63,6.4ZM10.5,32.5a4,4,0,1,1,4-4A4,4,0,0,1,10.5,32.5Zm5-11.5a4,4,0,1,1,4-4A4,4,0,0,1,15.5,21Zm12-3.5a4,4,0,1,1,4-4A4,4,0,0,1,27.5,17.5Z" fill="currentColor"/>
+						<path d="M45.478,4.151a1.858,1.858,0,0,0-2.4.938L32.594,27.794a2.857,2.857,0,0,0,.535,3.18,4.224,4.224,0,0,0-4.865,2.491c-1.619,3.91.942,5.625-.678,9.535a10.526,10.526,0,0,0,8.5-6.3,4.219,4.219,0,0,0-1.25-4.887,2.85,2.85,0,0,0,3.037-1.837l8.64-23.471A1.859,1.859,0,0,0,45.478,4.151Z" fill="currentColor"/>
+					</g>
+				</g>
+			</svg>
+			</div>
+			<div className="_2X9_IsQsEJDpAd2JGrHdJI">Themes</div>
+		</div>
+		<div className={`MillenniumTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Updates ? "Myra7iGjzCdMPzitboVfh" : ""}`} onClick={() => componentUpdate(Renderer.Updates)}>
+			<div className="U6HcKswXzjmWtFxbjxuz4">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="1 1 18 18">
+				<rect x="0" fill="currentColor"/>
+				<g><path fill="currentColor" d="M5.7 9c.4-2 2.2-3.5 4.3-3.5 1.5 0 2.7.7 3.5 1.8l1.7-2C14 3.9 12.1 3 10 3 6.5 3 3.6 5.6 3.1 9H1l3.5 4L8 9H5.7zm9.8-2L12 11h2.3c-.5 2-2.2 3.5-4.3 3.5-1.5 0-2.7-.7-3.5-1.8l-1.7 1.9C6 16.1 7.9 17 10 17c3.5 0 6.4-2.6 6.9-6H19l-3.5-4z"/></g>
+				</svg>
+			</div>
+			<div className="_2X9_IsQsEJDpAd2JGrHdJI">Updates</div>
+		</div>
+		<div className="_1UEEmNDZ7Ta3enwTf5T0O0"></div>
+		</>
+	);
+}
+
+/**
+ * Hooks settings tabs components, and forces active overlayed panels to re-render
+ * @todo A better, more integrated way of doing this, that doesn't involve runtime patching. 
+ */
+const hookSettingsComponent = () => {
+	const elements = pluginSelf.settingsDoc.querySelectorAll('.bkfjn0yka2uHNqEvWZaTJ:not(.MillenniumTab)');
+	let processingItem = false;
+
+	elements.forEach((element: HTMLElement, index: number) => {
+		element.addEventListener('click', function(_: any) {
+
+			if (processingItem) return
+			pluginSelf.settingsDoc.querySelectorAll('._1UEEmNDZ7Ta3enwTf5T0O0').forEach((element: HTMLElement) => element.classList.remove("SeoUZ6M01FoetLA2uCUtT"))
+			const click = new MouseEvent("click", { view: pluginSelf.settingsWnd, bubbles: true, cancelable: true })
+
+			try {
+				processingItem = true;
+				if (index + 1 <= elements.length) elements[index + 1].dispatchEvent(click); else elements[index - 2].dispatchEvent(click);
+				
+				elements[index].dispatchEvent(click);
+				processingItem = false;
+			}
+			catch (error) { console.log(error) }
+		});
+	})
 }
 
 function RenderSettingsModal(_context: any) 
 {
-    pluginSelf.settingsDoc = _context.m_popup.document
-    console.log("SETTINGS PANEL DETECTED")
+	pluginSelf.settingsDoc = _context.m_popup.document
+	pluginSelf.settingsWnd = _context.m_popup.window
 
-    Millennium.findElement(_context.m_popup.document, "._EebF_xe4DGRZ9a0XkyDj.Panel").then(element => {
-      console.log(element)
+	Millennium.findElement(_context.m_popup.document, "._EebF_xe4DGRZ9a0XkyDj.Panel").then(element => {
+		hookSettingsComponent()
+		// Create a new div element
+		var bufferDiv = document.createElement("div");
+		element[0].prepend(bufferDiv);
 
-      // Create a new div element
-      var newDiv = document.createElement("div");
-
-      // Prepend the new div to the element
-      element[0].prepend(newDiv);
-
-      ReactDOM.render(<PluginComponent />, newDiv);
-    })
+		ReactDOM.render(<PluginComponent />, bufferDiv);
+	})
 }
 
 export { RenderSettingsModal }

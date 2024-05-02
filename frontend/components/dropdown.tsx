@@ -44,9 +44,9 @@ export const Dropdown = Object.values(CommonUIModule).find(
 
 export interface DropdownItemProps extends DropdownProps, ItemProps {}
 
-Object.values(CommonUIModule).find((mod: any) =>
-    console.log(mod?.toString()),
-);
+// Object.values(CommonUIModule).find((mod: any) =>
+//     console.log(mod?.toString()),
+// );
 
 export const DropdownItem = Object.values(CommonUIModule).find((mod: any) =>
   mod?.toString()?.includes('"dropDownControlRef","description"'),
