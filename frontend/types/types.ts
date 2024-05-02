@@ -1,4 +1,4 @@
-import { SingleDropdownOption } from '../components/dropdown'
+import { SingleDropdownOption } from 'millennium-lib'
 
 export interface Patch {
     MatchRegexString: string, 
@@ -86,4 +86,30 @@ export interface ThemeItem {
  */
 export interface ComboItem extends SingleDropdownOption {
     theme: ThemeItem
+}
+
+export interface Plugin {
+    common_name?: string, 
+    name: string,
+    description?: string,
+    venv?: string
+}
+
+export interface PluginComponent {
+    path: string,
+    enabled: boolean,
+    data: Plugin
+}
+
+/**
+ * SystemAccentColor, High-level abstraction derived from the backend. 
+ */
+export interface SystemAccentColor {
+    accent: string, 
+    light1: string, 
+    light2: string, 
+    light3: string, 
+    dark1: string, 
+    dark2: string, 
+    dark3: string, 
 }

@@ -18,6 +18,113 @@ var millennium_main = (function (exports, react, ReactDOM) {
 
     var ReactDOM__default = /*#__PURE__*/_interopDefaultLegacy(ReactDOM);
 
+    let webpackCache = {};
+    const id = Math.random();
+    let initReq;
+    window.webpackChunksteamui.push([
+        [id],
+        {},
+        (r) => {
+            initReq = r;
+        },
+    ]);
+    for (let i of Object.keys(initReq.m)) {
+        try {
+            webpackCache[i] = initReq(i);
+        }
+        catch (e) {
+            console.debug("[DFL:Webpack]: Ignoring require error for module", i, e);
+        }
+    }
+    const allModules = Object.values(webpackCache).filter((x) => x);
+    const findModule = (filter) => {
+        for (const m of allModules) {
+            if (m.default && filter(m.default))
+                return m.default;
+            if (filter(m))
+                return m;
+        }
+    };
+    const findAllModules = (filter) => {
+        const out = [];
+        for (const m of allModules) {
+            if (m.default && filter(m.default))
+                out.push(m.default);
+            if (filter(m))
+                out.push(m);
+        }
+        return out;
+    };
+    const CommonUIModule = allModules.find((m) => {
+        if (typeof m !== 'object')
+            return false;
+        for (let prop in m) {
+            if (m[prop]?.contextType?._currentValue && Object.keys(m).length > 60)
+                return true;
+        }
+        return false;
+    });
+    const IconsModule = findModule((m) => {
+        if (typeof m !== 'object')
+            return false;
+        for (let prop in m) {
+            if (m[prop]?.toString && /Spinner\)}\),.\.createElement\(\"path\",{d:\"M18 /.test(m[prop].toString()))
+                return true;
+        }
+        return false;
+    });
+    allModules.find((m) => {
+        if (typeof m !== 'object')
+            return undefined;
+        for (let prop in m) {
+            if (m[prop]?.computeRootMatch)
+                return true;
+        }
+        return false;
+    });
+
+    const CommonDialogDivs = Object.values(CommonUIModule).filter((m) => typeof m === 'object' && m?.render?.toString().includes('"div",Object.assign({},'));
+    const MappedDialogDivs = new Map(Object.values(CommonDialogDivs).map((m) => {
+        const renderedDiv = m.render({});
+        // Take only the first class name segment as it identifies the element we want
+        return [renderedDiv.props.className.split(' ')[0], m];
+    }));
+    const DialogHeader = MappedDialogDivs.get('DialogHeader');
+    const DialogSubHeader = MappedDialogDivs.get('DialogSubHeader');
+    MappedDialogDivs.get('DialogFooter');
+    MappedDialogDivs.get('DialogLabel');
+    const DialogBodyText = MappedDialogDivs.get('DialogBodyText');
+    const DialogBody = MappedDialogDivs.get('DialogBody');
+    MappedDialogDivs.get('DialogControlsSection');
+    MappedDialogDivs.get('DialogControlsSectionHeader');
+    Object.values(CommonUIModule).find((mod) => mod?.render?.toString()?.includes('DialogButton') && mod?.render?.toString()?.includes('Primary'));
+    Object.values(CommonUIModule).find((mod) => mod?.render?.toString()?.includes('Object.assign({type:"button"') &&
+        mod?.render?.toString()?.includes('DialogButton') &&
+        mod?.render?.toString()?.includes('Secondary'));
+
+    const Dropdown = Object.values(CommonUIModule).find((mod) => mod?.prototype?.SetSelectedOption && mod?.prototype?.BuildMenu);
+    Object.values(CommonUIModule).find((mod) => mod?.toString()?.includes('"dropDownControlRef","description"'));
+
+    const Toggle = Object.values(CommonUIModule).find((mod) => mod?.render?.toString()?.includes('.ToggleOff)'));
+
+    const classMapList = findAllModules((m) => {
+        if (typeof m == "object" && !m.__esModule) {
+            const keys = Object.keys(m);
+            // special case some libraries
+            if (keys.length == 1 && m.version)
+                return false;
+            // special case localization
+            if (keys.length > 1000 && m.AboutSettings)
+                return false;
+            return keys.length > 0 && keys.every(k => !Object.getOwnPropertyDescriptor(m, k)?.get && typeof m[k] == "string");
+        }
+        return false;
+    });
+    const classMap = Object.assign({}, ...classMapList.map(obj => Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, value]))));
+    function findClass(name) {
+        return classMapList.find(m => m?.[name])?.[name];
+    }
+
     // Control what window controls are exposed. 
     var WindowControls;
     (function (WindowControls) {
@@ -25,17 +132,14 @@ var millennium_main = (function (exports, react, ReactDOM) {
         WindowControls[WindowControls["Maximize"] = 2] = "Maximize";
         WindowControls[WindowControls["Close"] = 4] = "Close";
     })(WindowControls || (WindowControls = {}));
-    /*
-    pluginSelf is a sandbox for data specific to your plugin.
-    You can't access other plugins sandboxes and they can't access yours
-
-    ex:
-        pluginSelf.var = "Hello"
-        console.log(pluginSelf.var) -> Hello
-        
-    notes:
-        pluginSelf can be refrenced from any js/ts file and its guaranteed to be the same object
-    */
+    /**
+     * pluginSelf is a sandbox for data specific to your plugin.
+     * You can't access other plugins sandboxes and they can't access yours
+     *
+     * example:
+     * | pluginSelf.var = "Hello"
+     * | console.log(pluginSelf.var) -> Hello
+     */
     const pluginSelf = window.PLUGIN_LIST[pluginName];
     const Millennium = window.Millennium;
     Millennium.exposeObj = function (obj) {
@@ -176,7 +280,14 @@ var millennium_main = (function (exports, react, ReactDOM) {
         activeTheme.data.hasOwnProperty("Conditions") && evaluateConditions(activeTheme, documentTitle, classList, document);
     }
 
-    const EditPlugin = () => {
+    const isEditablePlugin = (plugin_name) => {
+        return window.PLUGIN_LIST && window.PLUGIN_LIST[plugin_name]
+            && typeof window.PLUGIN_LIST[plugin_name].renderPluginSettings === 'function' ? true : false;
+    };
+    const EditPlugin = ({ plugin }) => {
+        if (!isEditablePlugin(plugin?.data?.name)) {
+            return window.SP_REACT.createElement(window.SP_REACT.Fragment, null);
+        }
         return (window.SP_REACT.createElement("div", { className: "_1WKUOT3FdB9-48MMP0Tz9l Focusable", style: { marginTop: 0, marginLeft: 0, marginRight: 15 }, tabIndex: 0 },
             window.SP_REACT.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 36 36", fill: "none" },
                 window.SP_REACT.createElement("path", { d: "M21.75 18C21.75 18.7417 21.5301 19.4667 21.118 20.0834C20.706 20.7001 20.1203 21.1807 19.4351 21.4645C18.7498 21.7484 17.9958 21.8226 17.2684 21.6779C16.541 21.5332 15.8728 21.1761 15.3484 20.6517C14.8239 20.1272 14.4668 19.459 14.3221 18.7316C14.1774 18.0042 14.2516 17.2502 14.5355 16.5649C14.8193 15.8797 15.2999 15.294 15.9166 14.882C16.5333 14.4699 17.2583 14.25 18 14.25C18.9946 14.25 19.9484 14.6451 20.6517 15.3483C21.3549 16.0516 21.75 17.0054 21.75 18ZM6 14.25C5.25832 14.25 4.5333 14.4699 3.91661 14.882C3.29993 15.294 2.81928 15.8797 2.53545 16.5649C2.25162 17.2502 2.17736 18.0042 2.32206 18.7316C2.46675 19.459 2.8239 20.1272 3.34835 20.6517C3.8728 21.1761 4.54098 21.5332 5.26841 21.6779C5.99584 21.8226 6.74984 21.7484 7.43506 21.4645C8.12029 21.1807 8.70596 20.7001 9.11801 20.0834C9.53007 19.4667 9.75 18.7417 9.75 18C9.75 17.0054 9.35491 16.0516 8.65165 15.3483C7.94839 14.6451 6.99456 14.25 6 14.25ZM30 14.25C29.2583 14.25 28.5333 14.4699 27.9166 14.882C27.2999 15.294 26.8193 15.8797 26.5355 16.5649C26.2516 17.2502 26.1774 18.0042 26.3221 18.7316C26.4668 19.459 26.8239 20.1272 27.3484 20.6517C27.8728 21.1761 28.541 21.5332 29.2684 21.6779C29.9958 21.8226 30.7498 21.7484 31.4351 21.4645C32.1203 21.1807 32.706 20.7001 33.118 20.0834C33.5301 19.4667 33.75 18.7417 33.75 18C33.75 17.0054 33.3549 16.0516 32.6517 15.3483C31.9484 14.6451 30.9946 14.25 30 14.25Z", fill: "currentColor" }))));
@@ -192,133 +303,21 @@ var millennium_main = (function (exports, react, ReactDOM) {
                 setPlugins(json);
             });
         }, []);
-        const handleCheckboxChange = (index) => {
-            /* Prevent users from disabling this plugin, as its vital */
-            const updated = !checkedItems[index] || plugins[index]?.data?.name === "millennium__internal";
-            setCheckedItems({ ...checkedItems, [index]: updated });
-            csm("update_plugin_status", { plugin_name: plugins[index]?.data?.name, enabled: updated });
-        };
-        const isEditablePlugin = (plugin_name) => {
-            return window.PLUGIN_LIST && window.PLUGIN_LIST[plugin_name]
-                && typeof window.PLUGIN_LIST[plugin_name].renderPluginSettings === 'function' ? true : false;
+        const checkBoxChange = (index, checked) => {
+            console.log(checked);
+            setCheckedItems({ ...checkedItems, [index]: checked });
         };
         return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
-            window.SP_REACT.createElement("div", { className: "DialogHeader" }, "Plugins"),
-            window.SP_REACT.createElement("div", { className: "DialogBody aFxOaYcllWYkCfVYQJFs0" }, plugins.map((value, _index) => (window.SP_REACT.createElement("div", { className: "S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel", key: _index },
-                window.SP_REACT.createElement("div", { className: "H9WOq6bV_VhQ4QjJS_Bxg" },
-                    window.SP_REACT.createElement("div", { className: "_3b0U-QDD-uhFpw6xM716fw" }, value?.data?.common_name),
-                    window.SP_REACT.createElement("div", { className: "_2ZQ9wHACVFqZcufK_WRGPM", style: { display: "flex", alignItems: "center" } },
-                        isEditablePlugin(value?.data?.name) && window.SP_REACT.createElement(EditPlugin, null),
+            window.SP_REACT.createElement(DialogHeader, null, "Plugins"),
+            window.SP_REACT.createElement(DialogBody, { className: classMap.SettingsDialogBodyFade }, plugins.map((plugin, index) => (window.SP_REACT.createElement("div", { className: "S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel", key: index },
+                window.SP_REACT.createElement("div", { className: classMap.FieldLabelRow },
+                    window.SP_REACT.createElement("div", { className: "_3b0U-QDD-uhFpw6xM716fw" }, plugin?.data?.common_name),
+                    window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon, style: { display: "flex", alignItems: "center" } },
+                        window.SP_REACT.createElement(EditPlugin, { plugin: plugin }),
                         window.SP_REACT.createElement("div", { className: "_3N47t_-VlHS8JAEptE5rlR" },
-                            window.SP_REACT.createElement("div", { className: `_24G4gV0rYtRbebXM44GkKk ${checkedItems[_index] ? '_3ld7THBuSMiFtcB_Wo165i' : ''} Focusable`, onClick: () => handleCheckboxChange(_index), tabIndex: 0 },
-                                window.SP_REACT.createElement("div", { className: "_2JtC3JSLKaOtdpAVEACsG1" }),
-                                window.SP_REACT.createElement("div", { className: "_3__ODLQXuoDAX41pQbgHf9" }))))),
-                window.SP_REACT.createElement("div", { className: "_2OJfkxlD3X9p8Ygu1vR7Lr" }, value?.data?.description ?? "No description yet.")))))));
+                            window.SP_REACT.createElement(Toggle, { disabled: plugin?.data?.name == "millennium__internal", value: checkedItems[index], onChange: (checked) => checkBoxChange(index, checked) })))),
+                window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, plugin?.data?.description ?? "No description yet.")))))));
     };
-
-    let webpackCache = {};
-    let hasWebpack5 = false;
-    if (window.webpackJsonp && !window.webpackJsonp.deckyShimmed) {
-        // Webpack 4, currently on stable
-        const wpRequire = window.webpackJsonp.push([
-            [],
-            { get_require: (mod, _exports, wpRequire) => (mod.exports = wpRequire) },
-            [['get_require']],
-        ]);
-        delete wpRequire.m.get_require;
-        delete wpRequire.c.get_require;
-        webpackCache = wpRequire.c;
-    }
-    else {
-        // Webpack 5, currently on beta
-        hasWebpack5 = true;
-        const id = Math.random();
-        let initReq;
-        window.webpackChunksteamui.push([
-            [id],
-            {},
-            (r) => {
-                initReq = r;
-            },
-        ]);
-        for (let i of Object.keys(initReq.m)) {
-            try {
-                webpackCache[i] = initReq(i);
-            }
-            catch (e) {
-                console.debug("[DFL:Webpack]: Ignoring require error for module", i, e);
-            }
-        }
-    }
-    const allModules = hasWebpack5
-        ? Object.values(webpackCache).filter((x) => x)
-        : Object.keys(webpackCache)
-            .map((x) => webpackCache[x].exports)
-            .filter((x) => x);
-    const findModule = (filter) => {
-        for (const m of allModules) {
-            if (m.default && filter(m.default))
-                return m.default;
-            if (filter(m))
-                return m;
-        }
-    };
-    const findAllModules = (filter) => {
-        const out = [];
-        for (const m of allModules) {
-            if (m.default && filter(m.default))
-                out.push(m.default);
-            if (filter(m))
-                out.push(m);
-        }
-        return out;
-    };
-    const CommonUIModule = allModules.find((m) => {
-        if (typeof m !== 'object')
-            return false;
-        for (let prop in m) {
-            if (m[prop]?.contextType?._currentValue && Object.keys(m).length > 60)
-                return true;
-        }
-        return false;
-    });
-    findModule((m) => {
-        if (typeof m !== 'object')
-            return false;
-        for (let prop in m) {
-            if (m[prop]?.toString && /Spinner\)}\),.\.createElement\(\"path\",{d:\"M18 /.test(m[prop].toString()))
-                return true;
-        }
-        return false;
-    });
-    allModules.find((m) => {
-        if (typeof m !== 'object')
-            return undefined;
-        for (let prop in m) {
-            if (m[prop]?.computeRootMatch)
-                return true;
-        }
-        return false;
-    });
-    findAllModules((m) => {
-        if (typeof m == "object" && !m.__esModule) {
-            const keys = Object.keys(m);
-            // special case some libraries
-            if (keys.length == 1 && m.version)
-                return false;
-            // special case localization
-            if (keys.length > 1000 && m.AboutSettings)
-                return false;
-            return keys.length > 0 && keys.every(k => !Object.getOwnPropertyDescriptor(m, k)?.get && typeof m[k] == "string");
-        }
-        return false;
-    });
-
-    const Dropdown = Object.values(CommonUIModule).find((mod) => mod?.prototype?.SetSelectedOption && mod?.prototype?.BuildMenu);
-    // Object.values(CommonUIModule).find((mod: any) =>
-    //     console.log(mod?.toString()),
-    // );
-    Object.values(CommonUIModule).find((mod) => mod?.toString()?.includes('"dropDownControlRef","description"'));
 
     const ShowThemeSettings = (themes, active) => {
         const { theme } = themes.find((theme) => theme.theme.native === active);
@@ -337,6 +336,14 @@ var millennium_main = (function (exports, react, ReactDOM) {
         };
         console.log(context);
         Millennium.createWindow(context);
+    };
+    const RenderEditTheme = ({ themes, active }) => {
+        /** Current theme is not editable */
+        if (pluginSelf.isDefaultTheme || pluginSelf.activeTheme.data?.Conditions === undefined) {
+            return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null));
+        }
+        return (window.SP_REACT.createElement("button", { onClick: () => ShowThemeSettings(themes, active), style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" },
+            window.SP_REACT.createElement(IconsModule.Edit, { style: { height: "16px" } })));
     };
     const ThemeViewModal = () => {
         const [themes, setThemes] = react.useState();
@@ -360,18 +367,15 @@ var millennium_main = (function (exports, react, ReactDOM) {
             });
         }, []);
         return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
-            window.SP_REACT.createElement("div", { className: "DialogHeader" }, "Themes"),
-            window.SP_REACT.createElement("div", { className: "DialogBody aFxOaYcllWYkCfVYQJFs0" },
+            window.SP_REACT.createElement(DialogHeader, null, "Themes"),
+            window.SP_REACT.createElement(DialogBody, { className: classMap.SettingsDialogBodyFade },
                 window.SP_REACT.createElement("div", { className: "S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _1ugIUbowxDg0qM0pJUbBRM _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel" },
-                    window.SP_REACT.createElement("div", { className: "H9WOq6bV_VhQ4QjJS_Bxg" },
+                    window.SP_REACT.createElement("div", { className: classMap.FieldLabelRow },
                         window.SP_REACT.createElement("div", { className: "_3b0U-QDD-uhFpw6xM716fw" }, "Client Theme"),
-                        window.SP_REACT.createElement("div", { className: "_2ZQ9wHACVFqZcufK_WRGPM" },
-                            window.SP_REACT.createElement("button", { onClick: () => ShowThemeSettings(themes, active), style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, type: "button", className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable", tabIndex: 0 },
-                                window.SP_REACT.createElement("svg", { height: "16px", xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 36 36", fill: "none" },
-                                    window.SP_REACT.createElement("path", { d: "M28.1684 2.16431L23.5793 6.75343L29.2362 12.4103L33.8253 7.82116L28.1684 2.16431Z", fill: "currentColor" }),
-                                    window.SP_REACT.createElement("path", { d: "M20.76 9.58999L5.67 24.67L4 32L11.33 30.33L26.41 15.24L20.76 9.58999Z", fill: "currentColor" }))),
+                        window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon },
+                            window.SP_REACT.createElement(RenderEditTheme, { themes: themes, active: active }),
                             window.SP_REACT.createElement(Dropdown, { rgOptions: themes, selectedOption: 1, strDefaultLabel: active, onChange: updateThemeCallback }))),
-                    window.SP_REACT.createElement("div", { className: "_2OJfkxlD3X9p8Ygu1vR7Lr" }, "Select the theme you want Steam to use (requires reload)")))));
+                    window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, "Select the theme you want Steam to use (requires reload)")))));
     };
 
     const UpToDateModal = () => {
@@ -400,23 +404,21 @@ var millennium_main = (function (exports, react, ReactDOM) {
             });
         };
         return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
-            window.SP_REACT.createElement("div", { className: 'update-container', style: { display: "flex", justifyContent: "space-between" } },
-                window.SP_REACT.createElement("div", { className: 'update-description' },
-                    window.SP_REACT.createElement("div", { className: "DialogSubHeader _2rK4YqGvSzXLj1bPZL8xMJ" }, "Updates Available!"),
-                    window.SP_REACT.createElement("div", { className: "DialogBodyText _3fPiC9QRyT5oJ6xePCVYz8" }, "Millennium found the following updates on your themes."))),
+            window.SP_REACT.createElement(DialogSubHeader, { className: '_2rK4YqGvSzXLj1bPZL8xMJ' }, "Updates Available!"),
+            window.SP_REACT.createElement(DialogBodyText, { className: '_3fPiC9QRyT5oJ6xePCVYz8' }, "Millennium found the following updates on your themes."),
             updates.map((update, index) => (window.SP_REACT.createElement("div", { className: "S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel", key: index },
-                window.SP_REACT.createElement("div", { className: "H9WOq6bV_VhQ4QjJS_Bxg" },
+                window.SP_REACT.createElement("div", { className: classMap.FieldLabelRow },
                     window.SP_REACT.createElement("div", { className: "update-item-type", style: { color: "white", fontSize: "12px", padding: "4px", background: "#007eff", borderRadius: "6px" } }, "Theme"),
                     window.SP_REACT.createElement("div", { className: "_3b0U-QDD-uhFpw6xM716fw" }, update.name),
-                    window.SP_REACT.createElement("div", { className: "_2ZQ9wHACVFqZcufK_WRGPM" },
+                    window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon },
                         window.SP_REACT.createElement("div", { className: "_3N47t_-VlHS8JAEptE5rlR", style: { gap: "10px", width: "200px" } },
-                            window.SP_REACT.createElement("button", { type: "button", onClick: () => viewMoreClick(update), className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable", tabIndex: 0 }, "View More"),
-                            window.SP_REACT.createElement("button", { type: "button", onClick: () => updateItemMessage(update, index), className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable", tabIndex: 0 }, updating[index] ? "Updating..." : "Update")))),
-                window.SP_REACT.createElement("div", { className: "_2OJfkxlD3X9p8Ygu1vR7Lr" },
+                            window.SP_REACT.createElement("button", { onClick: () => viewMoreClick(update), className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" }, "View More"),
+                            window.SP_REACT.createElement("button", { onClick: () => updateItemMessage(update, index), className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" }, updating[index] ? "Updating..." : "Update")))),
+                window.SP_REACT.createElement("div", { className: classMap.FieldDescription },
                     window.SP_REACT.createElement("b", null, "Released:"),
                     " ",
                     update?.date),
-                window.SP_REACT.createElement("div", { className: "_2OJfkxlD3X9p8Ygu1vR7Lr" },
+                window.SP_REACT.createElement("div", { className: classMap.FieldDescription },
                     window.SP_REACT.createElement("b", null, "Patch Notes:"),
                     " ",
                     update?.message))))));
@@ -441,13 +443,15 @@ var millennium_main = (function (exports, react, ReactDOM) {
             });
         };
         const DialogHeaderStyles = {
-            display: "flex", alignItems: "center", gap: "20px"
+            display: "flex", alignItems: "center", gap: "15px"
         };
         return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
-            window.SP_REACT.createElement("div", { className: "DialogHeader", style: DialogHeaderStyles },
+            window.SP_REACT.createElement(DialogHeader, { style: DialogHeaderStyles },
                 "Updates",
-                window.SP_REACT.createElement("button", { onClick: checkForUpdates, className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable", style: { width: "80px", height: "18px", "-webkit-app-region": "no-drag", zIndex: "9999" } }, checkingForUpdates ? "Scanning..." : "Rescan")),
-            window.SP_REACT.createElement("div", { className: "DialogBody aFxOaYcllWYkCfVYQJFs0" }, updates && (!updates.length ? window.SP_REACT.createElement(UpToDateModal, null) : window.SP_REACT.createElement(RenderAvailableUpdates, { updates: updates, setUpdates: setUpdates })))));
+                !checkingForUpdates &&
+                    window.SP_REACT.createElement("button", { onClick: checkForUpdates, className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable", style: { width: "16px", "-webkit-app-region": "no-drag", zIndex: "9999", padding: "4px 4px", display: "flex" } },
+                        window.SP_REACT.createElement(IconsModule.Update, null))),
+            window.SP_REACT.createElement(DialogBody, { className: classMap.SettingsDialogBodyFade }, updates && (!updates.length ? window.SP_REACT.createElement(UpToDateModal, null) : window.SP_REACT.createElement(RenderAvailableUpdates, { updates: updates, setUpdates: setUpdates })))));
     };
 
     var Renderer;
@@ -458,7 +462,7 @@ var millennium_main = (function (exports, react, ReactDOM) {
         Renderer[Renderer["Unset"] = 3] = "Unset";
     })(Renderer || (Renderer = {}));
     const RenderViewComponent = (componentType) => {
-        Millennium.findElement(pluginSelf.settingsDoc, ".DialogContent_InnerWidth").then(element => {
+        Millennium.findElement(pluginSelf.settingsDoc, ".DialogContent_InnerWidth").then((element) => {
             switch (componentType) {
                 case Renderer.Plugins:
                     ReactDOM__default["default"].render(window.SP_REACT.createElement(PluginViewModal, null), element[0]);
@@ -483,6 +487,11 @@ var millennium_main = (function (exports, react, ReactDOM) {
                 element.classList.remove("Myra7iGjzCdMPzitboVfh");
             });
         };
+        console.log("innerIcon", findClass("U6HcKswXzjmWtFxbjxuz4"));
+        console.log("sep", findClass("_1UEEmNDZ7Ta3enwTf5T0O0"));
+        console.log("text", findClass("_2X9_IsQsEJDpAd2JGrHdJI"));
+        console.log("awdawd", findClass("Myra7iGjzCdMPzitboVfh"));
+        console.log(IconsModule);
         return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
             window.SP_REACT.createElement("div", { className: `MillenniumTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Plugins ? "Myra7iGjzCdMPzitboVfh" : ""}`, onClick: () => componentUpdate(Renderer.Plugins) },
                 window.SP_REACT.createElement("div", { className: "U6HcKswXzjmWtFxbjxuz4" },
@@ -502,10 +511,7 @@ var millennium_main = (function (exports, react, ReactDOM) {
                 window.SP_REACT.createElement("div", { className: "_2X9_IsQsEJDpAd2JGrHdJI" }, "Themes")),
             window.SP_REACT.createElement("div", { className: `MillenniumTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Updates ? "Myra7iGjzCdMPzitboVfh" : ""}`, onClick: () => componentUpdate(Renderer.Updates) },
                 window.SP_REACT.createElement("div", { className: "U6HcKswXzjmWtFxbjxuz4" },
-                    window.SP_REACT.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "1 1 18 18" },
-                        window.SP_REACT.createElement("rect", { x: "0", fill: "currentColor" }),
-                        window.SP_REACT.createElement("g", null,
-                            window.SP_REACT.createElement("path", { fill: "currentColor", d: "M5.7 9c.4-2 2.2-3.5 4.3-3.5 1.5 0 2.7.7 3.5 1.8l1.7-2C14 3.9 12.1 3 10 3 6.5 3 3.6 5.6 3.1 9H1l3.5 4L8 9H5.7zm9.8-2L12 11h2.3c-.5 2-2.2 3.5-4.3 3.5-1.5 0-2.7-.7-3.5-1.8l-1.7 1.9C6 16.1 7.9 17 10 17c3.5 0 6.4-2.6 6.9-6H19l-3.5-4z" })))),
+                    window.SP_REACT.createElement(IconsModule.Update, null)),
                 window.SP_REACT.createElement("div", { className: "_2X9_IsQsEJDpAd2JGrHdJI" }, "Updates")),
             window.SP_REACT.createElement("div", { className: "_1UEEmNDZ7Ta3enwTf5T0O0" })));
     };

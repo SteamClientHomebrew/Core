@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Millennium } from '../../millennium'
+import { Millennium, DialogBody, DialogBodyText, DialogSubHeader, classMap, DialogHeader, IconsModule } from 'millennium-lib'
 
 interface UpdateProps {
     updates: UpdateItemType[];
@@ -53,26 +53,32 @@ const RenderAvailableUpdates: React.FC<UpdateProps> = ({ updates, setUpdates }) 
 
     return (
         <>
-        <div className='update-container' style={{display: "flex", justifyContent: "space-between"}}>
-            <div className='update-description'>
-                <div className="DialogSubHeader _2rK4YqGvSzXLj1bPZL8xMJ">Updates Available!</div>
-                <div className="DialogBodyText _3fPiC9QRyT5oJ6xePCVYz8">Millennium found the following updates on your themes.</div>
-            </div>
-        </div>
+        <DialogSubHeader className='_2rK4YqGvSzXLj1bPZL8xMJ'>Updates Available!</DialogSubHeader>
+        <DialogBodyText className='_3fPiC9QRyT5oJ6xePCVYz8'>Millennium found the following updates on your themes.</DialogBodyText>
+
         {updates.map((update: UpdateItemType, index: number) => (
             <div className="S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel" key={index}>
-                <div className="H9WOq6bV_VhQ4QjJS_Bxg">
+                <div className={classMap.FieldLabelRow}>
                     <div className="update-item-type" style={{color: "white", fontSize: "12px", padding: "4px", background: "#007eff", borderRadius: "6px"}}>Theme</div>
                     <div className="_3b0U-QDD-uhFpw6xM716fw">{update.name}</div>
-                    <div className="_2ZQ9wHACVFqZcufK_WRGPM">
+                    <div className={classMap.FieldChildrenWithIcon}>
                         <div className="_3N47t_-VlHS8JAEptE5rlR" style={{gap: "10px", width: "200px"}}>
-                            <button type="button" onClick={() => viewMoreClick(update)} className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" tabIndex={0}>View More</button>
-                            <button type="button" onClick={() => updateItemMessage(update, index)} className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" tabIndex={0}>{updating[index] ? "Updating..." : "Update"}</button>
+
+                            <button 
+                                onClick={() => viewMoreClick(update)} 
+                                className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable">
+                                    View More
+                            </button>
+                            <button 
+                                onClick={() => updateItemMessage(update, index)} 
+                                className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable">
+                                    {updating[index] ? "Updating..." : "Update"}
+                            </button>
                         </div>
                     </div>
                 </div>
-                <div className="_2OJfkxlD3X9p8Ygu1vR7Lr"><b>Released:</b> {update?.date}</div>
-                <div className="_2OJfkxlD3X9p8Ygu1vR7Lr"><b>Patch Notes:</b> {update?.message}</div>
+                <div className={classMap.FieldDescription}><b>Released:</b> {update?.date}</div>
+                <div className={classMap.FieldDescription}><b>Patch Notes:</b> {update?.message}</div>
             </div>
         ))}
         </>
@@ -104,24 +110,26 @@ const UpdatesViewModal: React.FC = () => {
     }
 
     const DialogHeaderStyles: any = {
-        display: "flex", alignItems: "center", gap: "20px"
+        display: "flex", alignItems: "center", gap: "15px"
     }
 
     return (
         <>
-            <div className="DialogHeader" style={DialogHeaderStyles}>
+            <DialogHeader style={DialogHeaderStyles}>
                 Updates
-                <button 
-                    onClick={checkForUpdates} 
-                    className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" 
-                    style={{width: "80px", height: "18px", "-webkit-app-region": "no-drag", zIndex: "9999"} as any} 
-                >
-                    {checkingForUpdates ? "Scanning..." : "Rescan"}
-                </button>
-            </div>
-            <div className="DialogBody aFxOaYcllWYkCfVYQJFs0">
+                {
+                    !checkingForUpdates && 
+                    <button 
+                        onClick={checkForUpdates} 
+                        className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" 
+                        style={{width: "16px", "-webkit-app-region": "no-drag", zIndex: "9999", padding: "4px 4px", display: "flex"} as any}>
+                        <IconsModule.Update/>
+                    </button>
+                }
+            </DialogHeader>
+            <DialogBody className={classMap.SettingsDialogBodyFade}>
                 {updates && (!updates.length ? <UpToDateModal/> : <RenderAvailableUpdates updates={updates} setUpdates={setUpdates}/>)}   
-            </div>
+            </DialogBody>
         </>
     )
 }

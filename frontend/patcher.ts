@@ -1,5 +1,15 @@
-import { pluginSelf } from "./millennium";
-import { CommonPatchTypes, ConditionalControlFlow, ConditionalControlFlowType, ConditionalPatch, Conditions, ConditionsStore, Patch, Theme, ThemeItem } from "./types/theme";
+import { pluginSelf } from "millennium-lib";
+import { 
+    CommonPatchTypes, 
+    ConditionalControlFlow, 
+    ConditionalControlFlowType, 
+    ConditionalPatch, 
+    Conditions, 
+    ConditionsStore, 
+    Patch, 
+    Theme, 
+    ThemeItem 
+} from "./types/types";
 
 const DOMModifier = {
     /**

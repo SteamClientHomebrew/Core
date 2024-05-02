@@ -1,8 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { Millennium } from '../../millennium';
-import { PluginComponent } from '../../types/plugin';
+import { DialogBody, DialogHeader, IconsModule, Millennium, Toggle, classMap, findClass } from 'millennium-lib';
+import { PluginComponent } from '../../types/types';
 
-const EditPlugin: React.FC = () => {
+interface EditPluginProps {
+	plugin: PluginComponent
+}
+
+const isEditablePlugin = (plugin_name: string) => {
+	return window.PLUGIN_LIST && window.PLUGIN_LIST[plugin_name] 
+	&& typeof window.PLUGIN_LIST[plugin_name].renderPluginSettings === 'function' ? true : false
+}
+
+const EditPlugin: React.FC<EditPluginProps> = ({ plugin }) => {
+
+	if (!isEditablePlugin(plugin?.data?.name)) {
+		return <></>
+	}
+
 	return (
 		<div className="_1WKUOT3FdB9-48MMP0Tz9l Focusable" style={{marginTop: 0, marginLeft: 0, marginRight: 15}} tabIndex={0}>
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">
@@ -29,6 +43,11 @@ const PluginViewModal: React.FC = () => {
 		})
 	}, [])
 
+	const checkBoxChange = (index: number, checked: boolean): void => {
+		console.log(checked)
+		setCheckedItems({ ...checkedItems, [index]: checked});
+	}
+
 	const handleCheckboxChange = (index: number) => {
 		
 		/* Prevent users from disabling this plugin, as its vital */
@@ -38,33 +57,30 @@ const PluginViewModal: React.FC = () => {
 		Millennium.callServerMethod("update_plugin_status", { plugin_name: plugins[index]?.data?.name, enabled: updated })
 	};
 
-	const isEditablePlugin = (plugin_name: string) => {
-		return window.PLUGIN_LIST && window.PLUGIN_LIST[plugin_name] 
-		&& typeof window.PLUGIN_LIST[plugin_name].renderPluginSettings === 'function' ? true : false
-	}
-
 	return (
 		<>
-		<div className="DialogHeader">Plugins</div>
-		<div className="DialogBody aFxOaYcllWYkCfVYQJFs0">
-			{plugins.map((value: PluginComponent, _index: number) => (
-			<div className="S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel" key={_index}>
-				<div className="H9WOq6bV_VhQ4QjJS_Bxg">
-				<div className="_3b0U-QDD-uhFpw6xM716fw">{value?.data?.common_name}</div>
-				<div className="_2ZQ9wHACVFqZcufK_WRGPM" style={{display: "flex", alignItems: "center"}}>
-					{ isEditablePlugin(value?.data?.name) && <EditPlugin/> }
-					<div className="_3N47t_-VlHS8JAEptE5rlR">
-					<div className={`_24G4gV0rYtRbebXM44GkKk ${checkedItems[_index] ? '_3ld7THBuSMiFtcB_Wo165i' : ''} Focusable`} onClick={() => handleCheckboxChange(_index)} tabIndex={0}>
-						<div className="_2JtC3JSLKaOtdpAVEACsG1"></div>
-						<div className="_3__ODLQXuoDAX41pQbgHf9"></div>
+		<DialogHeader>Plugins</DialogHeader>
+		<DialogBody className={classMap.SettingsDialogBodyFade}>
+			{plugins.map((plugin: PluginComponent, index: number) => (
+
+				<div className="S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel" key={index}>
+					<div className={classMap.FieldLabelRow}>
+					<div className="_3b0U-QDD-uhFpw6xM716fw">{plugin?.data?.common_name}</div>
+					<div className={classMap.FieldChildrenWithIcon} style={{display: "flex", alignItems: "center"}}>
+						<EditPlugin plugin={plugin}/>
+						<div className="_3N47t_-VlHS8JAEptE5rlR">
+							<Toggle 
+								disabled={plugin?.data?.name == "millennium__internal"} 
+								value={checkedItems[index]} 
+								onChange={(checked: boolean) => checkBoxChange(index, checked)}>
+							</Toggle>
+						</div>
 					</div>
 					</div>
+					<div className={classMap.FieldDescription}>{plugin?.data?.description ?? "No description yet."}</div>
 				</div>
-				</div>
-				<div className="_2OJfkxlD3X9p8Ygu1vR7Lr">{value?.data?.description ?? "No description yet."}</div>
-			</div>
 			))} 
-		</div>
+		</DialogBody>
 		</>
 	)
 }

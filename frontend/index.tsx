@@ -1,8 +1,7 @@
-import { Millennium, pluginSelf } from "./millennium"; 
+import { Millennium, pluginSelf } from "millennium-lib"; 
 import { parseTheme, patchDocumentContext } from "./patcher"
 import { RenderSettingsModal } from "./components/settings"
-import { ConditionsStore, ThemeItem } from "./types/theme";
-import { SystemAccentColor } from "./types/colors";
+import { ConditionsStore, ThemeItem, SystemAccentColor } from "./types/types";
 
 async function getTheme(): Promise<ThemeItem> {
     return new Promise(async (resolve: any, _reject: any) => {

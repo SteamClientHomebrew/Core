@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Dropdown, DropdownOption } from '../dropdown'
-import { Millennium, WindowType, WindowControls } from '../../millennium'
-import { ComboItem, ThemeItem } from '../../types/theme'
+import { Millennium, WindowType, WindowControls, Dropdown, DialogHeader, DialogBody, classMap, IconsModule, pluginSelf } from 'millennium-lib'
+import { ComboItem, ThemeItem } from '../../types/types'
 
 const ShowThemeSettings = (themes: ComboItem[], active: string) => {
     
@@ -25,6 +24,29 @@ const ShowThemeSettings = (themes: ComboItem[], active: string) => {
     Millennium.createWindow(context)
 }
 
+interface EditThemeProps {
+    themes: ComboItem[],
+    active: string
+}
+
+const RenderEditTheme: React.FC<EditThemeProps> = ({ themes, active }) => {
+
+    /** Current theme is not editable */
+    if (pluginSelf.isDefaultTheme || (pluginSelf.activeTheme as ThemeItem).data?.Conditions === undefined) {
+        return (<></>)
+    }
+
+    return (
+        <button 
+            onClick={() => ShowThemeSettings(themes, active)} 
+            style={{margin: "0", padding: "0px 10px", marginRight: "10px"}} 
+            className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" 
+        >
+            <IconsModule.Edit style={{height: "16px"}}/>
+        </button>
+    )
+}
+
 const ThemeViewModal: React.FC = () => {
 
     const [themes, setThemes] = useState<ComboItem[]>()
@@ -45,31 +67,27 @@ const ThemeViewModal: React.FC = () => {
             }))
             setThemes(buffer)
         })
-        Millennium.callServerMethod("get_active_theme").then((value: any) => {
-            const json = JSON.parse(value)
-            json?.failed ? setActive("Default") : setActive(json?.data?.name ?? json.native)
-        })
+
+        const activeTheme: ThemeItem = pluginSelf.activeTheme
+        pluginSelf.isDefaultTheme ? setActive("Default") : activeTheme?.data?.name ?? activeTheme.native
     }, [])
 
     return (
         <>
-            <div className="DialogHeader">Themes</div>
-            <div className="DialogBody aFxOaYcllWYkCfVYQJFs0">
+            <DialogHeader>Themes</DialogHeader>
+            <DialogBody className={classMap.SettingsDialogBodyFade}>
                 <div className="S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _1ugIUbowxDg0qM0pJUbBRM _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel">
-                    <div className="H9WOq6bV_VhQ4QjJS_Bxg">
+                    <div className={classMap.FieldLabelRow}>
                         <div className="_3b0U-QDD-uhFpw6xM716fw">Client Theme</div>
-                        <div className="_2ZQ9wHACVFqZcufK_WRGPM">
+                        <div className={classMap.FieldChildrenWithIcon}>
 
-                            <button onClick={() => ShowThemeSettings(themes, active)} style={{margin: "0", padding: "0px 10px", marginRight: "10px"}} type="button" className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" tabIndex={0}>
-                                <svg height={"16px"} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none"><path d="M28.1684 2.16431L23.5793 6.75343L29.2362 12.4103L33.8253 7.82116L28.1684 2.16431Z" fill="currentColor"></path><path d="M20.76 9.58999L5.67 24.67L4 32L11.33 30.33L26.41 15.24L20.76 9.58999Z" fill="currentColor"></path></svg>
-                            </button>
-                            
-                            <Dropdown rgOptions={themes as any} selectedOption={1} strDefaultLabel={active} onChange={updateThemeCallback as any}></Dropdown>
+                            <RenderEditTheme themes={themes} active={active}/>
+                            <Dropdown rgOptions={themes as any} selectedOption={1} strDefaultLabel={active} onChange={updateThemeCallback as any}></Dropdown>        
                         </div>
                     </div>
-                    <div className="_2OJfkxlD3X9p8Ygu1vR7Lr">Select the theme you want Steam to use (requires reload)</div>
-                </div>        
-            </div>
+                    <div className={classMap.FieldDescription}>Select the theme you want Steam to use (requires reload)</div>
+                </div> 
+            </DialogBody>
         </>
     )
 }
