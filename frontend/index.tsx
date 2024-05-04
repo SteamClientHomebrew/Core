@@ -1,11 +1,11 @@
-import { Millennium, pluginSelf } from "millennium-lib"; 
+import { Millennium, findModuleChild, pluginSelf } from "millennium-lib"; 
 import { parseTheme, patchDocumentContext } from "./patcher"
 import { RenderSettingsModal } from "./components/settings"
 import { ConditionsStore, ThemeItem, SystemAccentColor } from "./types/types";
 
 async function getTheme(): Promise<ThemeItem> {
     return new Promise(async (resolve: any, _reject: any) => {
-        resolve(JSON.parse(await Millennium.callServerMethod("get_active_theme")) as ThemeItem)
+        resolve(JSON.parse(await Millennium.callServerMethod("cfg.get_active_theme")) as ThemeItem)
     })
 }
 
@@ -18,6 +18,12 @@ const getConditionals = (): Promise<ConditionsStore> => {
 const getSystemColor = (): Promise<SystemAccentColor> => {
     return new Promise(async (resolve: any, _reject: any) => {
         resolve(JSON.parse(await Millennium.callServerMethod("get_accent_color")) as SystemAccentColor)
+    })
+}
+
+const getBackendProps = () => {
+    return new Promise(async (resolve: any, _reject: any) => {
+        resolve(JSON.parse(await Millennium.callServerMethod("get_load_config")))
     })
 }
 

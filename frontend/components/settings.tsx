@@ -44,12 +44,6 @@ const PluginComponent: React.FC = () => {
 		});
 	}
 
-	console.log("innerIcon", findClass("U6HcKswXzjmWtFxbjxuz4"))
-	console.log("sep", findClass("_1UEEmNDZ7Ta3enwTf5T0O0"))
-	console.log("text", findClass("_2X9_IsQsEJDpAd2JGrHdJI"))
-	console.log("awdawd", findClass("Myra7iGjzCdMPzitboVfh"))
-	console.log(IconsModule)
-
 	return (
 		<>
 		<div className={`MillenniumTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Plugins ? "Myra7iGjzCdMPzitboVfh" : ""}`} onClick={() => componentUpdate(Renderer.Plugins)}>

@@ -1,15 +1,19 @@
 const pluginName = "millennium__internal";
 function bootstrap() {
+	/** 
+	 * This function is called n times depending on n plugin count,
+	 * Create the plugin list if it wasn't already created 
+	 */
 	!window.PLUGIN_LIST && (window.PLUGIN_LIST = {});
 
+	// initialize a container for the plugin
 	if (!window.PLUGIN_LIST[pluginName]) {
 		window.PLUGIN_LIST[pluginName] = {};
 	}
 }
 bootstrap()
-async function csm(m, _kw) {
-	const res = await Millennium.callServerMethod(pluginName, m, _kw);
-	return res
+async function wrappedCallServerMethod(methodName, kwargs) {
+	return await Millennium.callServerMethod(pluginName, methodName, kwargs);
 }
 var millennium_main = (function (exports, react, ReactDOM) {
     'use strict';
@@ -43,6 +47,19 @@ var millennium_main = (function (exports, react, ReactDOM) {
                 return m.default;
             if (filter(m))
                 return m;
+        }
+    };
+    const findModuleChild = (filter) => {
+        for (const m of allModules) {
+            for (const mod of [m.default, m]) {
+                const filterRes = filter(mod);
+                if (filterRes) {
+                    return filterRes;
+                }
+                else {
+                    continue;
+                }
+            }
         }
     };
     const findAllModules = (filter) => {
@@ -105,6 +122,139 @@ var millennium_main = (function (exports, react, ReactDOM) {
     const Dropdown = Object.values(CommonUIModule).find((mod) => mod?.prototype?.SetSelectedOption && mod?.prototype?.BuildMenu);
     Object.values(CommonUIModule).find((mod) => mod?.toString()?.includes('"dropDownControlRef","description"'));
 
+    /**
+     * Finds the SP window, since it is a render target as of 10-19-2022's beta
+     */
+    function findSP() {
+        // old (SP as host)
+        if (document.title == 'SP')
+            return window;
+        // new (SP as popup)
+        const navTrees = getGamepadNavigationTrees();
+        return navTrees?.find((x) => x.m_ID == 'root_1_').Root.Element.ownerDocument.defaultView;
+    }
+    /**
+     * Gets the correct FocusNavController, as the Feb 22 2023 beta has two for some reason.
+     */
+    function getFocusNavController() {
+        return window.GamepadNavTree?.m_context?.m_controller || window.FocusNavController;
+    }
+    /**
+     * Gets the gamepad navigation trees as Valve seems to be moving them.
+     */
+    function getGamepadNavigationTrees() {
+        const focusNav = getFocusNavController();
+        const context = focusNav.m_ActiveContext || focusNav.m_LastActiveContext;
+        return context?.m_rgGamepadNavigationTrees;
+    }
+
+    const showModalRaw = findModuleChild((m) => {
+        if (typeof m !== 'object')
+            return undefined;
+        for (let prop in m) {
+            if (typeof m[prop] === 'function' &&
+                m[prop].toString().includes('props.bDisableBackgroundDismiss') &&
+                !m[prop]?.prototype?.Cancel) {
+                return m[prop];
+            }
+        }
+    });
+    const oldShowModalRaw = findModuleChild((m) => {
+        if (typeof m !== 'object')
+            return undefined;
+        for (let prop in m) {
+            if (typeof m[prop] === 'function' && m[prop].toString().includes('bHideMainWindowForPopouts:!0')) {
+                return m[prop];
+            }
+        }
+    });
+    const showModal = (modal, parent, props = {
+        strTitle: 'Decky Dialog',
+        bHideMainWindowForPopouts: false,
+    }) => {
+        if (showModalRaw) {
+            return showModalRaw(modal, parent || findSP(), props.strTitle, props, undefined, {
+                bHideActions: props.bHideActionIcons,
+            });
+        }
+        else if (oldShowModalRaw) {
+            return oldShowModalRaw(modal, parent || findSP(), props);
+        }
+        else {
+            throw new Error('[DFL:Modals]: Cannot find showModal function');
+        }
+    };
+    const ConfirmModal = findModuleChild((m) => {
+        if (typeof m !== 'object')
+            return undefined;
+        for (let prop in m) {
+            if (!m[prop]?.prototype?.OK && m[prop]?.prototype?.Cancel && m[prop]?.prototype?.render) {
+                return m[prop];
+            }
+        }
+    });
+    // new as of december 2022 on beta
+    (Object.values(findModule((m) => {
+        if (typeof m !== 'object')
+            return false;
+        for (let prop in m) {
+            if (m[prop]?.m_mapModalManager && Object.values(m)?.find((x) => x?.type)) {
+                return true;
+            }
+        }
+        return false;
+    }) || {})?.find((x) => x?.type?.toString()?.includes('((function(){')) ||
+        // before december 2022 beta
+        Object.values(findModule((m) => {
+            if (typeof m !== 'object')
+                return false;
+            for (let prop in m) {
+                if (m[prop]?.toString()?.includes('"ModalManager","DialogWrapper"')) {
+                    return true;
+                }
+            }
+            return false;
+        }) || {})?.find((x) => x?.type?.toString()?.includes('((function(){')) ||
+        // old
+        findModuleChild((m) => {
+            if (typeof m !== 'object')
+                return undefined;
+            for (let prop in m) {
+                if (m[prop]?.prototype?.OK && m[prop]?.prototype?.Cancel && m[prop]?.prototype?.render) {
+                    return m[prop];
+                }
+            }
+        }));
+    const ModalModule = findModule((mod) => {
+        if (typeof mod !== 'object')
+            return false;
+        for (let prop in mod) {
+            if (Object.keys(mod).length > 4 && mod[prop]?.toString().includes('.ModalPosition,fallback:'))
+                return true;
+        }
+        return false;
+    });
+    const ModalModuleProps = ModalModule ? Object.values(ModalModule) : [];
+    ModalModuleProps.find(prop => {
+        const string = prop?.toString();
+        return string?.includes(".ShowPortalModal()") && string?.includes(".OnElementReadyCallbacks.Register(");
+    });
+    ModalModuleProps.find(prop => prop?.toString().includes(".ModalPosition,fallback:"));
+    var MessageBoxResult;
+    (function (MessageBoxResult) {
+        MessageBoxResult[MessageBoxResult["close"] = 0] = "close";
+        MessageBoxResult[MessageBoxResult["okay"] = 1] = "okay";
+    })(MessageBoxResult || (MessageBoxResult = {}));
+    const RenderMessageBox = ({ props, close }) => {
+        return (window.SP_REACT.createElement(ConfirmModal, { onCancel: () => close(MessageBoxResult.close), onOK: () => close(MessageBoxResult.okay), ...props }));
+    };
+    const ShowMessageBox = (modalProps, messageProps) => {
+        const windowOptions = modalProps;
+        return new Promise((resolve, _) => {
+            const modal = showModal(window.SP_REACT.createElement(RenderMessageBox, { props: messageProps, close: (type) => { resolve(type); modal.Close(); } }), window, windowOptions);
+        });
+    };
+
     const Toggle = Object.values(CommonUIModule).find((mod) => mod?.render?.toString()?.includes('.ToggleOff)'));
 
     const classMapList = findAllModules((m) => {
@@ -121,9 +271,6 @@ var millennium_main = (function (exports, react, ReactDOM) {
         return false;
     });
     const classMap = Object.assign({}, ...classMapList.map(obj => Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, value]))));
-    function findClass(name) {
-        return classMapList.find(m => m?.[name])?.[name];
-    }
 
     // Control what window controls are exposed. 
     var WindowControls;
@@ -296,7 +443,7 @@ var millennium_main = (function (exports, react, ReactDOM) {
         const [plugins, setPlugins] = react.useState([]);
         const [checkedItems, setCheckedItems] = react.useState({});
         react.useEffect(() => {
-            csm("find_all_plugins").then((value) => {
+            wrappedCallServerMethod("find_all_plugins").then((value) => {
                 const json = JSON.parse(value);
                 setCheckedItems(json.map((plugin, index) => ({ plugin, index })).filter(({ plugin }) => plugin.enabled)
                     .reduce((acc, { index }) => ({ ...acc, [index]: true }), {}));
@@ -319,63 +466,128 @@ var millennium_main = (function (exports, react, ReactDOM) {
                 window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, plugin?.data?.description ?? "No description yet.")))))));
     };
 
-    const ShowThemeSettings = (themes, active) => {
-        const { theme } = themes.find((theme) => theme.theme.native === active);
-        console.log(theme?.data?.name);
-        const context = {
-            minimumDimensions: {
-                width: 0, height: 0
-            },
-            dimensions: {
-                width: 600, height: 450
-            },
-            title: "Editing " + theme?.data?.name ?? theme?.native,
-            controls: WindowControls.Close | WindowControls.Minimize,
-            emptyDocument: false,
-            autoShow: true
+    const PromptReload = async () => {
+        const windowOptions = {
+            strTitle: "Reload Required",
+            bHideMainWindowForPopouts: false,
+            popupHeight: 225,
+            popupWidth: 425,
         };
-        console.log(context);
-        Millennium.createWindow(context);
+        const modalProps = {
+            strTitle: "Reload Required",
+            strDescription: "Selected changes need a reload in order to take affect. Should we restart right now?"
+        };
+        return await ShowMessageBox(windowOptions, modalProps);
+    };
+    const ShowThemeSettings = async (_themes, _active) => {
+        const windowOptions = {
+            strTitle: "Reload Required",
+            bHideMainWindowForPopouts: false,
+            popupHeight: 225,
+            popupWidth: 425,
+        };
+        const modalProps = {
+            strTitle: "Reload Required",
+            strDescription: "Selected changes need a reload in order to take affect. Should we restart right now?"
+        };
+        await ShowMessageBox(windowOptions, modalProps);
     };
     const RenderEditTheme = ({ themes, active }) => {
         /** Current theme is not editable */
-        if (pluginSelf.isDefaultTheme || pluginSelf.activeTheme.data?.Conditions === undefined) {
-            return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null));
-        }
-        return (window.SP_REACT.createElement("button", { onClick: () => ShowThemeSettings(themes, active), style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" },
+        // if (pluginSelf.isDefaultTheme || (pluginSelf.activeTheme as ThemeItem).data?.Conditions === undefined) {
+        //     return (<></>)
+        // }
+        return (window.SP_REACT.createElement("button", { onClick: () => ShowThemeSettings(), style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" },
             window.SP_REACT.createElement(IconsModule.Edit, { style: { height: "16px" } })));
+    };
+    /**
+     * Dialog Dropdowns don't calculate width positioning properly, this fixed that.
+     */
+    const OnMenuOpened = async () => {
+        const dialogMenu = (await Millennium.findElement(pluginSelf.settingsDoc, ".DialogDropDown._DialogInputContainer.Active"))[0];
+        const openMenu = (await Millennium.findElement(pluginSelf.settingsDoc, ".DialogMenuPosition"))[0];
+        openMenu.style.width = "max-content";
+        const dialogMenuPos = dialogMenu.getBoundingClientRect();
+        const openMenuPosition = openMenu.getBoundingClientRect();
+        openMenu.style.left = (dialogMenuPos.x + dialogMenuPos.width) - openMenuPosition.width + "px";
+    };
+    const findAllThemes = async () => {
+        const activeTheme = await wrappedCallServerMethod("cfg.get_active_theme");
+        return new Promise(async (resolve) => {
+            const themes = JSON.parse(await wrappedCallServerMethod("find_all_themes"));
+            /** Prevent the selected theme from appearing in combo box */
+            const themeMap = themes.filter((theme) => !pluginSelf.isDefaultTheme ? theme.native !== activeTheme.native : true);
+            let buffer = themeMap.map((theme, index) => ({ label: theme?.data?.name ?? theme.native, theme: theme, data: "theme" + index }));
+            /** Add the default theme to list */
+            !pluginSelf.isDefaultTheme && buffer.unshift({ label: "< Default >", data: "default", theme: null });
+            resolve(buffer);
+        });
     };
     const ThemeViewModal = () => {
         const [themes, setThemes] = react.useState();
         const [active, setActive] = react.useState();
-        const updateThemeCallback = (data) => {
-            csm("change_theme", { theme_name: data.theme.native });
-            window.location.reload();
-        };
+        const [jsState, setJsState] = react.useState(undefined);
+        const [cssState, setCssState] = react.useState(undefined);
         react.useEffect(() => {
-            csm("find_all_themes").then((value) => {
-                let buffer = JSON.parse(value).map((theme, index) => ({
-                    label: theme?.data?.name ?? theme.native,
-                    theme: theme,
-                    data: "theme" + index
-                }));
-                setThemes(buffer);
-            });
-            csm("get_active_theme").then((value) => {
+            const activeTheme = pluginSelf.activeTheme;
+            pluginSelf.isDefaultTheme ? setActive("Default") : setActive(activeTheme?.data?.name ?? activeTheme.native);
+            findAllThemes().then((result) => setThemes(result));
+            wrappedCallServerMethod("cfg.get_config_str").then((value) => {
                 const json = JSON.parse(value);
-                json?.failed ? setActive("Default") : setActive(json?.data?.name ?? json.native);
+                setJsState(json.scripts);
+                setCssState(json.styles);
             });
         }, []);
+        const onScriptToggle = (enabled) => {
+            setJsState(enabled);
+            PromptReload().then((selection) => {
+                if (selection == MessageBoxResult.okay) {
+                    wrappedCallServerMethod("cfg.set_config_keypair", { key: "scripts", value: enabled });
+                    window.location.reload();
+                }
+            });
+        };
+        const onStyleToggle = (enabled) => {
+            setCssState(enabled);
+            PromptReload().then((selection) => {
+                if (selection == MessageBoxResult.okay) {
+                    wrappedCallServerMethod("cfg.set_config_keypair", { key: "styles", value: enabled });
+                    window.location.reload();
+                }
+            });
+        };
+        const updateThemeCallback = (item) => {
+            const themeName = item.data === "default" ? "__default__" : item.theme.native;
+            wrappedCallServerMethod("cfg.change_theme", { theme_name: themeName });
+            findAllThemes().then((result) => setThemes(result));
+            // pluginSelf.activeTheme = themes.find((theme: ComboItem) => theme?.theme?.native === item?.theme?.native).theme 
+            PromptReload().then((selection) => {
+                if (selection == MessageBoxResult.okay) {
+                    window.location.reload();
+                }
+            });
+        };
         return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
             window.SP_REACT.createElement(DialogHeader, null, "Themes"),
             window.SP_REACT.createElement(DialogBody, { className: classMap.SettingsDialogBodyFade },
+                window.SP_REACT.createElement("style", null, `.DialogDropDown._DialogInputContainer.Panel.Focusable {min-width: fit-content;}`),
                 window.SP_REACT.createElement("div", { className: "S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _1ugIUbowxDg0qM0pJUbBRM _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel" },
-                    window.SP_REACT.createElement("div", { className: classMap.FieldLabelRow },
+                    window.SP_REACT.createElement("div", { className: "H9WOq6bV_VhQ4QjJS_Bxg" },
                         window.SP_REACT.createElement("div", { className: "_3b0U-QDD-uhFpw6xM716fw" }, "Client Theme"),
                         window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon },
                             window.SP_REACT.createElement(RenderEditTheme, { themes: themes, active: active }),
-                            window.SP_REACT.createElement(Dropdown, { rgOptions: themes, selectedOption: 1, strDefaultLabel: active, onChange: updateThemeCallback }))),
-                    window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, "Select the theme you want Steam to use (requires reload)")))));
+                            window.SP_REACT.createElement(Dropdown, { onMenuOpened: OnMenuOpened, rgOptions: themes, selectedOption: 1, strDefaultLabel: active, onChange: updateThemeCallback }))),
+                    window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, "Select the theme you want Steam to use (requires reload)")),
+                window.SP_REACT.createElement("div", { className: "S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _1ugIUbowxDg0qM0pJUbBRM _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel" },
+                    window.SP_REACT.createElement("div", { className: "H9WOq6bV_VhQ4QjJS_Bxg" },
+                        window.SP_REACT.createElement("div", { className: "_3b0U-QDD-uhFpw6xM716fw" }, "Inject Javascript"),
+                        window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon }, jsState !== undefined && window.SP_REACT.createElement(Toggle, { value: jsState, onChange: onScriptToggle }))),
+                    window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, "Decide whether themes are allowed to insert javascript into Steam. Disabling javascript may break Steam interface as a byproduct (requires reload)")),
+                window.SP_REACT.createElement("div", { className: "S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _1ugIUbowxDg0qM0pJUbBRM _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel" },
+                    window.SP_REACT.createElement("div", { className: "H9WOq6bV_VhQ4QjJS_Bxg" },
+                        window.SP_REACT.createElement("div", { className: "_3b0U-QDD-uhFpw6xM716fw" }, "Inject StyleSheets"),
+                        window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon }, cssState !== undefined && window.SP_REACT.createElement(Toggle, { value: cssState, onChange: onStyleToggle }))),
+                    window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, "Decide whether themes are allowed to insert stylesheets into Steam. (requires reload)")))));
     };
 
     const UpToDateModal = () => {
@@ -394,11 +606,11 @@ var millennium_main = (function (exports, react, ReactDOM) {
         const viewMoreClick = (props) => window.open(props?.commit, "_blank");
         const updateItemMessage = (updateObject, index) => {
             setUpdating({ ...updating, [index]: true });
-            csm("update_theme", { native: updateObject.native }).then((success) => {
+            wrappedCallServerMethod("update_theme", { native: updateObject.native }).then((success) => {
                 /** @todo: prompt user an error occured. */
                 if (!success)
                     return;
-                csm("get_cached_updates").then((result) => {
+                wrappedCallServerMethod("get_cached_updates").then((result) => {
                     setUpdates(JSON.parse(result));
                 });
             });
@@ -427,7 +639,7 @@ var millennium_main = (function (exports, react, ReactDOM) {
         const [updates, setUpdates] = react.useState(null);
         const [checkingForUpdates, setCheckingForUpdates] = react.useState(false);
         react.useEffect(() => {
-            csm("get_cached_updates").then((result) => {
+            wrappedCallServerMethod("get_cached_updates").then((result) => {
                 console.log(result);
                 setUpdates(JSON.parse(result));
             });
@@ -436,8 +648,8 @@ var millennium_main = (function (exports, react, ReactDOM) {
             if (checkingForUpdates)
                 return;
             setCheckingForUpdates(true);
-            await csm("initialize_repositories");
-            csm("get_cached_updates").then((result) => {
+            await wrappedCallServerMethod("initialize_repositories");
+            wrappedCallServerMethod("get_cached_updates").then((result) => {
                 setUpdates(JSON.parse(result));
                 setCheckingForUpdates(false);
             });
@@ -487,11 +699,6 @@ var millennium_main = (function (exports, react, ReactDOM) {
                 element.classList.remove("Myra7iGjzCdMPzitboVfh");
             });
         };
-        console.log("innerIcon", findClass("U6HcKswXzjmWtFxbjxuz4"));
-        console.log("sep", findClass("_1UEEmNDZ7Ta3enwTf5T0O0"));
-        console.log("text", findClass("_2X9_IsQsEJDpAd2JGrHdJI"));
-        console.log("awdawd", findClass("Myra7iGjzCdMPzitboVfh"));
-        console.log(IconsModule);
         return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
             window.SP_REACT.createElement("div", { className: `MillenniumTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Plugins ? "Myra7iGjzCdMPzitboVfh" : ""}`, onClick: () => componentUpdate(Renderer.Plugins) },
                 window.SP_REACT.createElement("div", { className: "U6HcKswXzjmWtFxbjxuz4" },
@@ -557,17 +764,17 @@ var millennium_main = (function (exports, react, ReactDOM) {
 
     async function getTheme() {
         return new Promise(async (resolve, _reject) => {
-            resolve(JSON.parse(await csm("get_active_theme")));
+            resolve(JSON.parse(await wrappedCallServerMethod("cfg.get_active_theme")));
         });
     }
     const getConditionals = () => {
         return new Promise(async (resolve, _reject) => {
-            resolve(JSON.parse(await csm("get_conditionals")));
+            resolve(JSON.parse(await wrappedCallServerMethod("get_conditionals")));
         });
     };
     const getSystemColor = () => {
         return new Promise(async (resolve, _reject) => {
-            resolve(JSON.parse(await csm("get_accent_color")));
+            resolve(JSON.parse(await wrappedCallServerMethod("get_accent_color")));
         });
     };
     async function getActive() {
@@ -632,8 +839,11 @@ var millennium_main = (function (exports, react, ReactDOM) {
 })({}, window.SP_REACT, window.SP_REACTDOM);
 
 function globalize() {
+	// Assign the plugin on plugin list. 
 	Object.assign(window.PLUGIN_LIST[pluginName], millennium_main);
+	// Run the rolled up plugins default exported function 
 	millennium_main["default"]();
+	// Notify Millennium this plugin has loaded. This propegates and calls the backend method.
 	MILLENNIUM_BACKEND_IPC.postMessage(1, { pluginName: pluginName });
 }
 globalize()

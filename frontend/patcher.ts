@@ -11,14 +11,14 @@ import {
     ThemeItem 
 } from "./types/types";
 
-const DOMModifier = {
+export const DOMModifier = {
     /**
      * Append a StyleSheet to DOM from raw text
      * @param document Target document to append StyleSheet to
      * @param innerStyle string encoded CSS
      * @param id HTMLElement id
      */
-    AddStyleSheetFromText: (document: Document, innerStyle: string, id: string) => {
+    AddStyleSheetFromText: (document: Document, innerStyle: string, id?: string) => {
         document.head.appendChild(Object.assign(document.createElement('style'), { id: id })).innerText = innerStyle
     },
     /**
