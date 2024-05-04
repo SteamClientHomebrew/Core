@@ -16,7 +16,7 @@ from api.user_data import get_conditionals
 from config.settings import Config
 from webkit.stack import WebkitStack, add_browser_css, add_browser_js
 
-from updater.git import initialize_repositories, get_cached_updates, update_theme, check_updates
+from updater.git import initialize_repositories, get_cached_updates, update_theme, needs_update
 
 cfg = Config()
 
