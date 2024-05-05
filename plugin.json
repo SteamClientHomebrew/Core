@@ -2,6 +2,5 @@
     "common_name": "Millennium",
     "name": "millennium__internal",
     "description": "A builtin plugin that enables custom themes.",
-    "venv": ".venv",
-    "not_sure": true
+    "venv": ".venv"
 }
