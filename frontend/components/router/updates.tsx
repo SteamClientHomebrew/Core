@@ -40,13 +40,13 @@ const RenderAvailableUpdates: React.FC<UpdateProps> = ({ updates, setUpdates }) 
     const updateItemMessage = (updateObject: UpdateItemType, index: number) => 
     {
         setUpdating({ ...updating, [index]: true });
-        Millennium.callServerMethod("update_theme", {native: updateObject.native}).then((success: boolean) => 
+        Millennium.callServerMethod("updater.update_theme", {native: updateObject.native}).then((success: boolean) => 
         {
             /** @todo: prompt user an error occured. */
             if (!success) return 
 
-            Millennium.callServerMethod("get_cached_updates").then((result: any) => {
-                setUpdates(JSON.parse(result))
+            Millennium.callServerMethod("updater.get_update_list").then((result: any) => {
+                setUpdates(JSON.parse(result).updates)
             })
         })
     }
@@ -91,9 +91,9 @@ const UpdatesViewModal: React.FC = () => {
     const [checkingForUpdates, setCheckingForUpdates] = useState<boolean>(false)
     
     useEffect(() => {
-        Millennium.callServerMethod("get_cached_updates").then((result: any) => {
+        Millennium.callServerMethod("updater.get_update_list").then((result: any) => {
             console.log(result)
-            setUpdates(JSON.parse(result))
+            setUpdates(JSON.parse(result).updates)
         })
     }, [])
 
@@ -101,10 +101,10 @@ const UpdatesViewModal: React.FC = () => {
         if (checkingForUpdates) return 
         
         setCheckingForUpdates(true)
-        await Millennium.callServerMethod("initialize_repositories")
+        await Millennium.callServerMethod("updater.re_initialize")
 
-        Millennium.callServerMethod("get_cached_updates").then((result: any) => {
-            setUpdates(JSON.parse(result))
+        Millennium.callServerMethod("updater.get_update_list").then((result: any) => {
+            setUpdates(JSON.parse(result).updates)
             setCheckingForUpdates(false)
         })
     }

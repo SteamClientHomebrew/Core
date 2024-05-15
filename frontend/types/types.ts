@@ -2,8 +2,8 @@ import { SingleDropdownOption } from 'millennium-lib'
 
 export interface Patch {
     MatchRegexString: string, 
-    TargetCss?: string, 
-    TargetJs?: string
+    TargetCss?: string | Array<string>, 
+    TargetJs?: string | Array<string>
 }
 
 export interface FundingTypes {
@@ -39,12 +39,14 @@ export interface ConditionalControlFlow {
 }
 
 export interface Conditions {
-    [settingName: string]: {
-        default?: string;
-        description?: string;
-        values: {
-            [condition: string]: ConditionalControlFlow
-        };
+    [settingName: string]: ICondition;
+}
+
+export interface ICondition {
+    default?: string;
+    description?: string;
+    values: {
+        [condition: string]: ConditionalControlFlow
     };
 }
 

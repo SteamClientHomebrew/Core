@@ -6,7 +6,7 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 import { defineConfig } from 'rollup';
 import plugin_ from "./plugin.json"
 import css from "rollup-plugin-import-css";
-import { terser } from 'rollup-plugin-terser';
+// import { terser } from 'rollup-plugin-terser';
 
 // wrap the callServerMethod to auto input the plugin name
 /**
@@ -50,14 +50,21 @@ function bootstrap() {
 	}
 }
 
-function addPluginMain() 
+function resolveMillennium() 
 {
   const cat = (parts) => { return parts.join('\n'); }
+
   return {
     name: 'add-plugin-main',
-    generateBundle(_, bundle) {
-      for (const fileName in bundle) {
-        if (bundle[fileName].type != 'chunk') continue 
+    generateBundle(_, bundle)
+	{
+      for (const fileName in bundle) 
+	  {
+        if (bundle[fileName].type != 'chunk') {
+			continue 
+		}
+
+		process.stdout.write("\x1b[32madding millennium support...\x1b[0m");
 
         bundle[fileName].code = cat([
           `const pluginName = "${plugin_["name"]}";`,
@@ -65,6 +72,8 @@ function addPluginMain()
           wrappedCallServerMethod.toString(), bundle[fileName].code,
           globalize.toString(), globalize.name + "()"
         ])
+
+		console.log("\x1b[94m%s\x1b[0m", " [OK]");
       }
     }
   };
@@ -76,7 +85,7 @@ export default defineConfig({
 		typescript({
 			exclude: [ "*millennium.ts" ]
 		}),
-		addPluginMain(),
+		resolveMillennium(),
 		nodeResolve(),
 		commonjs(),
 		json(),
@@ -90,6 +99,7 @@ export default defineConfig({
 		}),
 	],
 	context: 'window',
+	external: ['react', 'react-dom'],
 	output: {
 		name: "millennium_main",
 		file: "dist/index.js",

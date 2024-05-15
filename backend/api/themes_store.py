@@ -28,6 +28,10 @@ def find_all_themes() -> str:
     themes = [] 
     path = Millennium.steam_path() + "/steamui/skins"
 
+    if not os.path.exists(path):
+        # If it doesn't exist, create it
+        os.makedirs(path)
+
     filenames = os.listdir(path)
     subdirectories = [filename for filename in filenames if os.path.isdir(os.path.join(path, filename))]
     subdirectories.sort()

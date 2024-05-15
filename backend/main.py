@@ -1,6 +1,10 @@
+import asyncio
+import threading
 import Millennium
 import json, os
 import platform
+
+from ipc.socket import serve_websocket, start_websocket_server
 
 # get runtime platform
 _platform = platform.system()
@@ -12,20 +16,26 @@ elif _platform == "Linux":
 
 from api.themes_store import find_all_themes
 from api.plugins_store import find_all_plugins
-from api.user_data import get_conditionals
-from config.settings import Config
+from api.user_data import Config, cfg
 from webkit.stack import WebkitStack, add_browser_css, add_browser_js
+from ipc.socket import uninstall_theme
 
-from updater.git import initialize_repositories, get_cached_updates, update_theme, needs_update
+from updater.git import Updater
 
-cfg = Config()
+updater = Updater()
+
+def get_steam_path():
+    return Millennium.steam_path()
 
 def get_load_config():
 
+    config = cfg.get_config()
+
     query = {
-        "accent_color": json.dumps(get_accent_color()), 
-        "conditions": json.dumps(get_conditionals()), 
-        "settings": json.dumps(cfg.get_config())
+        "accent_color": json.loads(get_accent_color()), 
+        "conditions": config["conditions"] if "conditions" in config else None, 
+        "active_theme": json.loads(cfg.get_active_theme()),
+        "settings": config
     }
     return json.dumps(query)
 
@@ -49,10 +59,11 @@ class Plugin:
                 print("pre-initiliazing browser css module")
                 add_browser_css(os.path.join(Millennium.steam_path(), "skins", name, theme["data"]["Steam-WebKit"]))
 
-            initialize_repositories()
-
         except Exception as excep:
             print(f"exception thrown @ _load -> {excep}")
+
+        websocket_thread = threading.Thread(target=start_websocket_server)
+        websocket_thread.start()
 
     def _unload(self):
         print("unloading")

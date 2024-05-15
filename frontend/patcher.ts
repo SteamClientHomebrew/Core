@@ -2,14 +2,15 @@ import { pluginSelf } from "millennium-lib";
 import { 
     CommonPatchTypes, 
     ConditionalControlFlow, 
-    ConditionalControlFlowType, 
+    ConditionalControlFlowType as ModuleType, 
     ConditionalPatch, 
     Conditions, 
     ConditionsStore, 
     Patch, 
     Theme, 
     ThemeItem 
-} from "./types/types";
+} 
+from "./types/types";
 
 export const DOMModifier = {
     /**
@@ -19,6 +20,8 @@ export const DOMModifier = {
      * @param id HTMLElement id
      */
     AddStyleSheetFromText: (document: Document, innerStyle: string, id?: string) => {
+        if (document.querySelectorAll(`style[id='${id}']`).length) return 
+        
         document.head.appendChild(Object.assign(document.createElement('style'), { id: id })).innerText = innerStyle
     },
     /**
@@ -26,7 +29,10 @@ export const DOMModifier = {
      * @param document Target document to append StyleSheet to
      * @param localPath relative/absolute path to CSS module
      */
-    AddStyleSheet: (document: Document, localPath: string) => {
+    AddStyleSheet: (document: Document, localPath: string) => {   
+        if (!pluginSelf.stylesAllowed) return 
+        if (document.querySelectorAll(`link[href='${localPath}']`).length) return
+
         document.head.appendChild(Object.assign(document.createElement('link'), { 
             href: localPath, 
             rel: 'stylesheet', id: 'millennium-injected' 
@@ -38,6 +44,9 @@ export const DOMModifier = {
      * @param localPath relative/absolute path to CSS module
      */
     AddJavaScript: (document: Document, localPath: string) => {
+        if (!pluginSelf.scriptsAllowed) return 
+        if (document.querySelectorAll(`script[src='${localPath}'][type='module']`).length) return 
+        
         document.head.appendChild(Object.assign(document.createElement('script'), { 
             src: localPath, 
             type: 'module', id: 'millennium-injected' 
@@ -81,7 +90,7 @@ function constructThemePath(nativeName: string, relativePath: string) {
     return `skins/${nativeName}/${relativePath}`
 }
 
-const evaluatePatch = (type: ConditionalControlFlowType, modulePatch: ConditionalControlFlow, documentTitle: string, classList: string[], document: Document) => {
+const evaluatePatch = (type: ModuleType, modulePatch: ConditionalControlFlow, documentTitle: string, classList: string[], document: Document) => {
 
     if ((modulePatch as any)[CommonPatchTypes[type]] === undefined) {
         return 
@@ -94,10 +103,10 @@ const evaluatePatch = (type: ConditionalControlFlowType, modulePatch: Conditiona
         }
 
         switch (type) {
-            case ConditionalControlFlowType.TargetCss: {
+            case ModuleType.TargetCss: {
                 DOMModifier.AddStyleSheet(document, constructThemePath(pluginSelf.activeTheme.native, (modulePatch as any)[CommonPatchTypes[type]].src))  
             }   
-            case ConditionalControlFlowType.TargetJs: {
+            case ModuleType.TargetJs: {
                 DOMModifier.AddJavaScript(document, constructThemePath(pluginSelf.activeTheme.native, (modulePatch as any)[CommonPatchTypes[type]].src))
             }     
         }  
@@ -118,8 +127,8 @@ const evaluateConditions = (theme: ThemeItem, title: string, classes: string[], 
         if (condition in savedConditions) {
             const patch = themeConditions[condition].values[savedConditions[condition]]
 
-            evaluatePatch(ConditionalControlFlowType.TargetCss, patch, title, classes, document)
-            evaluatePatch(ConditionalControlFlowType.TargetJs, patch, title, classes, document)
+            evaluatePatch(ModuleType.TargetCss, patch, title, classes, document)
+            evaluatePatch(ModuleType.TargetJs, patch, title, classes, document)
         }
     }
 }
@@ -132,8 +141,22 @@ const evaluatePatches = (activeTheme: ThemeItem, documentTitle: string, classLis
             return 
         }
         
-        patch?.TargetCss !== undefined && DOMModifier.AddStyleSheet(document, constructThemePath(activeTheme.native, patch.TargetCss))
-        patch?.TargetJs !== undefined && DOMModifier.AddJavaScript(document, constructThemePath(activeTheme.native, patch.TargetJs))
+        const evaluateTargetModule = (module: string | Array<string>, type: ModuleType) => {
+
+            const nodeHandler = type == ModuleType.TargetCss ? DOMModifier.AddStyleSheet : DOMModifier.AddJavaScript
+
+            if (module === undefined) return 
+
+            if (typeof module === 'string') {
+                nodeHandler(document, constructThemePath(activeTheme.native, module));
+            }
+            else if (Array.isArray(module)) {
+                module.forEach(css => nodeHandler(document, constructThemePath(activeTheme.native, css)));
+            }
+        }
+
+        evaluateTargetModule(patch?.TargetCss, ModuleType.TargetCss)
+        evaluateTargetModule(patch?.TargetJs, ModuleType.TargetJs)
     });
 }
 
@@ -155,8 +178,8 @@ function patchDocumentContext(windowContext: any)
     // Append System Accent Colors to global document (publically shared)
     DOMModifier.AddStyleSheetFromText(document, pluginSelf.systemColor, "SystemAccentColorInject")
 
-    activeTheme.data.hasOwnProperty("Patches") && evaluatePatches(activeTheme, documentTitle, classList, document, windowContext)
-    activeTheme.data.hasOwnProperty("Conditions") && evaluateConditions(activeTheme, documentTitle, classList, document)
+    activeTheme?.data?.hasOwnProperty("Patches") && evaluatePatches(activeTheme, documentTitle, classList, document, windowContext)
+    activeTheme?.data?.hasOwnProperty("Conditions") && evaluateConditions(activeTheme, documentTitle, classList, document)
 }
 
 export { parseTheme, patchDocumentContext }
