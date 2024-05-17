@@ -119,8 +119,14 @@ async def echo(websocket, path):
 
 
 async def serve_websocket():
-    async with websockets.serve(echo, "localhost", 9123):
-        await asyncio.Future()  # run forever
+    while True:
+        try:
+            async with websockets.serve(echo, "localhost", 9123):
+                await asyncio.Future()  # run forever
+        except Exception as e:
+            print(f"ipc socket closed on exception: {e}")
+            print("restarting websocket...")
+            await asyncio.sleep(5)  # Wait for 5 seconds before reconnecting
 
 def start_websocket_server():
     asyncio.set_event_loop(asyncio.new_event_loop())

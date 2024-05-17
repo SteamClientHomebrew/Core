@@ -13,7 +13,7 @@ enum Renderer {
 }
 
 const RenderViewComponent = (componentType: Renderer): any => {
-	Millennium.findElement(pluginSelf.settingsDoc, ".DialogContent_InnerWidth").then((element: HTMLElement[]) => { 
+	Millennium.findElement(pluginSelf.settingsDoc, ".DialogContent_InnerWidth").then((element: NodeListOf<Element>) => { 
 
 		switch (componentType) {
 			case Renderer.Plugins:   

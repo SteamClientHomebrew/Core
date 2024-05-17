@@ -1,4 +1,4 @@
-import { IconsModule, Millennium, findModuleChild, pluginSelf } from "millennium-lib"; 
+import { Millennium, pluginSelf } from "millennium-lib"; 
 import { parseTheme, patchDocumentContext } from "./patcher"
 import { RenderSettingsModal } from "./components/settings"
 import { ConditionsStore, ThemeItem, SystemAccentColor } from "./types/types";
@@ -31,8 +31,6 @@ function windowCreated(windowContext: any)
 
     patchDocumentContext(windowContext);
 }
-
-console.log(IconsModule)
 
 const ReloadMillenniumFrontend = () => {
     SteamClient.Browser.RestartJSContext();

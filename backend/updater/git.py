@@ -126,8 +126,6 @@ class Updater:
         remote = next((item for item in self.remote_json if item.get("name") == repo_name), None)
         update_needed = self.needs_update(remote['commit'], theme, repo)
 
-        print(update_needed)
-
         commit_message = remote['message']
         commit_date = arrow.get(remote['date']).humanize()
         commit_url = remote['url']
@@ -151,8 +149,6 @@ class Updater:
 
         start_time = time.time()
         post_body = self.construct_post_body()
-
-        print(json.dumps(post_body))
 
         # Make the POST request
         response = requests.post("https://steambrew.app/api/v2/checkupdates", data=json.dumps(post_body))

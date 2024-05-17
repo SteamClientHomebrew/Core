@@ -37,5 +37,4 @@ def find_all_plugins() -> str:
             except json.JSONDecodeError:
                 print(f"Error parsing {skin_json_path}. Invalid JSON format.")
 
-    print(plugins)
     return json.dumps(plugins)

@@ -4,7 +4,7 @@ function bootstrap() {
 	 * This function is called n times depending on n plugin count,
 	 * Create the plugin list if it wasn't already created 
 	 */
-	!window.PLUGIN_LIST && (window.PLUGIN_LIST = {});
+	!window.PLUGIN_LIST && (window.PLUGIN_LIST = {})
 
 	// initialize a container for the plugin
 	if (!window.PLUGIN_LIST[pluginName]) {
@@ -17,11 +17,6 @@ async function wrappedCallServerMethod(methodName, kwargs) {
 }
 var millennium_main = (function (exports, React, ReactDOM) {
     'use strict';
-
-    function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
-
-    var React__default = /*#__PURE__*/_interopDefaultLegacy(React);
-    var ReactDOM__default = /*#__PURE__*/_interopDefaultLegacy(ReactDOM);
 
     let webpackCache = {};
     const id = Math.random();
@@ -273,28 +268,108 @@ var millennium_main = (function (exports, React, ReactDOM) {
     });
     const classMap = Object.assign({}, ...classMapList.map(obj => Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, value]))));
 
-    // Control what window controls are exposed. 
-    var WindowControls;
-    (function (WindowControls) {
-        WindowControls[WindowControls["Minimize"] = 1] = "Minimize";
-        WindowControls[WindowControls["Maximize"] = 2] = "Maximize";
-        WindowControls[WindowControls["Close"] = 4] = "Close";
-    })(WindowControls || (WindowControls = {}));
+    window.MILLENNIUM_BACKEND_IPC = {
+        postMessage: (messageId, contents) => {
+            return new Promise((resolve) => {
+                const message = { id: messageId, iteration: window.CURRENT_IPC_CALL_COUNT++, data: contents };
+                const messageHandler = function (data) {
+                    const json = JSON.parse(data.data);
+                    /**
+                     * wait to receive the correct message id from the backend
+                     */
+                    if (json.id != message.iteration)
+                        return;
+                    resolve(json);
+                    window.MILLENNIUM_IPC_SOCKET.removeEventListener('message', messageHandler);
+                };
+                window.MILLENNIUM_IPC_SOCKET.addEventListener('message', messageHandler);
+                window.MILLENNIUM_IPC_SOCKET.send(JSON.stringify(message));
+            });
+        }
+    };
+    window.Millennium = {
+        // @ts-ignore (ignore overloaded function)
+        callServerMethod: (pluginName, methodName, kwargs) => {
+            return new Promise((resolve, reject) => {
+                const query = {
+                    pluginName: pluginName,
+                    methodName: methodName
+                };
+                if (kwargs)
+                    query.argumentList = kwargs;
+                /* call handled from "src\core\ipc\pipe.cpp @ L:67" */
+                window.MILLENNIUM_BACKEND_IPC.postMessage(0, query).then((response) => {
+                    if (response?.failedRequest) {
+
+                        const m = ` wrappedCallServerMethod() from [name: ${pluginName}, method: ${methodName}] failed on exception -> ${response.failMessage}`;
+                        
+                        // Millennium can't accurately pin point where this came from
+                        // check the sources tab and find your plugins index.js, and look for a call that could error this
+                        throw new Error(m)
+                    }
+                    const val = response.returnValue;
+                    if (typeof val === 'string') {
+                        resolve(atob(val));
+                    }
+                    resolve(val);
+                });
+            });
+        },
+        AddWindowCreateHook: (callback) => {
+            // used to have extended functionality but removed since it was shotty
+            g_PopupManager.AddPopupCreatedCallback((e) => {
+                callback(e);
+            });
+        },
+        findElement: (privateDocument, querySelector, timeout) => {
+            return new Promise((resolve, reject) => {
+                const matchedElements = privateDocument.querySelectorAll(querySelector);
+                /**
+                 * node is already in DOM and doesn't require watchdog
+                 */
+                if (matchedElements.length) {
+                    resolve(matchedElements);
+                }
+                let timer = null;
+                const observer = new MutationObserver(() => {
+                    const matchedElements = privateDocument.querySelectorAll(querySelector);
+                    if (matchedElements.length) {
+                        if (timer)
+                            clearTimeout(timer);
+                        observer.disconnect();
+                        resolve(matchedElements);
+                    }
+                });
+                /** observe the document body for item changes, assuming we are waiting for target element */
+                observer.observe(privateDocument.body, {
+                    childList: true,
+                    subtree: true
+                });
+                if (timeout) {
+                    timer = setTimeout(() => {
+                        observer.disconnect();
+                        reject();
+                    }, timeout);
+                }
+            });
+        },
+        exposeObj: function (obj) {
+            for (const key in obj) {
+                exports[key] = obj[key];
+            }
+        }
+    };
     /**
+     * @brief
      * pluginSelf is a sandbox for data specific to your plugin.
      * You can't access other plugins sandboxes and they can't access yours
      *
-     * example:
+     * @example
      * | pluginSelf.var = "Hello"
      * | console.log(pluginSelf.var) -> Hello
      */
     const pluginSelf = window.PLUGIN_LIST[pluginName];
     const Millennium = window.Millennium;
-    Millennium.exposeObj = function (obj) {
-        for (const key in obj) {
-            exports[key] = obj[key];
-        }
-    };
 
     const CommonPatchTypes = [
         "TargetCss", "TargetJs"
@@ -493,7 +568,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
         ConditionType[ConditionType["Dropdown"] = 0] = "Dropdown";
         ConditionType[ConditionType["Toggle"] = 1] = "Toggle";
     })(ConditionType || (ConditionType = {}));
-    class RenderThemeEditor extends React__default["default"].Component {
+    class RenderThemeEditor extends React.Component {
         constructor() {
             super(...arguments);
             this.GetConditionType = (value) => {
@@ -576,7 +651,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
         };
         const modalProps = {
             strTitle: "Reload Required",
-            strDescription: message ?? "Selected changes need a reload in order to take affect. Should we reload right now?",
+            strDescription: "Selected changes need a reload in order to take affect. Should we reload right now?",
             strOKButtonText: "Reload Now",
             strCancelButtonText: "Reload Later"
         };
@@ -692,7 +767,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
                         window.SP_REACT.createElement(this.component, null))));
             };
             console.log(super.root_element);
-            ReactDOM__default["default"].render(window.SP_REACT.createElement(RenderComponent, { _window: super.window }), super.root_element);
+            ReactDOM.render(window.SP_REACT.createElement(RenderComponent, { _window: super.window }), super.root_element);
         }
         SetTitle() {
             console.log("[internal] setting title ->", this);
@@ -720,7 +795,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
         }
     }
 
-    class AboutThemeRenderer extends React__default["default"].Component {
+    class AboutThemeRenderer extends React.Component {
         constructor(props) {
             super(props);
             this.RenderDeveloperProfile = () => {
@@ -1054,13 +1129,13 @@ var millennium_main = (function (exports, React, ReactDOM) {
         Millennium.findElement(pluginSelf.settingsDoc, ".DialogContent_InnerWidth").then((element) => {
             switch (componentType) {
                 case Renderer.Plugins:
-                    ReactDOM__default["default"].render(window.SP_REACT.createElement(PluginViewModal, null), element[0]);
+                    ReactDOM.render(window.SP_REACT.createElement(PluginViewModal, null), element[0]);
                     break;
                 case Renderer.Themes:
-                    ReactDOM__default["default"].render(window.SP_REACT.createElement(ThemeViewModal, null), element[0]);
+                    ReactDOM.render(window.SP_REACT.createElement(ThemeViewModal, null), element[0]);
                     break;
                 case Renderer.Updates:
-                    ReactDOM__default["default"].render(window.SP_REACT.createElement(UpdatesViewModal, null), element[0]);
+                    ReactDOM.render(window.SP_REACT.createElement(UpdatesViewModal, null), element[0]);
                     break;
             }
         });
@@ -1135,7 +1210,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
             // Create a new div element
             var bufferDiv = document.createElement("div");
             element[0].prepend(bufferDiv);
-            ReactDOM__default["default"].render(window.SP_REACT.createElement(PluginComponent, null), bufferDiv);
+            ReactDOM.render(window.SP_REACT.createElement(PluginComponent, null), bufferDiv);
         });
     }
 
@@ -1161,7 +1236,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
         });
         patchDocumentContext(windowContext);
     }
-    console.log(IconsModule);
     const ReloadMillenniumFrontend = () => {
         SteamClient.Browser.RestartJSContext();
     };
@@ -1197,7 +1271,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
         Millennium.AddWindowCreateHook(windowCreated);
     }
 
-    exports["default"] = PluginMain;
+    exports.default = PluginMain;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
@@ -1207,10 +1281,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
 
 function globalize() {
 	// Assign the plugin on plugin list. 
-	Object.assign(window.PLUGIN_LIST[pluginName], millennium_main);
+	Object.assign(window.PLUGIN_LIST[pluginName], millennium_main)
 	// Run the rolled up plugins default exported function 
 	millennium_main["default"]();
 	// Notify Millennium this plugin has loaded. This propegates and calls the backend method.
-	MILLENNIUM_BACKEND_IPC.postMessage(1, { pluginName: pluginName });
+	MILLENNIUM_BACKEND_IPC.postMessage(1, { pluginName: pluginName })
 }
 globalize()
