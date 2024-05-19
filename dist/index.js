@@ -1,19 +1,19 @@
 const pluginName = "millennium__internal";
-function bootstrap() {
-	/** 
-	 * This function is called n times depending on n plugin count,
-	 * Create the plugin list if it wasn't already created 
-	 */
-	!window.PLUGIN_LIST && (window.PLUGIN_LIST = {})
-
-	// initialize a container for the plugin
-	if (!window.PLUGIN_LIST[pluginName]) {
-		window.PLUGIN_LIST[pluginName] = {};
-	}
+function InitializePlugins() {
+    /**
+     * This function is called n times depending on n plugin count,
+     * Create the plugin list if it wasn't already created
+     */
+    !window.PLUGIN_LIST && (window.PLUGIN_LIST = {});
+    // initialize a container for the plugin
+    if (!window.PLUGIN_LIST[pluginName]) {
+        window.PLUGIN_LIST[pluginName] = {};
+    }
 }
-bootstrap()
+InitializePlugins()
 async function wrappedCallServerMethod(methodName, kwargs) {
-	return await Millennium.callServerMethod(pluginName, methodName, kwargs);
+    // @ts-ignore
+    return await Millennium.callServerMethod(pluginName, methodName, kwargs);
 }
 var millennium_main = (function (exports, React, ReactDOM) {
     'use strict';
@@ -268,7 +268,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
     });
     const classMap = Object.assign({}, ...classMapList.map(obj => Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, value]))));
 
-    window.MILLENNIUM_BACKEND_IPC = {
+    const IPCMain = {
         postMessage: (messageId, contents) => {
             return new Promise((resolve) => {
                 const message = { id: messageId, iteration: window.CURRENT_IPC_CALL_COUNT++, data: contents };
@@ -287,6 +287,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
             });
         }
     };
+    window.MILLENNIUM_BACKEND_IPC = IPCMain;
     window.Millennium = {
         // @ts-ignore (ignore overloaded function)
         callServerMethod: (pluginName, methodName, kwargs) => {
@@ -300,12 +301,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 /* call handled from "src\core\ipc\pipe.cpp @ L:67" */
                 window.MILLENNIUM_BACKEND_IPC.postMessage(0, query).then((response) => {
                     if (response?.failedRequest) {
-
                         const m = ` wrappedCallServerMethod() from [name: ${pluginName}, method: ${methodName}] failed on exception -> ${response.failMessage}`;
-                        
                         // Millennium can't accurately pin point where this came from
                         // check the sources tab and find your plugins index.js, and look for a call that could error this
-                        throw new Error(m)
+                        throw new Error(m);
                     }
                     const val = response.returnValue;
                     if (typeof val === 'string') {
@@ -663,50 +662,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
             return undefined;
         for (let prop in m) {
             if (typeof m[prop] === 'function' && m[prop].toString().includes('CreatePopup(this.m_strName,this.m_rgParams))')) {
-                //console.log(m[prop].toString())
                 return m[prop];
-            }
-        }
-    });
-    // findModuleChild((m) => {
-    //     if (typeof m !== 'object') return undefined;
-    //     for (let prop in m) {
-    //       if (typeof m[prop] === 'function'
-    //     ) {
-    //         console.log(m[prop].toString())
-    //       }
-    //     }
-    // })
-    // findAllModules((m) => {
-    //     if (typeof m !== 'object') return undefined;
-    //     for (let prop in m) {
-    //         try {
-    //             console.log(m[prop]?.toString())
-    //         }
-    //         catch (e) {}
-    //     }
-    // })
-    findModuleChild((m) => {
-        if (typeof m !== 'object')
-            return undefined;
-        for (let prop in m) {
-            if (typeof m[prop] === 'function'
-                && m[prop].toString().includes('this.m_OnLegacyPopupModalCountChanged')
-                && m[prop].toString().includes('this.m_rgLegacyPopupModals')) {
-                //console.log(m[prop].toString())
-                return m[prop];
-            }
-        }
-    });
-    findModuleChild((m) => {
-        if (typeof m !== 'object')
-            return undefined;
-        for (let prop in m) {
-            if (typeof m[prop] === 'function' &&
-                m[prop].toString().includes("UpdateParamsBeforeShow") &&
-                m[prop].toString().includes("this.browser_info.m_eBrowserType")) {
-                console.log(m[prop]);
-                console.log(m[prop].toString());
             }
         }
     });
@@ -719,51 +675,21 @@ var millennium_main = (function (exports, React, ReactDOM) {
             }
         }
     });
-    const NotSureWhatThisIs = findModuleChild((m) => {
-        if (typeof m !== 'object')
-            return undefined;
-        for (let prop in m) {
-            if (typeof m[prop] === 'function'
-                && m[prop].toString().includes('BShouldRenderMouseOverlay')
-                && m[prop].toString().includes('OnMenusChanged')
-                && m[prop].toString().includes('bSuppressMouseOverlay')
-                && m[prop].toString().includes('elRoot')) {
-                return m[prop];
-            }
-        }
-    });
-    const ContextMenuHandler = findModuleChild((m) => {
-        if (typeof m !== 'object')
-            return undefined;
-        for (let prop in m) {
-            if (typeof m[prop] === 'function'
-                && m[prop].toString().includes('m_rgActiveSubmenus')
-                && m[prop].toString().includes('CreateContextMenuInstance')
-                && m[prop].toString().includes('OnMenusChanged')) {
-                return m[prop];
-            }
-        }
-    });
-    /**
-     * INVESTIGATE FullModalOverlay, related to ShowLegacyPopupModal
-     */
     class CreatePopup extends CreatePopupBase {
         constructor(component, strPopupName, options) {
             super(strPopupName, options);
             this.component = component;
-            this.contextMenuHandler = new ContextMenuHandler();
         }
         Show() {
             super.Show();
             const RenderComponent = ({ _window }) => {
                 return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
-                    window.SP_REACT.createElement(NotSureWhatThisIs, { ownerWindow: _window, manager: this.contextMenuHandler }),
                     window.SP_REACT.createElement("div", { className: "PopupFullWindow", onContextMenu: ((_e) => {
                             // console.log('CONTEXT MENU OPEN')
                             // _e.preventDefault()
                             // this.contextMenuHandler.CreateContextMenuInstance(_e)
                         }) },
-                        window.SP_REACT.createElement(TitleBarControls, { popup: _window, hideMin: false, hideMax: false, hideActions: false, style: {} }),
+                        window.SP_REACT.createElement(TitleBarControls, { popup: _window, hideMin: false, hideMax: false, hideActions: false }),
                         window.SP_REACT.createElement(this.component, null))));
             };
             console.log(super.root_element);
@@ -775,23 +701,13 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 this.m_popup.document.title = "WINDOW";
             }
         }
-        Render(_window, _element) {
-            //console.log("called render", _window, element)
-        }
-        OnClose() {
-        }
+        Render(_window, _element) { }
+        OnClose() { }
         OnLoad() {
-            //console.log("window loaded...", this._createdWindow)
             const element = this.m_popup.document.querySelector(".DialogContent_InnerWidth");
             const height = element?.getBoundingClientRect()?.height;
             this.m_popup.SteamClient?.Window?.ResizeTo(450, height + 48, true);
             this.m_popup.SteamClient.Window.ShowWindow();
-            // @ts-ignore
-            // g_PopupManager.m_mapPopups.data_.forEach(popup => {
-            //     if (popup.value_.m_strName == "SP Desktop_uid0" || popup.value_.m_strName == "Example Window_uid0") {
-            //         console.log(popup.value_)
-            //     }
-            // })
         }
     }
 
@@ -1279,12 +1195,11 @@ var millennium_main = (function (exports, React, ReactDOM) {
 
 })({}, window.SP_REACT, window.SP_REACTDOM);
 
-function globalize() {
-	// Assign the plugin on plugin list. 
-	Object.assign(window.PLUGIN_LIST[pluginName], millennium_main)
-	// Run the rolled up plugins default exported function 
-	millennium_main["default"]();
-	// Notify Millennium this plugin has loaded. This propegates and calls the backend method.
-	MILLENNIUM_BACKEND_IPC.postMessage(1, { pluginName: pluginName })
+function ExecutePluginModule() {
+    // Assign the plugin on plugin list. 
+    Object.assign(window.PLUGIN_LIST[pluginName], millennium_main);
+    // Run the rolled up plugins default exported function 
+    millennium_main["default"]();
+    MILLENNIUM_BACKEND_IPC.postMessage(1, { pluginName: pluginName });
 }
-globalize()
+ExecutePluginModule()

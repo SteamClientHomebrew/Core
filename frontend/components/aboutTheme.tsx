@@ -1,7 +1,7 @@
 import { Millennium, pluginSelf } from "millennium-lib"
 import { ThemeItem } from "../types/types"
 import { CreatePopup } from "./router/browser"
-import React, { useEffect, useRef } from "react"
+import React from "react"
 
 class AboutThemeRenderer extends React.Component<any> {
     

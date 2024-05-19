@@ -102,11 +102,14 @@ class Updater:
         try: 
             repo = git.Repo(path)
             o = repo.remotes.origin
+            repo.git.reset('--hard')
+            repo.git.clean('-xdf')
             o.pull()
 
         except git.InvalidGitRepositoryError:
             return False
         
+        self.re_initialize()
         return True
 
     def needs_update(self, remote_commit: str, theme: str, repo: git.Repo):
@@ -116,13 +119,13 @@ class Updater:
 
         # Get the local and remote commit hashes for the default branch
         local_commit = getattr(repo.heads[default_branch], "commit", None)
-        needs_update = local_commit != remote_commit if local_commit and remote_commit else False
+        needs_update = str(local_commit) != str(remote_commit)
 
         # # Compare the local and remote commit hashes
-        # print(f"Theme {theme['native']} needs update -> {needs_update}\n\tlocal commit: {local_commit}\n\tremote commit: {remote_commit}")
         return needs_update
 
     def check_theme(self, theme, repo_name, repo):
+
         remote = next((item for item in self.remote_json if item.get("name") == repo_name), None)
         update_needed = self.needs_update(remote['commit'], theme, repo)
 
@@ -132,10 +135,13 @@ class Updater:
 
         name = theme["data"]["name"] if "name" in theme["data"] else theme["native"]
 
-        self.update_list.append({
-            'message': commit_message, 'date': commit_date, 'commit': commit_url,
-            'native': theme["native"], 'name': name
-        })
+        if update_needed:
+            print(f"{theme['native']} has an update available")
+
+            self.update_list.append({
+                'message': commit_message, 'date': commit_date, 'commit': commit_url,
+                'native': theme["native"], 'name': name
+            })
 
     def re_initialize(self):
         return self.__init__()
@@ -150,22 +156,22 @@ class Updater:
         start_time = time.time()
         post_body = self.construct_post_body()
 
+        headers = {
+            "Content-Type": "application/json"
+        }
         # Make the POST request
-        response = requests.post("https://steambrew.app/api/v2/checkupdates", data=json.dumps(post_body))
+        response = requests.post("https://steambrew.app/api/v2/checkupdates", data=json.dumps(post_body), headers=headers)
 
         if response.status_code != 200:
             print("an error occured checking for updates...")
             return 
 
         remote_json = response.json()
-
         success = False if "success" in remote_json and not remote_json["success"] else True
 
         if not success: 
-            print(f"failed to check for updates.\n\tmessage: {remote_json['message'] if 'message' in remote_json else 'empty'}")
             return 
 
-        print(remote_json)
         self.remote_json = remote_json
 
         for theme, repo in self.update_query:
