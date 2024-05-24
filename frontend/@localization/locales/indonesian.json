@@ -4,7 +4,7 @@
     "settingsPanelUpdates": "Pembaruan",
     "itemNoDescription": "Tidak ada deskripsi.",
     "themePanelClientTheme": "Tema Klien",
-    "themePanelThemeTooltip": "Pilih tema yang akan digunakan Steam (diperlukan muat ulang)"
+    "themePanelThemeTooltip": "Pilih tema yang akan digunakan Steam (diperlukan muat ulang)",
     "themePanelGetMoreThemes": "Lebih banyak tema",
     "themePanelInjectJavascript": "Gunakan Javascript",
     "themePanelInjectJavascriptToolTip": "Mengizinkan tema untuk memasukkan javascript ke Steam. Menonaktifkan javascript dapat merusak antarmuka Steam (diperlukan muat ulang)",
