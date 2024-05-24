@@ -7,9 +7,9 @@
     "themePanelThemeTooltip": "选择 Steam 主题（需要重新加载）",
     "themePanelGetMoreThemes": "获取更多主题",
     "themePanelInjectJavascript": "注入 JavaScript",
-    "themePanelInjectJavascriptToolTip": "决定是否允许主题在 Steam 中插入 JavaScript。禁用 JavaScript 可能会导致 Steam 界面出现问题。（需要重新加载）",
-    "themePanelInjectCSS": "注入样式表",
-    "themePanelInjectCSSToolTip": "决定是否允许主题在 Steam 中插入样式表。(需要重新加载）",
+    "themePanelInjectJavascriptToolTip": "是否允许主题在 Steam 中插入 JavaScript。禁用 JavaScript 可能会导致 Steam 界面出现问题。（需要重新加载）",
+    "themePanelInjectCSS": "注入 CSS",
+    "themePanelInjectCSSToolTip": "是否允许主题在 Steam 中插入 CSS。(需要重新加载）",
     "updatePanelHasUpdates": "发现新版本！",
     "updatePanelHasUpdatesSub": "Millennium 找到了以下主题的更新。",
     "updatePanelReleasedTag": "发布：",
@@ -25,7 +25,7 @@
     "showInFolder": "打开文件位置",
     "uninstall": "卸载",
     "reloadRequired": "需要重新加载",
-    "reloadRequiredBody": "所选更改需要重新加载才能生效。现在要重新加载吗？",
+    "reloadRequiredBody": "所选更改需要重新加载才能生效。立即重新加载？",
     "optionReloadNow": "立即重新加载",
     "optionReloadLater": "稍后重新加载"
 }
