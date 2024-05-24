@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import { PluginViewModal } from './router/plugins'
-import { ThemeViewModal } from './router/themes'
-import { UpdatesViewModal } from './router/updates'
-import { IconsModule, Millennium, findClass, pluginSelf } from 'millennium-lib';
+import { PluginViewModal } from './router/Plugins'
+import { ThemeViewModal } from './router/Themes'
+import { UpdatesViewModal } from './router/Updates'
+import { IconsModule, Millennium, pluginSelf } from 'millennium-lib';
+import { locale } from '../@localization';
 
 enum Renderer {
 	Plugins,
@@ -56,7 +57,7 @@ const PluginComponent: React.FC = () => {
 				</svg>
 				{/* <IconsModule.PlugInPS5/> */}
 			</div>
-			<div className="_2X9_IsQsEJDpAd2JGrHdJI">Plugins</div>
+			<div className="_2X9_IsQsEJDpAd2JGrHdJI">{locale.settingsPanelPlugins}</div>
 		</div>
 		<div className={`MillenniumTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Themes ? "Myra7iGjzCdMPzitboVfh" : ""}`} onClick={() => componentUpdate(Renderer.Themes)}>
 			<div className="U6HcKswXzjmWtFxbjxuz4">
@@ -71,13 +72,13 @@ const PluginComponent: React.FC = () => {
 				</svg>
 				{/* <IconsModule.CustomizeSteamDeck style={{height: "20px", width: "20px"}}/> */}
 			</div>
-			<div className="_2X9_IsQsEJDpAd2JGrHdJI">Themes</div>
+			<div className="_2X9_IsQsEJDpAd2JGrHdJI">{locale.settingsPanelThemes}</div>
 		</div>
 		<div className={`MillenniumTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Updates ? "Myra7iGjzCdMPzitboVfh" : ""}`} onClick={() => componentUpdate(Renderer.Updates)}>
 			<div className="U6HcKswXzjmWtFxbjxuz4">
 				<IconsModule.Update/>
 			</div>
-			<div className="_2X9_IsQsEJDpAd2JGrHdJI">Updates</div>
+			<div className="_2X9_IsQsEJDpAd2JGrHdJI">{locale.settingsPanelUpdates}</div>
 		</div>
 		<div className="_1UEEmNDZ7Ta3enwTf5T0O0"></div>
 		</>

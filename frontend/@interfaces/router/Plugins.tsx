@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { DialogBody, DialogHeader, IconsModule, Millennium, Toggle, classMap, findClass } from 'millennium-lib';
 import { PluginComponent } from '../../types/types';
+import { locale } from '../../@localization';
 
 interface EditPluginProps {
 	plugin: PluginComponent
@@ -59,7 +60,7 @@ const PluginViewModal: React.FC = () => {
 
 	return (
 		<>
-		<DialogHeader>Plugins</DialogHeader>
+		<DialogHeader>{locale.settingsPanelPlugins}</DialogHeader>
 		<DialogBody className={classMap.SettingsDialogBodyFade}>
 			{plugins.map((plugin: PluginComponent, index: number) => (
 
@@ -77,7 +78,7 @@ const PluginViewModal: React.FC = () => {
 						</div>
 					</div>
 					</div>
-					<div className={classMap.FieldDescription}>{plugin?.data?.description ?? "No description yet."}</div>
+					<div className={classMap.FieldDescription}>{plugin?.data?.description ?? locale.itemNoDescription}</div>
 				</div>
 			))} 
 		</DialogBody>

@@ -1,16 +1,5 @@
 import { pluginSelf } from "millennium-lib";
-import { 
-    CommonPatchTypes, 
-    ConditionalControlFlow, 
-    ConditionalControlFlowType as ModuleType, 
-    ConditionalPatch, 
-    Conditions, 
-    ConditionsStore, 
-    Patch, 
-    Theme, 
-    ThemeItem 
-} 
-from "./types/types";
+import { CommonPatchTypes, ConditionalControlFlow, ConditionalPatch, Patch, Theme, ConditionalControlFlowType as ModuleType } from "../types/types";
 
 export const DOMModifier = {
     /**
@@ -59,7 +48,7 @@ export const DOMModifier = {
  * @param incomingPatches Preprocessed list of patches from a specific theme
  * @returns Processed patches, interpolated with default patches
  */
-function parseTheme(incomingPatches: Patch[]) {
+export function parseTheme(incomingPatches: Patch[]) {
 
     let patches: Theme = {
         Patches: [
@@ -86,11 +75,20 @@ function parseTheme(incomingPatches: Patch[]) {
     return filteredPatches.concat(incomingPatches) as Patch[];
 }
 
-function constructThemePath(nativeName: string, relativePath: string) {
-    return `skins/${nativeName}/${relativePath}`
+export function constructThemePath(nativeName: string, relativePath: string) {
+    return ['skins', nativeName, relativePath].join('/');
 }
 
-const evaluatePatch = (type: ModuleType, modulePatch: ConditionalControlFlow, documentTitle: string, classList: string[], document: Document) => {
+export const classListMatch = (classList: string[], affectee: string) => {
+    for (const classItem in classList) {
+        if (classList[classItem].includes(affectee)) {
+            return true
+        }
+    }
+    return false
+}
+
+export const evaluatePatch = (type: ModuleType, modulePatch: ConditionalControlFlow, documentTitle: string, classList: string[], document: Document) => {
 
     if ((modulePatch as any)[CommonPatchTypes[type]] === undefined) {
         return 
@@ -98,7 +96,7 @@ const evaluatePatch = (type: ModuleType, modulePatch: ConditionalControlFlow, do
 
     ((modulePatch as any)[CommonPatchTypes[type]] as ConditionalPatch).affects.forEach((affectee: string) => {
 
-        if (!documentTitle.match(affectee) && !classList.includes(affectee)) {
+        if (!documentTitle.match(affectee) && !classListMatch(classList, affectee)) {
             return 
         }
 
@@ -112,74 +110,3 @@ const evaluatePatch = (type: ModuleType, modulePatch: ConditionalControlFlow, do
         }  
     });
 }
-
-const evaluateConditions = (theme: ThemeItem, title: string, classes: string[], document: Document): void => {
-
-    const themeConditions: Conditions = theme.data.Conditions
-    const savedConditions: ConditionsStore = pluginSelf.conditionals[theme.native]
-
-    for (const condition in themeConditions) {
-
-        if (!themeConditions.hasOwnProperty(condition)) {
-            return 
-        }
-
-        if (condition in savedConditions) {
-            const patch = themeConditions[condition].values[savedConditions[condition]]
-
-            evaluatePatch(ModuleType.TargetCss, patch, title, classes, document)
-            evaluatePatch(ModuleType.TargetJs, patch, title, classes, document)
-        }
-    }
-}
-
-const evaluatePatches = (activeTheme: ThemeItem, documentTitle: string, classList: string[], document: Document, context: any) => {
-    activeTheme.data.Patches.forEach((patch: Patch) => {
-
-        context.m_popup.window.HAS_INJECTED_THEME = documentTitle === "Steam"
-        if (!documentTitle.match(patch.MatchRegexString) && !classList.includes(patch.MatchRegexString)) {
-            return 
-        }
-        
-        const evaluateTargetModule = (module: string | Array<string>, type: ModuleType) => {
-
-            const nodeHandler = type == ModuleType.TargetCss ? DOMModifier.AddStyleSheet : DOMModifier.AddJavaScript
-
-            if (module === undefined) return 
-
-            if (typeof module === 'string') {
-                nodeHandler(document, constructThemePath(activeTheme.native, module));
-            }
-            else if (Array.isArray(module)) {
-                module.forEach(css => nodeHandler(document, constructThemePath(activeTheme.native, css)));
-            }
-        }
-
-        evaluateTargetModule(patch?.TargetCss, ModuleType.TargetCss)
-        evaluateTargetModule(patch?.TargetJs, ModuleType.TargetJs)
-    });
-}
-
-const getDocumentClassList = (context: any): string[] => {
-    return (context.m_rgParams.html_class || context.m_rgParams.body_class || '').split(' ').map((className: string) => '.' + className)
-}
-
-function patchDocumentContext(windowContext: any) 
-{
-    if (pluginSelf.isDefaultTheme) {
-        return
-    }
-
-    const activeTheme: ThemeItem = pluginSelf.activeTheme
-    const document: Document     = windowContext.m_popup.document    
-    const classList: string[]    = getDocumentClassList(windowContext);
-    const documentTitle: string  = windowContext.m_strTitle
-
-    // Append System Accent Colors to global document (publically shared)
-    DOMModifier.AddStyleSheetFromText(document, pluginSelf.systemColor, "SystemAccentColorInject")
-
-    activeTheme?.data?.hasOwnProperty("Patches") && evaluatePatches(activeTheme, documentTitle, classList, document, windowContext)
-    activeTheme?.data?.hasOwnProperty("Conditions") && evaluateConditions(activeTheme, documentTitle, classList, document)
-}
-
-export { parseTheme, patchDocumentContext }

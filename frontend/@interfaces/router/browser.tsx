@@ -1,6 +1,6 @@
 import { findModuleChild } from "millennium-lib";
 import ReactDOM from "react-dom";
-import { RenderThemeEditor } from "./themeEditor";
+import { RenderThemeEditor } from "./ThemeEditor";
 import { ReactNode } from "react";
 
 export const CreatePopupBase: any = findModuleChild((m) => {

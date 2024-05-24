@@ -1,12 +1,24 @@
 import { Millennium, pluginSelf } from "millennium-lib"; 
-import { parseTheme, patchDocumentContext } from "./patcher"
-import { RenderSettingsModal } from "./components/settings"
+import { parseTheme, patchDocumentContext } from "./patcher/index"
+import { RenderSettingsModal } from "./@interfaces/Settings"
 import { ConditionsStore, ThemeItem, SystemAccentColor } from "./types/types";
 
 const getBackendProps = () => {
     return new Promise(async (resolve: any, _reject: any) => {
         resolve(JSON.parse(await Millennium.callServerMethod("get_load_config")))
     })
+}
+
+const UnsetSilentStartup = () => {
+    const params = new URLSearchParams(window.location.href);
+    
+    if (params.get("SILENT_STARTUP") === "true") {
+        params.set("SILENT_STARTUP", "false")
+
+        const newSearchParams = decodeURIComponent(params.toString())
+        console.log("new url", newSearchParams)
+        window.location.href = newSearchParams
+    }
 }
 
 function windowCreated(windowContext: any) 
@@ -21,6 +33,9 @@ function windowCreated(windowContext: any)
     // @ts-ignore
     g_PopupManager.m_mapPopups.data_.forEach((element: any) => {
         if (element.value_.m_strName == 'SP Desktop_uid0') {
+
+            // remove silent startup after initial start
+            UnsetSilentStartup()
 
             // main steam window popup sometimes doesn't get hooked. steam bug
             if (element.value_.m_popup.window.HAS_INJECTED_THEME === undefined) {
@@ -44,7 +59,7 @@ export default async function PluginMain() {
     const startTime = performance.now();
 
     getBackendProps().then((result: any) => {
-        console.log(`Received props [${performance.now() - startTime}ms]`, result)
+        console.log(`Received props in [${performance.now() - startTime}ms]`, result)
 
         pluginSelf.conditionals = result.conditions as ConditionsStore
         const theme: ThemeItem = result.active_theme

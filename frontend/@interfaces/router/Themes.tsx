@@ -1,9 +1,10 @@
 import { Millennium, Dropdown, DialogHeader, DialogBody, classMap, IconsModule, pluginSelf, ShowModalProps, Toggle, ShowMessageBox, ConfirmModalProps, MessageBoxResult, showModal, findModuleChild } from 'millennium-lib'
 import { FC, useEffect, useState } from 'react'
-import { RenderThemeEditor } from './themeEditor'
+import { RenderThemeEditor } from './ThemeEditor'
 import { ComboItem, ThemeItem } from '../../types/types'
-import { PromptReload } from '../restartModal'
-import { SetupAboutRenderer } from '../aboutTheme'
+import { PromptReload } from '../RestartModal'
+import { SetupAboutRenderer } from '../AboutTheme'
+import { locale } from '../../@localization'
 
 const ShowThemeSettings = async (activeTheme: string) => {
 
@@ -181,11 +182,11 @@ const ThemeViewModal: React.FC = () => {
                 }
             </style>
 
-            <DialogHeader>Themes</DialogHeader>
+            <DialogHeader>{locale.settingsPanelThemes}</DialogHeader>
             <DialogBody className={classMap.SettingsDialogBodyFade}>
                 <div className="S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _1ugIUbowxDg0qM0pJUbBRM _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel">
                     <div className="H9WOq6bV_VhQ4QjJS_Bxg">
-                        <div className="_3b0U-QDD-uhFpw6xM716fw">Client Theme</div>
+                        <div className="_3b0U-QDD-uhFpw6xM716fw">{locale.themePanelClientTheme}</div>
                         <div className={classMap.FieldChildrenWithIcon}>
 
                             <RenderEditTheme active={active}/>
@@ -204,31 +205,31 @@ const ThemeViewModal: React.FC = () => {
                         </div>
                     </div>
                     <div className={classMap.FieldDescription}>
-                        <div>Select the theme you want Steam to use (requires reload)</div>
+                        <div>{locale.themePanelThemeTooltip}</div>
                         <a href="#" onClick={OpenThemeRepository} className="RmxP90Yut4EIwychIEg51" style={{ display: "flex", gap: "5px"}}>
                             <IconsModule.Hyperlink style={{width: "14px"}}/>
-                            Get more themes
+                            {locale.themePanelGetMoreThemes}
                         </a>
                     </div>
                 </div> 
                 <div className="S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _1ugIUbowxDg0qM0pJUbBRM _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel">
                     <div className="H9WOq6bV_VhQ4QjJS_Bxg">
-                        <div className="_3b0U-QDD-uhFpw6xM716fw">Inject Javascript</div>
+                        <div className="_3b0U-QDD-uhFpw6xM716fw">{locale.themePanelInjectJavascript}</div>
                         <div className={classMap.FieldChildrenWithIcon}>
 
                             { jsState !== undefined && <Toggle value={jsState} onChange={onScriptToggle}></Toggle> }
                         </div>
                     </div>
-                    <div className={classMap.FieldDescription}>Decide whether themes are allowed to insert javascript into Steam. Disabling javascript may break Steam interface as a byproduct (requires reload)</div>
+                    <div className={classMap.FieldDescription}>{locale.themePanelInjectJavascriptToolTip}</div>
                 </div> 
                 <div className="S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _1ugIUbowxDg0qM0pJUbBRM _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel">
                     <div className="H9WOq6bV_VhQ4QjJS_Bxg">
-                        <div className="_3b0U-QDD-uhFpw6xM716fw">Inject StyleSheets</div>
+                        <div className="_3b0U-QDD-uhFpw6xM716fw">{locale.themePanelInjectCSS}</div>
                         <div className={classMap.FieldChildrenWithIcon}>
                             { cssState !== undefined && <Toggle value={cssState} onChange={onStyleToggle}></Toggle> }
                         </div>
                     </div>
-                    <div className={classMap.FieldDescription}>Decide whether themes are allowed to insert stylesheets into Steam. (requires reload)</div>
+                    <div className={classMap.FieldDescription}>{locale.themePanelInjectCSSToolTip}</div>
                 </div> 
             </DialogBody>
         </>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Millennium, DialogBody, DialogBodyText, DialogSubHeader, classMap, DialogHeader, IconsModule } from 'millennium-lib'
+import { locale } from '../../@localization';
 
 interface UpdateProps {
     updates: UpdateItemType[];
@@ -20,7 +21,7 @@ const UpToDateModal: React.FC  = () => {
         <div className="__up-to-date-container" style={{
             display: "flex", flexDirection: "column", alignItems: "center", gap: "20px", height: "100%", justifyContent: "center"
         }}>
-            <div className="__up-to-date-header" style={{marginTop: "-120px", color: "white", fontWeight: "500", fontSize: "15px"}}>No updates found. You're good to go!</div>
+            <div className="__up-to-date-header" style={{marginTop: "-120px", color: "white", fontWeight: "500", fontSize: "15px"}}>{locale.updatePanelNoUpdatesFound}</div>
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{width: "40px"}}>
                 <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
                 <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
@@ -35,7 +36,7 @@ const UpToDateModal: React.FC  = () => {
 const RenderAvailableUpdates: React.FC<UpdateProps> = ({ updates, setUpdates }) => {
     
     const [updating, setUpdating] = useState<Array<any>>([])
-    const viewMoreClick = (props: UpdateItemType) => window.open(props?.commit, "_blank");
+    const viewMoreClick = (props: UpdateItemType) => SteamClient.System.OpenInSystemBrowser(props?.commit)
     
     const updateItemMessage = (updateObject: UpdateItemType, index: number) => 
     {
@@ -53,8 +54,8 @@ const RenderAvailableUpdates: React.FC<UpdateProps> = ({ updates, setUpdates }) 
 
     return (
         <>
-        <DialogSubHeader className='_2rK4YqGvSzXLj1bPZL8xMJ'>Updates Available!</DialogSubHeader>
-        <DialogBodyText className='_3fPiC9QRyT5oJ6xePCVYz8'>Millennium found the following updates on your themes.</DialogBodyText>
+        <DialogSubHeader className='_2rK4YqGvSzXLj1bPZL8xMJ'>{locale.updatePanelHasUpdates}</DialogSubHeader>
+        <DialogBodyText className='_3fPiC9QRyT5oJ6xePCVYz8'>{locale.updatePanelHasUpdatesSub}</DialogBodyText>
 
         {updates.map((update: UpdateItemType, index: number) => (
             <div className="S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel" key={index}>
@@ -67,18 +68,18 @@ const RenderAvailableUpdates: React.FC<UpdateProps> = ({ updates, setUpdates }) 
                             <button 
                                 onClick={() => viewMoreClick(update)} 
                                 className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable">
-                                    View More
+                                    {locale.ViewMore}
                             </button>
                             <button 
                                 onClick={() => updateItemMessage(update, index)} 
                                 className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable">
-                                    {updating[index] ? "Updating..." : "Update"}
+                                    {updating[index] ? locale.updatePanelIsUpdating : locale.updatePanelUpdate}
                             </button>
                         </div>
                     </div>
                 </div>
-                <div className={classMap.FieldDescription}><b>Released:</b> {update?.date}</div>
-                <div className={classMap.FieldDescription}><b>Patch Notes:</b> {update?.message}</div>
+                <div className={classMap.FieldDescription}><b>{locale.updatePanelReleasedTag}</b> {update?.date}</div>
+                <div className={classMap.FieldDescription}><b>{locale.updatePanelReleasePatchNotes}</b> {update?.message}</div>
             </div>
         ))}
         </>
@@ -116,7 +117,7 @@ const UpdatesViewModal: React.FC = () => {
     return (
         <>
             <DialogHeader style={DialogHeaderStyles}>
-                Updates
+                {locale.settingsPanelUpdates}
                 {
                     !checkingForUpdates && 
                     <button 

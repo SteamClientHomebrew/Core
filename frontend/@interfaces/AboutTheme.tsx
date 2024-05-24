@@ -2,6 +2,7 @@ import { Millennium, pluginSelf } from "millennium-lib"
 import { ThemeItem } from "../types/types"
 import { CreatePopup } from "./router/browser"
 import React from "react"
+import { locale } from "../@localization";
 
 class AboutThemeRenderer extends React.Component<any> {
     
@@ -45,12 +46,12 @@ class AboutThemeRenderer extends React.Component<any> {
                 </div>
                 <div className="online _2317WeOq8zJVeOi6ILQbF8 _27M2GicEvwcoEI5R0FSKi9">
                     <div className="_3n8q82Bm3oNKRPFbrZOlo8">
-                        <div className="r62qzcdJQ0qezZglOtiUX">{this.activeTheme?.data?.github?.owner ?? this.activeTheme?.data?.author ?? "Anonymous"}
+                        <div className="r62qzcdJQ0qezZglOtiUX">{this.activeTheme?.data?.github?.owner ?? this.activeTheme?.data?.author ?? locale.aboutThemeAnonymous}
                             {/* <span className="_3T-9PkwXmTHyFu3b1pAn2O">(Author)</span> */}
                         </div>
                     </div>
                     <div className="_2nrSdZqzl3e01VZleoVaWp" style={{ width: "100%" }}>
-                        <div className="_2wpaptjZY-3Gn1HOPlL85O _1k82NiWym4STegDGxRBHz2 no-drag">✅ Verified Developer</div>
+                        <div className="_2wpaptjZY-3Gn1HOPlL85O _1k82NiWym4STegDGxRBHz2 no-drag">✅ {locale.aboutThemeVerifiedDev}</div>
                     </div>
                 </div>
             </div>
@@ -61,8 +62,8 @@ class AboutThemeRenderer extends React.Component<any> {
     RenderDescription = () => {
         return (
             <>
-                <div className="DialogSubHeader _2rK4YqGvSzXLj1bPZL8xMJ">About</div>
-                <div className="DialogBodyText _3fPiC9QRyT5oJ6xePCVYz8">{this.activeTheme?.data?.description ?? "Nothing to see here yet :/"}</div>
+                <div className="DialogSubHeader _2rK4YqGvSzXLj1bPZL8xMJ">{locale.aboutThemeTitle}</div>
+                <div className="DialogBodyText _3fPiC9QRyT5oJ6xePCVYz8">{this.activeTheme?.data?.description ?? locale.itemNoDescription}</div>
             </>
         )
     }
@@ -104,12 +105,12 @@ class AboutThemeRenderer extends React.Component<any> {
 
         return (
             <>
-                {themeOwner && themeRepo && <button type="button" style={{width: "unset"}} className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" onClick={ShowSource}>View Source Code</button>}
+                {themeOwner && themeRepo && <button type="button" style={{width: "unset"}} className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" onClick={ShowSource}>{locale.viewSourceCode}</button>}
                 {/* {kofiDonate && <button type="button" style={{width: "unset"}} className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" onClick={OpenDonateDefault}>Donate</button>} */}
 
                 <div className=".flex-btn-container" style={{display: "flex", gap: "5px"}}>
-                    <button type="button" style={{width: "50%", }} className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" onClick={ShowInFolder}>Show in Folder</button>
-                    <button type="button" style={{width: "50%"}} className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" onClick={UninstallTheme}>Uninstall</button> 
+                    <button type="button" style={{width: "50%", }} className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" onClick={ShowInFolder}>{locale.showInFolder}</button>
+                    <button type="button" style={{width: "50%"}} className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" onClick={UninstallTheme}>{locale.uninstall}</button> 
                 </div>
             </>
         )
@@ -144,7 +145,7 @@ class AboutThemeRenderer extends React.Component<any> {
 
 export const SetupAboutRenderer = (active: string) => {
     const params: any = {
-        title: "About " + active,
+        title: locale.aboutThemeTitle + " " + active,
         popup_class: "fullheight",
         body_class: "fullheight ModalDialogBody DesktopUI ",
         html_class: "client_chat_frame fullheight ModalDialogPopup ",
