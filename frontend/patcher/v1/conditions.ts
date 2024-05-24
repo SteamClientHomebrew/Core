@@ -7,7 +7,7 @@
 
 import { pluginSelf } from "millennium-lib"
 import { Patch, Theme, ThemeItem } from "../../types/types"
-import { DOMModifier, constructThemePath } from "../dispatcher"
+import { DOMModifier, constructThemePath } from "../Dispatch"
 
 export interface EvaluateTargetProps {
     TargetCss: string,

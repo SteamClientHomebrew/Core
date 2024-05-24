@@ -422,34 +422,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
             }));
         }
     };
-    /**
-     * Interpolates and overrides default patches on a theme.
-     * @param incomingPatches Preprocessed list of patches from a specific theme
-     * @returns Processed patches, interpolated with default patches
-     */
-    function parseTheme(incomingPatches) {
-        let patches = {
-            Patches: [
-                { MatchRegexString: "^Steam$", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
-                { MatchRegexString: "^OverlayBrowser_Browser$", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
-                { MatchRegexString: "^SP Overlay:", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
-                { MatchRegexString: "Menu$", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
-                { MatchRegexString: "Supernav$", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
-                { MatchRegexString: "^notificationtoasts_", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
-                { MatchRegexString: "^SteamBrowser_Find$", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
-                { MatchRegexString: "^OverlayTab\\d+_Find$", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
-                { MatchRegexString: "^Steam Big Picture Mode$", TargetCss: "bigpicture.custom.css", TargetJs: "bigpicture.custom.js" },
-                { MatchRegexString: "^QuickAccess_", TargetCss: "bigpicture.custom.css", TargetJs: "bigpicture.custom.js" },
-                { MatchRegexString: "^MainMenu_", TargetCss: "bigpicture.custom.css", TargetJs: "bigpicture.custom.js" },
-                { MatchRegexString: ".friendsui-container", TargetCss: "friends.custom.css", TargetJs: "friends.custom.js" },
-                { MatchRegexString: ".ModalDialogPopup", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
-                { MatchRegexString: ".FullModalOverlay", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" }
-            ]
-        };
-        let newMatchRegexStrings = new Set(incomingPatches.map((patch) => patch.MatchRegexString));
-        let filteredPatches = patches.Patches.filter((patch) => !newMatchRegexStrings.has(patch.MatchRegexString));
-        return filteredPatches.concat(incomingPatches);
-    }
     function constructThemePath(nativeName, relativePath) {
         return ['skins', nativeName, relativePath].join('/');
     }
@@ -1308,6 +1280,53 @@ var millennium_main = (function (exports, React, ReactDOM) {
         });
     }
 
+    const DispatchSystemColors = (systemColors) => {
+        pluginSelf.systemColor = `
+    :root {
+        --SystemAccentColor: ${systemColors.accent}; 
+        --SystemAccentColorLight1: ${systemColors.light1}; --SystemAccentColorDark1: ${systemColors.dark1};
+        --SystemAccentColorLight2: ${systemColors.light2}; --SystemAccentColorDark2: ${systemColors.dark2};
+        --SystemAccentColorLight3: ${systemColors.light3}; --SystemAccentColorDark3: ${systemColors.dark3};
+    }`;
+    };
+
+    /**
+     * Interpolates and overrides default patches on a theme.
+     * @param incomingPatches Preprocessed list of patches from a specific theme
+     * @returns Processed patches, interpolated with default patches
+     */
+    function parseTheme(incomingPatches) {
+        let patches = {
+            Patches: [
+                { MatchRegexString: "^Steam$", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
+                { MatchRegexString: "^OverlayBrowser_Browser$", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
+                { MatchRegexString: "^SP Overlay:", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
+                { MatchRegexString: "Menu$", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
+                { MatchRegexString: "Supernav$", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
+                { MatchRegexString: "^notificationtoasts_", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
+                { MatchRegexString: "^SteamBrowser_Find$", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
+                { MatchRegexString: "^OverlayTab\\d+_Find$", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
+                { MatchRegexString: "^Steam Big Picture Mode$", TargetCss: "bigpicture.custom.css", TargetJs: "bigpicture.custom.js" },
+                { MatchRegexString: "^QuickAccess_", TargetCss: "bigpicture.custom.css", TargetJs: "bigpicture.custom.js" },
+                { MatchRegexString: "^MainMenu_", TargetCss: "bigpicture.custom.css", TargetJs: "bigpicture.custom.js" },
+                { MatchRegexString: ".friendsui-container", TargetCss: "friends.custom.css", TargetJs: "friends.custom.js" },
+                { MatchRegexString: ".ModalDialogPopup", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" },
+                { MatchRegexString: ".FullModalOverlay", TargetCss: "libraryroot.custom.css", TargetJs: "libraryroot.custom.js" }
+            ]
+        };
+        let newMatchRegexStrings = new Set(incomingPatches.map((patch) => patch.MatchRegexString));
+        let filteredPatches = patches.Patches.filter((patch) => !newMatchRegexStrings.has(patch.MatchRegexString));
+        return filteredPatches.concat(incomingPatches);
+    }
+    const ParseLocalTheme = (theme) => {
+        if (theme?.failed) {
+            pluginSelf.isDefaultTheme = true;
+            return;
+        }
+        theme?.data?.UseDefaultPatches && (theme.data.Patches = parseTheme(theme?.data?.Patches ?? []));
+        pluginSelf.activeTheme = theme;
+    };
+
     const getBackendProps = () => {
         return new Promise(async (resolve, _reject) => {
             resolve(JSON.parse(await wrappedCallServerMethod("get_load_config")));
@@ -1323,17 +1342,14 @@ var millennium_main = (function (exports, React, ReactDOM) {
         }
     };
     function windowCreated(windowContext) {
-        const title = windowContext.m_strTitle;
         // @ts-ignore
-        if (title == LocalizationManager.LocalizeString("#Settings_Title")) {
+        if (windowContext.m_strTitle == LocalizationManager.LocalizeString("#Settings_Title")) {
             RenderSettingsModal(windowContext);
         }
         // @ts-ignore
         g_PopupManager.m_mapPopups.data_.forEach((element) => {
             if (element.value_.m_strName == 'SP Desktop_uid0') {
-                // remove silent startup after initial start
                 UnsetSilentStartup();
-                // main steam window popup sometimes doesn't get hooked. steam bug
                 if (element.value_.m_popup.window.HAS_INJECTED_THEME === undefined) {
                     patchDocumentContext(element.value_);
                 }
@@ -1341,37 +1357,18 @@ var millennium_main = (function (exports, React, ReactDOM) {
         });
         patchDocumentContext(windowContext);
     }
-    const ReloadMillenniumFrontend = () => {
-        SteamClient.Browser.RestartJSContext();
-    };
-    Millennium.exposeObj({ ReloadMillenniumFrontend });
     // Entry point on the front end of your plugin
     async function PluginMain() {
         const startTime = performance.now();
         getBackendProps().then((result) => {
             console.log(`Received props in [${performance.now() - startTime}ms]`, result);
-            pluginSelf.conditionals = result.conditions;
             const theme = result.active_theme;
             const systemColors = result.accent_color;
+            ParseLocalTheme(theme);
+            DispatchSystemColors(systemColors);
+            pluginSelf.conditionals = result.conditions;
             pluginSelf.scriptsAllowed = result?.settings?.scripts ?? true;
             pluginSelf.stylesAllowed = result?.settings?.styles ?? true;
-            pluginSelf.systemColor = `
-        :root {
-            --SystemAccentColor: ${systemColors.accent};
-            --SystemAccentColorLight1: ${systemColors.light1};
-            --SystemAccentColorLight2: ${systemColors.light2};
-            --SystemAccentColorLight3: ${systemColors.light3};
-            --SystemAccentColorDark1: ${systemColors.dark1};
-            --SystemAccentColorDark2: ${systemColors.dark2};
-            --SystemAccentColorDark3: ${systemColors.dark3};
-        }`;
-            theme?.failed && (pluginSelf.isDefaultTheme = true);
-            // evaluate overriden patch keys from default patches, if specified. 
-            if (theme?.data?.UseDefaultPatches) {
-                theme.data.Patches = parseTheme(theme?.data?.Patches ?? []);
-            }
-            pluginSelf.activeTheme = theme;
-            console.log(pluginSelf.activeTheme);
         });
         Millennium.AddWindowCreateHook(windowCreated);
     }

@@ -1,6 +1,6 @@
 import { pluginSelf } from "millennium-lib";
 import { ConditionalControlFlowType as ModuleType, Patch, ThemeItem } from "../types/types";
-import { DOMModifier, classListMatch, constructThemePath, parseTheme } from "./dispatcher";
+import { DOMModifier, classListMatch, constructThemePath } from "./Dispatch";
 import { evaluateConditions } from "./v2/conditions";
 import { PatchV1, EvaluateStatements } from "./v1/conditions"
 
@@ -76,4 +76,4 @@ function patchDocumentContext(windowContext: any)
     activeTheme?.data?.hasOwnProperty("Conditions") && evaluateConditions(activeTheme, documentTitle, classList, document)
 }
 
-export { parseTheme, patchDocumentContext }
+export { patchDocumentContext }
