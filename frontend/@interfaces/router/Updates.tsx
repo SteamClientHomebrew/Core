@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Millennium, DialogBody, DialogBodyText, DialogSubHeader, classMap, DialogHeader, IconsModule } from 'millennium-lib'
+import { Millennium, DialogBody, DialogBodyText, DialogSubHeader, classMap, DialogHeader, IconsModule, pluginSelf } from 'millennium-lib'
 import { locale } from '../../@localization';
+import { ThemeItem } from '../../types/types';
 
 interface UpdateProps {
     updates: UpdateItemType[];
@@ -45,6 +46,13 @@ const RenderAvailableUpdates: React.FC<UpdateProps> = ({ updates, setUpdates }) 
         {
             /** @todo: prompt user an error occured. */
             if (!success) return 
+
+            const activeTheme: ThemeItem = pluginSelf.activeTheme
+
+            // the current theme was just updated, so reload SteamUI
+            if (activeTheme.native === updateObject.native) {
+                SteamClient.Browser.RestartJSContext()
+            }
 
             Millennium.callServerMethod("updater.get_update_list").then((result: any) => {
                 setUpdates(JSON.parse(result).updates)

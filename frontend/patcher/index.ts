@@ -67,8 +67,6 @@ function patchDocumentContext(windowContext: any)
     const classList: string[]    = getDocumentClassList(windowContext);
     const documentTitle: string  = windowContext.m_strTitle
 
-    console.log(windowContext)
-
     // Append System Accent Colors to global document (publically shared)
     DOMModifier.AddStyleSheetFromText(document, pluginSelf.systemColor, "SystemAccentColorInject")
 

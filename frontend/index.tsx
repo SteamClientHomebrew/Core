@@ -50,7 +50,12 @@ export default async function PluginMain() {
     const startTime = performance.now();
 
     getBackendProps().then((result: any) => {
-        console.log(`Received props in [${performance.now() - startTime}ms]`, result)
+
+        console.log(
+            '%c Millennium ', 
+            'background: black; color: white', 
+            `Received props in [${(performance.now() - startTime).toFixed(3)}ms]`, result
+        );
 
         const theme: ThemeItem = result.active_theme
         const systemColors: SystemAccentColor = result.accent_color
@@ -61,6 +66,11 @@ export default async function PluginMain() {
         pluginSelf.conditionals   = result.conditions as ConditionsStore
         pluginSelf.scriptsAllowed = result?.settings?.scripts as boolean ?? true
         pluginSelf.stylesAllowed  = result?.settings?.styles as boolean ?? true
+
+        // @ts-ignore
+        if (g_PopupManager.m_mapPopups.size > 0) {
+            SteamClient.Browser.RestartJSContext();
+        }
     })
 
     Millennium.AddWindowCreateHook(windowCreated)

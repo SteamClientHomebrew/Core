@@ -584,7 +584,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
         const document = windowContext.m_popup.document;
         const classList = getDocumentClassList(windowContext);
         const documentTitle = windowContext.m_strTitle;
-        console.log(windowContext);
         // Append System Accent Colors to global document (publically shared)
         DOMModifier.AddStyleSheetFromText(document, pluginSelf.systemColor, "SystemAccentColorInject");
         activeTheme?.data?.hasOwnProperty("Patches") && evaluatePatches(activeTheme, documentTitle, classList, document, windowContext);
@@ -1393,6 +1392,11 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 /** @todo: prompt user an error occured. */
                 if (!success)
                     return;
+                const activeTheme = pluginSelf.activeTheme;
+                // the current theme was just updated, so reload SteamUI
+                if (activeTheme.native === updateObject.native) {
+                    SteamClient.Browser.RestartJSContext();
+                }
                 wrappedCallServerMethod("updater.get_update_list").then((result) => {
                     setUpdates(JSON.parse(result).updates);
                 });
@@ -1626,7 +1630,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
     async function PluginMain() {
         const startTime = performance.now();
         getBackendProps().then((result) => {
-            console.log(`Received props in [${performance.now() - startTime}ms]`, result);
+            console.log('%c Millennium ', 'background: black; color: white', `Received props in [${(performance.now() - startTime).toFixed(3)}ms]`, result);
             const theme = result.active_theme;
             const systemColors = result.accent_color;
             ParseLocalTheme(theme);
@@ -1634,6 +1638,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
             pluginSelf.conditionals = result.conditions;
             pluginSelf.scriptsAllowed = result?.settings?.scripts ?? true;
             pluginSelf.stylesAllowed = result?.settings?.styles ?? true;
+            // @ts-ignore
+            if (g_PopupManager.m_mapPopups.size > 0) {
+                SteamClient.Browser.RestartJSContext();
+            }
         });
         Millennium.AddWindowCreateHook(windowCreated);
     }
