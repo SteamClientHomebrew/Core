@@ -1,7 +1,7 @@
 import { Millennium, pluginSelf } from "millennium-lib"; 
 import { patchDocumentContext } from "./patcher/index"
 import { RenderSettingsModal } from "./@interfaces/Settings"
-import { ConditionsStore, ThemeItem, SystemAccentColor } from "./components/types";
+import { ConditionsStore, ThemeItem, SystemAccentColor, UpdateItem } from "./components/types";
 import { DispatchSystemColors } from "./patcher/SystemColors";
 import { ParseLocalTheme } from "./patcher/ThemeParser";
 import { Logger } from "./components/Logger";
@@ -85,11 +85,24 @@ const InitializePatcher = (startTime: number, result: any) => {
     PatchMissedDocuments();
 }
 
+const ProcessUpdates = (updates: UpdateItem[]) => {
+
+    for (const item in updates) {
+
+        console.log(updates[item].name)
+    }
+}
+
 // Entry point on the front end of your plugin
 export default async function PluginMain() {
 
     const startTime = performance.now();
 
     getBackendProps().then((result: any) => InitializePatcher(startTime, result))
+
+    Millennium.callServerMethod("updater.get_update_list")
+        .then((result : any)          => JSON.parse(result).updates)
+        .then((updates: UpdateItem[]) => ProcessUpdates(updates))
+
     Millennium.AddWindowCreateHook(windowCreated)
 }

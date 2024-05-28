@@ -1659,10 +1659,18 @@ var millennium_main = (function (exports, React, ReactDOM) {
         }
         PatchMissedDocuments();
     };
+    const ProcessUpdates = (updates) => {
+        for (const item in updates) {
+            console.log(updates[item].name);
+        }
+    };
     // Entry point on the front end of your plugin
     async function PluginMain() {
         const startTime = performance.now();
         getBackendProps().then((result) => InitializePatcher(startTime, result));
+        wrappedCallServerMethod("updater.get_update_list")
+            .then((result) => JSON.parse(result).updates)
+            .then((updates) => ProcessUpdates(updates));
         Millennium.AddWindowCreateHook(windowCreated);
     }
 
