@@ -89,7 +89,7 @@ const ProcessUpdates = (updates: UpdateItem[]) => {
 
     for (const item in updates) {
 
-        console.log(updates[item].name)
+        console.log(updates[item])
     }
 }
 

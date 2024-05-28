@@ -115,3 +115,11 @@ export interface SystemAccentColor {
     dark2: string, 
     dark3: string, 
 }
+
+export interface UpdateItem {
+    message: string, 
+    date: string,
+    commit: string,
+    native: string,
+    name: string
+}
