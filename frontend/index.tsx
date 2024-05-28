@@ -57,12 +57,8 @@ const windowCreated = (windowContext: any): void => {
     }
 
     if (windowContext.m_strTitle.includes("notificationtoasts")) {
-        console.log(windowContext.m_popup.document)
-
         PatchNotification(windowContext.m_popup.document)
     }
-
-    console.log(windowContext.m_strTitle)
 
     PatchMissedDocuments();
     patchDocumentContext(windowContext);
@@ -99,9 +95,7 @@ const ProcessUpdates = (updates: UpdateItem[]) => {
     const message = `Millennium found ${len} available update${len > 1 ? "s" : ""}`
 
     SteamClient.ClientNotifications.DisplayClientNotification(
-        1,
-        JSON.stringify({ title: 'Updates Available', body: message, state: 'online', steamid: 0 }),
-        (e: any) => {console.log(e)}
+        1, JSON.stringify({ title: 'Updates Available', body: message, state: 'online', steamid: 0 }), (_: any) => {}
     )
 }
 

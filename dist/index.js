@@ -540,6 +540,17 @@ var millennium_main = (function (exports, React, ReactDOM) {
         }
     };
 
+    const EvaluateModule = (module, type, document) => {
+        const activeTheme = pluginSelf.activeTheme;
+        switch (type) {
+            case ConditionalControlFlowType.TargetCss:
+                DOMModifier.AddStyleSheet(document, constructThemePath(activeTheme.native, module));
+                break;
+            case ConditionalControlFlowType.TargetJs:
+                DOMModifier.AddJavaScript(document, constructThemePath(activeTheme.native, module));
+                break;
+        }
+    };
     /**
      * @brief evaluates list of; or single module
      *
@@ -547,16 +558,15 @@ var millennium_main = (function (exports, React, ReactDOM) {
      * @param type the type of the module
      * @returns null
      */
-    const evaluateTargetModule = (module, type, document) => {
-        const activeTheme = pluginSelf.activeTheme;
-        const nodeHandler = type == ConditionalControlFlowType.TargetCss ? DOMModifier.AddStyleSheet : DOMModifier.AddJavaScript;
-        if (module === undefined)
+    const SanitizeTargetModule = (module, type, document) => {
+        if (module === undefined) {
             return;
-        if (typeof module === 'string') {
-            nodeHandler(document, constructThemePath(activeTheme.native, module));
+        }
+        else if (typeof module === 'string') {
+            EvaluateModule(module, type, document);
         }
         else if (Array.isArray(module)) {
-            module.forEach(css => nodeHandler(document, constructThemePath(activeTheme.native, css)));
+            module.forEach((node) => EvaluateModule(node, type, document));
         }
     };
     const evaluatePatches = (activeTheme, documentTitle, classList, document, context) => {
@@ -566,8 +576,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
             if (!documentTitle.match(match) && !classListMatch(classList, match)) {
                 return;
             }
-            evaluateTargetModule(patch?.TargetCss, ConditionalControlFlowType.TargetCss, document);
-            evaluateTargetModule(patch?.TargetJs, ConditionalControlFlowType.TargetJs, document);
+            SanitizeTargetModule(patch?.TargetCss, ConditionalControlFlowType.TargetCss, document);
+            SanitizeTargetModule(patch?.TargetJs, ConditionalControlFlowType.TargetJs, document);
             // backwards compatability with old millennium versions. 
             const PatchV1 = patch;
             if (PatchV1?.Statement !== undefined) {
@@ -575,6 +585,11 @@ var millennium_main = (function (exports, React, ReactDOM) {
             }
         });
     };
+    /**
+     * parses all classnames from a window and concatenates into one list
+     * @param context window context from g_popupManager
+     * @returns
+     */
     const getDocumentClassList = (context) => {
         const bodyClass = context?.m_rgParams?.body_class ?? String();
         const htmlClass = context?.m_rgParams?.html_class ?? String();
@@ -1644,6 +1659,13 @@ var millennium_main = (function (exports, React, ReactDOM) {
         let filteredPatches = patches.Patches.filter((patch) => !newMatchRegexStrings.has(patch.MatchRegexString));
         return filteredPatches.concat(incomingPatches);
     }
+    /**
+     * parses a theme after it has been received from the backend.
+     * - checks for failure in theme parse
+     * - calculates what patches should be used relative to UseDefaultPatches
+     * @param theme ThemeItem
+     * @returns void
+     */
     const ParseLocalTheme = (theme) => {
         if (theme?.failed) {
             pluginSelf.isDefaultTheme = true;
@@ -1716,10 +1738,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
             }
         }
         if (windowContext.m_strTitle.includes("notificationtoasts")) {
-            console.log(windowContext.m_popup.document);
             PatchNotification(windowContext.m_popup.document);
         }
-        console.log(windowContext.m_strTitle);
         PatchMissedDocuments();
         patchDocumentContext(windowContext);
     };
@@ -1744,7 +1764,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
         }
         const len = updates.length;
         const message = `Millennium found ${len} available update${len > 1 ? "s" : ""}`;
-        SteamClient.ClientNotifications.DisplayClientNotification(1, JSON.stringify({ title: 'Updates Available', body: message, state: 'online', steamid: 0 }), (e) => { console.log(e); });
+        SteamClient.ClientNotifications.DisplayClientNotification(1, JSON.stringify({ title: 'Updates Available', body: message, state: 'online', steamid: 0 }), (_) => { });
     };
     // Entry point on the front end of your plugin
     async function PluginMain() {

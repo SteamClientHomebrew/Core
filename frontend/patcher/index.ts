@@ -1,8 +1,22 @@
 import { pluginSelf } from "millennium-lib";
 import { ConditionalControlFlowType as ModuleType, Patch, ThemeItem } from "../components/types";
 import { DOMModifier, classListMatch, constructThemePath } from "./Dispatch";
-import { evaluateConditions } from "./v2/conditions";
-import { PatchV1, EvaluateStatements } from "./v1/conditions"
+import { evaluateConditions } from "./v2/Conditions";
+import { PatchV1, EvaluateStatements } from "./v1/Conditions"
+
+const EvaluateModule = (module: string, type: ModuleType, document: Document) => {
+
+    const activeTheme: ThemeItem = pluginSelf.activeTheme
+
+    switch (type) {
+        case ModuleType.TargetCss:
+            DOMModifier.AddStyleSheet(document, constructThemePath(activeTheme.native, module))
+            break
+        case ModuleType.TargetJs:
+            DOMModifier.AddJavaScript(document, constructThemePath(activeTheme.native, module))
+            break
+    }
+}
 
 /**
  * @brief evaluates list of; or single module
@@ -11,22 +25,21 @@ import { PatchV1, EvaluateStatements } from "./v1/conditions"
  * @param type the type of the module
  * @returns null
  */
-const evaluateTargetModule = (module: string | Array<string>, type: ModuleType, document: Document) => {
+const SanitizeTargetModule = (module: string | Array<string>, type: ModuleType, document: Document) => {
 
-    const activeTheme: ThemeItem = pluginSelf.activeTheme
-    const nodeHandler = type == ModuleType.TargetCss ? DOMModifier.AddStyleSheet : DOMModifier.AddJavaScript
-
-    if (module === undefined) return 
-    
-    if (typeof module === 'string') {
-        nodeHandler(document, constructThemePath(activeTheme.native, module));
+    if (module === undefined) {
+        return
+    }
+    else if (typeof module === 'string') {
+        EvaluateModule(module, type, document)
     }
     else if (Array.isArray(module)) {
-        module.forEach(css => nodeHandler(document, constructThemePath(activeTheme.native, css)));
+        module.forEach((node) => EvaluateModule(node, type, document));
     }
 }
 
 const evaluatePatches = (activeTheme: ThemeItem, documentTitle: string, classList: string[], document: Document, context: any) => {
+    
     activeTheme.data.Patches.forEach((patch: Patch) => {
 
         const match = patch.MatchRegexString
@@ -36,8 +49,8 @@ const evaluatePatches = (activeTheme: ThemeItem, documentTitle: string, classLis
             return 
         }
 
-        evaluateTargetModule(patch?.TargetCss, ModuleType.TargetCss, document)
-        evaluateTargetModule(patch?.TargetJs, ModuleType.TargetJs, document)
+        SanitizeTargetModule(patch?.TargetCss, ModuleType.TargetCss, document)
+        SanitizeTargetModule(patch?.TargetJs, ModuleType.TargetJs, document)
 
         // backwards compatability with old millennium versions. 
         const PatchV1 = (patch as PatchV1)
@@ -48,6 +61,11 @@ const evaluatePatches = (activeTheme: ThemeItem, documentTitle: string, classLis
     });
 }
 
+/**
+ * parses all classnames from a window and concatenates into one list
+ * @param context window context from g_popupManager
+ * @returns 
+ */
 const getDocumentClassList = (context: any): string[] => {
 
     const bodyClass: string = context?.m_rgParams?.body_class ?? String()

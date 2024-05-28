@@ -33,6 +33,13 @@ export function parseTheme(incomingPatches: Patch[]) {
     return filteredPatches.concat(incomingPatches) as Patch[];
 }
 
+/**
+ * parses a theme after it has been received from the backend.
+ * - checks for failure in theme parse
+ * - calculates what patches should be used relative to UseDefaultPatches
+ * @param theme ThemeItem
+ * @returns void
+ */
 export const ParseLocalTheme = (theme: ThemeItem) => {
 
     if (theme?.failed) {
