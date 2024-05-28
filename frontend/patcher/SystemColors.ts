@@ -1,5 +1,5 @@
 import { pluginSelf } from "millennium-lib"
-import { SystemAccentColor } from "../types/types"
+import { SystemAccentColor } from "../components/types"
 
 export const DispatchSystemColors = (systemColors: SystemAccentColor) => {
     pluginSelf.systemColor = `

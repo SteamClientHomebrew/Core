@@ -1,5 +1,5 @@
 import { pluginSelf } from "millennium-lib";
-import { CommonPatchTypes, ConditionalControlFlow, ConditionalPatch, Patch, Theme, ConditionalControlFlowType as ModuleType } from "../types/types";
+import { CommonPatchTypes, ConditionalControlFlow, ConditionalPatch, Patch, Theme, ConditionalControlFlowType as ModuleType } from "../components/types";
 
 export const DOMModifier = {
     /**

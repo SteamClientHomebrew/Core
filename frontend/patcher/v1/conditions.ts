@@ -6,7 +6,7 @@
  */
 
 import { pluginSelf } from "millennium-lib"
-import { Patch, Theme, ThemeItem } from "../../types/types"
+import { Patch, Theme, ThemeItem } from "../../components/types"
 import { DOMModifier, constructThemePath } from "../Dispatch"
 
 export interface EvaluateTargetProps {

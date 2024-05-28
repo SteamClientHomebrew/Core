@@ -3,6 +3,7 @@ import polish from "./locales/polish.json";
 import spanish from "./locales/spanish.json";
 import indonesian from "./locales/indonesian.json";
 import schinese from "./locales/schinese.json";
+import { Logger } from "../components/Logger";
 
 interface LocalizationData {
     [key: string]: string;
@@ -42,13 +43,13 @@ const localizationFiles: { [key: string]: LocalizationData } = {
 const GetLocalization = async () => {
 
     const language = await SteamClient.Settings.GetCurrentLanguage()
-    console.log(`Millennium loading with locales ${language}`)
+    Logger.Log(`loading locales ${language}`)
 
     if (localizationFiles.hasOwnProperty(language)) {
         locale = localizationFiles[language];
     } 
     else {
-        console.warn(`Localization for language ${language} not found, defaulting to English.`);
+        Logger.Warn(`Localization for language ${language} not found, defaulting to English.`)
         locale = localizationFiles['english'];
     }
 };

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Millennium, DialogBody, DialogBodyText, DialogSubHeader, classMap, DialogHeader, IconsModule, pluginSelf } from 'millennium-lib'
 import { locale } from '../../@localization';
-import { ThemeItem } from '../../types/types';
+import { ThemeItem } from '../../components/types';
 
 interface UpdateProps {
     updates: UpdateItemType[];

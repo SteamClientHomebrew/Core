@@ -1,5 +1,5 @@
 import { pluginSelf } from "millennium-lib"
-import { Conditions, ConditionsStore, ThemeItem, ConditionalControlFlowType as ModuleType } from "../../types/types"
+import { Conditions, ConditionsStore, ThemeItem, ConditionalControlFlowType as ModuleType } from "../../components/types"
 import { evaluatePatch } from "../Dispatch"
 
 export const evaluateConditions = (theme: ThemeItem, title: string, classes: string[], document: Document): void => {

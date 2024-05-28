@@ -1,5 +1,5 @@
 import { pluginSelf } from "millennium-lib";
-import { ConditionalControlFlowType as ModuleType, Patch, ThemeItem } from "../types/types";
+import { ConditionalControlFlowType as ModuleType, Patch, ThemeItem } from "../components/types";
 import { DOMModifier, classListMatch, constructThemePath } from "./Dispatch";
 import { evaluateConditions } from "./v2/conditions";
 import { PatchV1, EvaluateStatements } from "./v1/conditions"
@@ -30,7 +30,7 @@ const evaluatePatches = (activeTheme: ThemeItem, documentTitle: string, classLis
     activeTheme.data.Patches.forEach((patch: Patch) => {
 
         const match = patch.MatchRegexString
-        context.m_popup.window.HAS_INJECTED_THEME = documentTitle === "Steam"
+        context.m_popup.window.HAS_INJECTED_THEME = true
 
         if (!documentTitle.match(match) && !classListMatch(classList, match)) {
             return 
@@ -53,7 +53,7 @@ const getDocumentClassList = (context: any): string[] => {
     const bodyClass: string = context?.m_rgParams?.body_class ?? String()
     const htmlClass: string = context?.m_rgParams?.html_class ?? String()
 
-    return (bodyClass + htmlClass).split(' ').map((className: string) => '.' + className)
+    return (`${bodyClass} ${htmlClass}`).split(' ').map((className: string) => '.' + className)
 }
 
 function patchDocumentContext(windowContext: any) 

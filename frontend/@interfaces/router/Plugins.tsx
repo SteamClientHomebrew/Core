@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { DialogBody, DialogHeader, IconsModule, Millennium, Toggle, classMap, findClass } from 'millennium-lib';
-import { PluginComponent } from '../../types/types';
+import { PluginComponent } from '../../components/types';
 import { locale } from '../../@localization';
 
 interface EditPluginProps {

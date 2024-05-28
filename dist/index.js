@@ -558,7 +558,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
     const evaluatePatches = (activeTheme, documentTitle, classList, document, context) => {
         activeTheme.data.Patches.forEach((patch) => {
             const match = patch.MatchRegexString;
-            context.m_popup.window.HAS_INJECTED_THEME = documentTitle === "Steam";
+            context.m_popup.window.HAS_INJECTED_THEME = true;
             if (!documentTitle.match(match) && !classListMatch(classList, match)) {
                 return;
             }
@@ -574,7 +574,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
     const getDocumentClassList = (context) => {
         const bodyClass = context?.m_rgParams?.body_class ?? String();
         const htmlClass = context?.m_rgParams?.html_class ?? String();
-        return (bodyClass + htmlClass).split(' ').map((className) => '.' + className);
+        return (`${bodyClass} ${htmlClass}`).split(' ').map((className) => '.' + className);
     };
     function patchDocumentContext(windowContext) {
         if (pluginSelf.isDefaultTheme) {
@@ -895,6 +895,18 @@ var millennium_main = (function (exports, React, ReactDOM) {
     	optionReloadLater: optionReloadLater
     };
 
+    const Logger = {
+        Error: (...message) => {
+            console.error('%c Millennium ', 'background: red; color: white', ...message);
+        },
+        Log: (...message) => {
+            console.log('%c Millennium ', 'background: purple; color: white', ...message);
+        },
+        Warn: (...message) => {
+            console.warn('%c Millennium ', 'background: orange; color: white', ...message);
+        }
+    };
+
     let _locale = english;
     const handler = {
         get: function (target, property) {
@@ -923,12 +935,12 @@ var millennium_main = (function (exports, React, ReactDOM) {
     };
     const GetLocalization = async () => {
         const language = await SteamClient.Settings.GetCurrentLanguage();
-        console.log(`Millennium loading with locales ${language}`);
+        Logger.Log(`loading locales ${language}`);
         if (localizationFiles.hasOwnProperty(language)) {
             locale = localizationFiles[language];
         }
         else {
-            console.warn(`Localization for language ${language} not found, defaulting to English.`);
+            Logger.Warn(`Localization for language ${language} not found, defaulting to English.`);
             locale = localizationFiles['english'];
         }
     };
@@ -1610,39 +1622,47 @@ var millennium_main = (function (exports, React, ReactDOM) {
             window.location.href = newSearchParams;
         }
     };
-    function windowCreated(windowContext) {
-        // @ts-ignore
-        if (windowContext.m_strTitle == LocalizationManager.LocalizeString("#Settings_Title")) {
-            RenderSettingsModal(windowContext);
-        }
+    const PatchMissedDocuments = () => {
         // @ts-ignore
         g_PopupManager.m_mapPopups.data_.forEach((element) => {
-            if (element.value_.m_strName == 'SP Desktop_uid0') {
-                UnsetSilentStartup();
-                if (element.value_.m_popup.window.HAS_INJECTED_THEME === undefined) {
-                    patchDocumentContext(element.value_);
-                }
+            if (element.value_.m_popup.window.HAS_INJECTED_THEME === undefined) {
+                patchDocumentContext(element.value_);
             }
         });
+    };
+    const windowCreated = (windowContext) => {
+        switch (windowContext.m_strTitle) {
+            /** @ts-ignore */
+            case LocalizationManager.LocalizeString("#Steam_Platform"): {
+                UnsetSilentStartup();
+            }
+            /** @ts-ignore */
+            case LocalizationManager.LocalizeString("#Settings_Title"): {
+                RenderSettingsModal(windowContext);
+            }
+        }
+        PatchMissedDocuments();
         patchDocumentContext(windowContext);
-    }
+    };
+    const InitializePatcher = (startTime, result) => {
+        Logger.Log(`Received props in [${(performance.now() - startTime).toFixed(3)}ms]`, result);
+        const theme = result.active_theme;
+        const systemColors = result.accent_color;
+        ParseLocalTheme(theme);
+        DispatchSystemColors(systemColors);
+        pluginSelf.conditionals = result.conditions;
+        pluginSelf.scriptsAllowed = result?.settings?.scripts ?? true;
+        pluginSelf.stylesAllowed = result?.settings?.styles ?? true;
+        // @ts-ignore
+        if (g_PopupManager.m_mapPopups.size > 0) {
+            SteamClient.Browser.RestartJSContext();
+        }
+        PatchMissedDocuments();
+    };
     // Entry point on the front end of your plugin
     async function PluginMain() {
         const startTime = performance.now();
-        getBackendProps().then((result) => {
-            console.log('%c Millennium ', 'background: black; color: white', `Received props in [${(performance.now() - startTime).toFixed(3)}ms]`, result);
-            const theme = result.active_theme;
-            const systemColors = result.accent_color;
-            ParseLocalTheme(theme);
-            DispatchSystemColors(systemColors);
-            pluginSelf.conditionals = result.conditions;
-            pluginSelf.scriptsAllowed = result?.settings?.scripts ?? true;
-            pluginSelf.stylesAllowed = result?.settings?.styles ?? true;
-            // @ts-ignore
-            if (g_PopupManager.m_mapPopups.size > 0) {
-                SteamClient.Browser.RestartJSContext();
-            }
-        });
+        getBackendProps().then((result) => InitializePatcher(startTime, result));
         Millennium.AddWindowCreateHook(windowCreated);
     }
 

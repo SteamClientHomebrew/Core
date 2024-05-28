@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { Dropdown, Millennium, SingleDropdownOption, Toggle, classMap, pluginSelf } from "millennium-lib"
-import { Conditions, ConditionsStore, ICondition, ThemeItem } from "../../types/types"
+import { Conditions, ConditionsStore, ICondition, ThemeItem } from "../../components/types"
 
 interface ConditionalComponent {
     condition: string,

@@ -1,7 +1,7 @@
 import { Millennium, Dropdown, DialogHeader, DialogBody, classMap, IconsModule, pluginSelf, ShowModalProps, Toggle, ShowMessageBox, ConfirmModalProps, MessageBoxResult, showModal, findModuleChild } from 'millennium-lib'
 import { FC, useEffect, useState } from 'react'
 import { RenderThemeEditor } from './ThemeEditor'
-import { ComboItem, ThemeItem } from '../../types/types'
+import { ComboItem, ThemeItem } from '../../components/types'
 import { PromptReload } from '../RestartModal'
 import { SetupAboutRenderer } from '../AboutTheme'
 import { locale } from '../../@localization'
