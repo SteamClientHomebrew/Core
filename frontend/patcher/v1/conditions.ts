@@ -97,13 +97,18 @@ const EvaluateCheckBox = (statement: V1Statement, currentValue: any, document: D
     }
 }
 
+const EvaluateType = (statement: V1StatementCombo) => {
+    return statement.Combo !== undefined ? ConfigurationItemType.ComboBox : ConfigurationItemType.CheckBox
+}
+
 const EvaluateStatement = (statement: V1Statement | V1StatementCombo, document: Document) => {
     
     const statementId = statement.If
     const statementStore = GetFromConfigurationStore(statementId)
     const storedStatementValue = statementStore.Value
+    const statementType = EvaluateType(statement as V1StatementCombo)
 
-    switch (statementStore.Type) {
+    switch (statementType) {
         case ConfigurationItemType.CheckBox: {
             EvaluateCheckBox(statement as V1Statement, storedStatementValue, document)
             break

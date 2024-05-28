@@ -510,11 +510,15 @@ var millennium_main = (function (exports, React, ReactDOM) {
             InsertModule(statement?.False, document);
         }
     };
+    const EvaluateType = (statement) => {
+        return statement.Combo !== undefined ? ConfigurationItemType.ComboBox : ConfigurationItemType.CheckBox;
+    };
     const EvaluateStatement = (statement, document) => {
         const statementId = statement.If;
         const statementStore = GetFromConfigurationStore(statementId);
         const storedStatementValue = statementStore.Value;
-        switch (statementStore.Type) {
+        const statementType = EvaluateType(statement);
+        switch (statementType) {
             case ConfigurationItemType.CheckBox: {
                 EvaluateCheckBox(statement, storedStatementValue, document);
                 break;
