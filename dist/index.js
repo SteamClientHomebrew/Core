@@ -619,6 +619,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
     var reloadRequiredBody$4 = "Selected changes need a reload in order to take affect. Should we reload right now?";
     var optionReloadNow$4 = "Reload Now";
     var optionReloadLater$4 = "Reload Later";
+    var updatePanelUpdateNotifications = "Push Notifications";
+    var updatePanelUpdateNotificationsTooltip = "Get Millennium to give you a reminder when a item in your library has an update!";
     var english = {
     	settingsPanelPlugins: settingsPanelPlugins$4,
     	settingsPanelThemes: settingsPanelThemes$4,
@@ -648,7 +650,9 @@ var millennium_main = (function (exports, React, ReactDOM) {
     	reloadRequired: reloadRequired$4,
     	reloadRequiredBody: reloadRequiredBody$4,
     	optionReloadNow: optionReloadNow$4,
-    	optionReloadLater: optionReloadLater$4
+    	optionReloadLater: optionReloadLater$4,
+    	updatePanelUpdateNotifications: updatePanelUpdateNotifications,
+    	updatePanelUpdateNotificationsTooltip: updatePanelUpdateNotificationsTooltip
     };
 
     var settingsPanelPlugins$3 = "Wtyczki";
@@ -1289,7 +1293,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
         if (pluginSelf.isDefaultTheme || pluginSelf.activeTheme.data?.Conditions === undefined) {
             return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null));
         }
-        return (window.SP_REACT.createElement("button", { onClick: () => ShowThemeSettings(active), style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" },
+        return (window.SP_REACT.createElement("button", { onClick: () => ShowThemeSettings(active), style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable millenniumIconButton" },
             window.SP_REACT.createElement(IconsModule.Edit, { style: { height: "16px" } })));
     };
     const findAllThemes = async () => {
@@ -1364,7 +1368,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
                         window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon },
                             window.SP_REACT.createElement(RenderEditTheme, { active: active }),
                             !pluginSelf.isDefaultTheme &&
-                                window.SP_REACT.createElement("button", { onClick: () => SetupAboutRenderer(active), style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" },
+                                window.SP_REACT.createElement("button", { onClick: () => SetupAboutRenderer(active), style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable millenniumIconButton" },
                                     window.SP_REACT.createElement(IconsModule.Information, { style: { height: "16px" } })),
                             window.SP_REACT.createElement(Dropdown, { contextMenuPositionOptions: { bMatchWidth: false }, rgOptions: themes, selectedOption: 1, strDefaultLabel: active, onChange: updateThemeCallback }))),
                     window.SP_REACT.createElement("div", { className: classMap.FieldDescription },
@@ -1382,6 +1386,17 @@ var millennium_main = (function (exports, React, ReactDOM) {
                         window.SP_REACT.createElement("div", { className: "_3b0U-QDD-uhFpw6xM716fw" }, locale.themePanelInjectCSS),
                         window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon }, cssState !== undefined && window.SP_REACT.createElement(Toggle, { value: cssState, onChange: onStyleToggle }))),
                     window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, locale.themePanelInjectCSSToolTip)))));
+    };
+
+    let SettingsStore = pluginSelf.SettingsStore;
+    const Settings = {
+        FetchAllSettings: () => {
+            return new Promise(async (resolve, _reject) => {
+                const settingsStore = JSON.parse(await wrappedCallServerMethod("get_load_config"));
+                SettingsStore = settingsStore;
+                resolve(settingsStore);
+            });
+        }
     };
 
     const UpToDateModal = () => {
@@ -1437,10 +1452,13 @@ var millennium_main = (function (exports, React, ReactDOM) {
     const UpdatesViewModal = () => {
         const [updates, setUpdates] = React.useState(null);
         const [checkingForUpdates, setCheckingForUpdates] = React.useState(false);
+        const [showUpdateNotifications, setNotifications] = React.useState(undefined);
         React.useEffect(() => {
             wrappedCallServerMethod("updater.get_update_list").then((result) => {
-                console.log(result);
-                setUpdates(JSON.parse(result).updates);
+                const updates = JSON.parse(result);
+                console.log(updates);
+                setUpdates(updates.updates);
+                setNotifications(updates.notifications ?? false);
             });
         }, []);
         const checkForUpdates = async () => {
@@ -1456,13 +1474,28 @@ var millennium_main = (function (exports, React, ReactDOM) {
         const DialogHeaderStyles = {
             display: "flex", alignItems: "center", gap: "15px"
         };
+        const OnNotificationsChange = (enabled) => {
+            wrappedCallServerMethod("updater.set_update_notifs_status", { status: enabled })
+                .then((success) => {
+                if (success) {
+                    setNotifications(enabled);
+                    Settings.FetchAllSettings();
+                }
+            });
+        };
         return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
             window.SP_REACT.createElement(DialogHeader, { style: DialogHeaderStyles },
                 locale.settingsPanelUpdates,
                 !checkingForUpdates &&
                     window.SP_REACT.createElement("button", { onClick: checkForUpdates, className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable", style: { width: "16px", "-webkit-app-region": "no-drag", zIndex: "9999", padding: "4px 4px", display: "flex" } },
                         window.SP_REACT.createElement(IconsModule.Update, null))),
-            window.SP_REACT.createElement(DialogBody, { className: classMap.SettingsDialogBodyFade }, updates && (!updates.length ? window.SP_REACT.createElement(UpToDateModal, null) : window.SP_REACT.createElement(RenderAvailableUpdates, { updates: updates, setUpdates: setUpdates })))));
+            window.SP_REACT.createElement(DialogBody, { className: classMap.SettingsDialogBodyFade },
+                window.SP_REACT.createElement("div", { className: "S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _1ugIUbowxDg0qM0pJUbBRM _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel" },
+                    window.SP_REACT.createElement("div", { className: "H9WOq6bV_VhQ4QjJS_Bxg" },
+                        window.SP_REACT.createElement("div", { className: "_3b0U-QDD-uhFpw6xM716fw" }, locale.updatePanelUpdateNotifications),
+                        window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon }, showUpdateNotifications !== undefined && window.SP_REACT.createElement(Toggle, { value: showUpdateNotifications, onChange: OnNotificationsChange }))),
+                    window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, locale.updatePanelUpdateNotificationsTooltip)),
+                updates && (!updates.length ? window.SP_REACT.createElement(UpToDateModal, null) : window.SP_REACT.createElement(RenderAvailableUpdates, { updates: updates, setUpdates: setUpdates })))));
     };
 
     var Renderer;
@@ -1498,15 +1531,23 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 element.classList.remove("Myra7iGjzCdMPzitboVfh");
             });
         };
+        React.useEffect(() => {
+            Millennium.findElement(pluginSelf.settingsDoc, ".DialogBody").then(_ => {
+                if (pluginSelf?.OpenOnUpdatesPanel ?? false) {
+                    componentUpdate(Renderer.Updates);
+                    pluginSelf.OpenOnUpdatesPanel = false;
+                }
+            });
+        }, []);
         return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
-            window.SP_REACT.createElement("div", { className: `MillenniumTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Plugins ? "Myra7iGjzCdMPzitboVfh" : ""}`, onClick: () => componentUpdate(Renderer.Plugins) },
+            window.SP_REACT.createElement("div", { className: `MillenniumTab PluginSettingsTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Plugins ? "Myra7iGjzCdMPzitboVfh" : ""}`, onClick: () => componentUpdate(Renderer.Plugins) },
                 window.SP_REACT.createElement("div", { className: "U6HcKswXzjmWtFxbjxuz4" },
                     window.SP_REACT.createElement("svg", { version: "1.1", id: "Icons", xmlns: "http://www.w3.org/2000/svg", xmlnsXlink: "http://www.w3.org/1999/xlink", x: "0px", y: "0px", viewBox: "0 0 32 32", xmlSpace: "preserve" },
                         window.SP_REACT.createElement("g", null,
                             window.SP_REACT.createElement("path", { d: "M18.3,17.3L15,20.6L11.4,17l3.3-3.3c0.4-0.4,0.4-1,0-1.4s-1-0.4-1.4,0L10,15.6l-1.3-1.3c-0.4-0.4-1-0.4-1.4,0s-0.4,1,0,1.4 L7.6,16l-2.8,2.8C3.6,19.9,3,21.4,3,23c0,1.3,0.4,2.4,1.1,3.5l-2.8,2.8c-0.4,0.4-0.4,1,0,1.4C1.5,30.9,1.7,31,2,31s0.5-0.1,0.7-0.3 l2.8-2.8C6.5,28.6,7.7,29,9,29c1.6,0,3.1-0.6,4.2-1.7l2.8-2.8l0.3,0.3c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3 c0.4-0.4,0.4-1,0-1.4L16.4,22l3.3-3.3c0.4-0.4,0.4-1,0-1.4S18.7,16.9,18.3,17.3z", fill: "currentColor" }),
                             window.SP_REACT.createElement("path", { d: "M30.7,1.3c-0.4-0.4-1-0.4-1.4,0l-2.8,2.8C25.5,3.4,24.3,3,23,3c-1.6,0-3.1,0.6-4.2,1.7l-3.5,3.5c-0.4,0.4-0.4,1,0,1.4l7,7 c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3l3.5-3.5C28.4,12.1,29,10.6,29,9c0-1.3-0.4-2.4-1.1-3.5l2.8-2.8 C31.1,2.3,31.1,1.7,30.7,1.3z", fill: "currentColor" })))),
                 window.SP_REACT.createElement("div", { className: "_2X9_IsQsEJDpAd2JGrHdJI" }, locale.settingsPanelPlugins)),
-            window.SP_REACT.createElement("div", { className: `MillenniumTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Themes ? "Myra7iGjzCdMPzitboVfh" : ""}`, onClick: () => componentUpdate(Renderer.Themes) },
+            window.SP_REACT.createElement("div", { className: `MillenniumTab ThemesSettingsTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Themes ? "Myra7iGjzCdMPzitboVfh" : ""}`, onClick: () => componentUpdate(Renderer.Themes) },
                 window.SP_REACT.createElement("div", { className: "U6HcKswXzjmWtFxbjxuz4" },
                     window.SP_REACT.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 48 48" },
                         window.SP_REACT.createElement("g", { id: "_21_-_30", "data-name": "21 - 30" },
@@ -1515,7 +1556,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
                                 window.SP_REACT.createElement("path", { d: "M16.63,6.4A23.508,23.508,0,0,0,2.683,37.268c.031.063.052.125.083.188a8.935,8.935,0,0,0,15.662,1.526A16.713,16.713,0,0,1,26.165,32.7c.1-.04.2-.07.3-.107a6.186,6.186,0,0,1,3.859-3.453,4.865,4.865,0,0,1,.451-2.184l7.9-17.107A23.554,23.554,0,0,0,16.63,6.4ZM10.5,32.5a4,4,0,1,1,4-4A4,4,0,0,1,10.5,32.5Zm5-11.5a4,4,0,1,1,4-4A4,4,0,0,1,15.5,21Zm12-3.5a4,4,0,1,1,4-4A4,4,0,0,1,27.5,17.5Z", fill: "currentColor" }),
                                 window.SP_REACT.createElement("path", { d: "M45.478,4.151a1.858,1.858,0,0,0-2.4.938L32.594,27.794a2.857,2.857,0,0,0,.535,3.18,4.224,4.224,0,0,0-4.865,2.491c-1.619,3.91.942,5.625-.678,9.535a10.526,10.526,0,0,0,8.5-6.3,4.219,4.219,0,0,0-1.25-4.887,2.85,2.85,0,0,0,3.037-1.837l8.64-23.471A1.859,1.859,0,0,0,45.478,4.151Z", fill: "currentColor" }))))),
                 window.SP_REACT.createElement("div", { className: "_2X9_IsQsEJDpAd2JGrHdJI" }, locale.settingsPanelThemes)),
-            window.SP_REACT.createElement("div", { className: `MillenniumTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Updates ? "Myra7iGjzCdMPzitboVfh" : ""}`, onClick: () => componentUpdate(Renderer.Updates) },
+            window.SP_REACT.createElement("div", { className: `MillenniumTab UpdatesSettingsTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Updates ? "Myra7iGjzCdMPzitboVfh" : ""}`, onClick: () => componentUpdate(Renderer.Updates) },
                 window.SP_REACT.createElement("div", { className: "U6HcKswXzjmWtFxbjxuz4" },
                     window.SP_REACT.createElement(IconsModule.Update, null)),
                 window.SP_REACT.createElement("div", { className: "_2X9_IsQsEJDpAd2JGrHdJI" }, locale.settingsPanelUpdates)),
@@ -1608,11 +1649,40 @@ var millennium_main = (function (exports, React, ReactDOM) {
         pluginSelf.activeTheme = theme;
     };
 
-    const getBackendProps = () => {
-        return new Promise(async (resolve, _reject) => {
-            resolve(JSON.parse(await wrappedCallServerMethod("get_load_config")));
+    /**
+     * @todo use builtin notification components instead of altering
+     * SteamClient.ClientNotifications.DisplayClientNotification
+     * @param doc document of notification
+     */
+    const RemoveAllListeners = (doc) => {
+        var bodyClass = [...doc.getElementsByClassName("_3CGHgMXRIoyrljmStDoKuf")];
+        Array.from(bodyClass).forEach(function (element) {
+            var newElement = element.cloneNode(true);
+            element.parentNode.replaceChild(newElement, element);
         });
     };
+    const SetClickListener = (doc) => {
+        var bodyClass = [...doc.getElementsByClassName("_3CGHgMXRIoyrljmStDoKuf")][0];
+        bodyClass.addEventListener("click", () => {
+            console.log("clicked notif!");
+            pluginSelf.OpenOnUpdatesPanel = true;
+            /** Open the settings window */
+            window.open("steam://open/settings", "_blank");
+        });
+    };
+    const PatchNotification = (doc) => {
+        Millennium.findElement(doc, "._3dAcRIhxsyAgEam4dywJvj").then(async (elements) => {
+            const header = elements[0].textContent;
+            if (header == "Updates Available") {
+                (await Millennium.findElement(doc, "._28AhGOLtOo3TwshpQm2-wk"))?.[0]?.remove();
+                (await Millennium.findElement(doc, "._2yhOCNV9s2fKohW8wqWRTY"))?.[0]?.remove();
+                (await Millennium.findElement(doc, "._19g_L-qkP3q7SDkgXAgoli"))?.[0]?.remove();
+            }
+            RemoveAllListeners(doc);
+            SetClickListener(doc);
+        });
+    };
+
     const UnsetSilentStartup = () => {
         const params = new URLSearchParams(window.location.href);
         if (params.get("SILENT_STARTUP") === "true") {
@@ -1641,6 +1711,11 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 RenderSettingsModal(windowContext);
             }
         }
+        if (windowContext.m_strTitle.includes("notificationtoasts")) {
+            console.log(windowContext.m_popup.document);
+            PatchNotification(windowContext.m_popup.document);
+        }
+        console.log(windowContext.m_strTitle);
         PatchMissedDocuments();
         patchDocumentContext(windowContext);
     };
@@ -1660,14 +1735,17 @@ var millennium_main = (function (exports, React, ReactDOM) {
         PatchMissedDocuments();
     };
     const ProcessUpdates = (updates) => {
-        for (const item in updates) {
-            console.log(updates[item].name);
+        if (!SettingsStore.settings.updateNotifications) {
+            return;
         }
+        const len = updates.length;
+        const message = `Millennium found ${len} available update${len > 1 ? "s" : ""}`;
+        SteamClient.ClientNotifications.DisplayClientNotification(1, JSON.stringify({ title: 'Updates Available', body: message, state: 'online', steamid: 0 }), (e) => { console.log(e); });
     };
     // Entry point on the front end of your plugin
     async function PluginMain() {
         const startTime = performance.now();
-        getBackendProps().then((result) => InitializePatcher(startTime, result));
+        Settings.FetchAllSettings().then((result) => InitializePatcher(startTime, result));
         wrappedCallServerMethod("updater.get_update_list")
             .then((result) => JSON.parse(result).updates)
             .then((updates) => ProcessUpdates(updates));

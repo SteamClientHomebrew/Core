@@ -4,13 +4,22 @@ from datetime import datetime
 import git, os, json, shutil
 from unidiff import PatchSet
 from api.themes_store import find_all_themes
+from api.user_data import cfg
 import requests
 import arrow
 
 class Updater:
 
     def get_update_list(self):
-        return json.dumps({"updates": self.update_list})
+        return json.dumps({
+            "updates": self.update_list, 
+            "notifications": cfg.get_config()["updateNotifications"]
+        })
+    
+    def set_update_notifs_status(self, status: bool):
+
+        cfg.set_config_keypair("updateNotifications", status)
+        return True
 
     def query_themes(self):
         themes = json.loads(find_all_themes())

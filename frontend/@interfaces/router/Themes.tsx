@@ -83,7 +83,7 @@ const RenderEditTheme: React.FC<EditThemeProps> = ({ active }) => {
         <button 
             onClick={() => ShowThemeSettings(active)} 
             style={{margin: "0", padding: "0px 10px", marginRight: "10px"}} 
-            className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" 
+            className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable millenniumIconButton" 
         >
             <IconsModule.Edit style={{height: "16px"}}/>
         </button>
@@ -195,7 +195,7 @@ const ThemeViewModal: React.FC = () => {
                                 <button 
                                     onClick={() => SetupAboutRenderer(active)} 
                                     style={{margin: "0", padding: "0px 10px", marginRight: "10px"}} 
-                                    className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" 
+                                    className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable millenniumIconButton" 
                                 >
                                     <IconsModule.Information style={{height: "16px"}}/>
                                 </button>

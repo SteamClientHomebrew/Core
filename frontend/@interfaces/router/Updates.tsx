@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Millennium, DialogBody, DialogBodyText, DialogSubHeader, classMap, DialogHeader, IconsModule, pluginSelf } from 'millennium-lib'
+import { Millennium, DialogBody, DialogBodyText, DialogSubHeader, classMap, DialogHeader, IconsModule, pluginSelf, Toggle } from 'millennium-lib'
 import { locale } from '../../@localization';
 import { ThemeItem } from '../../components/types';
+import { Settings } from '../../components/Settings';
 
 interface UpdateProps {
     updates: UpdateItemType[];
@@ -98,11 +99,16 @@ const UpdatesViewModal: React.FC = () => {
 
     const [updates, setUpdates] = useState<Array<UpdateItemType>>(null)
     const [checkingForUpdates, setCheckingForUpdates] = useState<boolean>(false)
+    const [showUpdateNotifications, setNotifications] = useState<boolean>(undefined)
     
     useEffect(() => {
         Millennium.callServerMethod("updater.get_update_list").then((result: any) => {
-            console.log(result)
-            setUpdates(JSON.parse(result).updates)
+            
+            const updates = JSON.parse(result)
+            console.log(updates)
+
+            setUpdates(updates.updates)
+            setNotifications(updates.notifications ?? false)
         })
     }, [])
 
@@ -122,6 +128,17 @@ const UpdatesViewModal: React.FC = () => {
         display: "flex", alignItems: "center", gap: "15px"
     }
 
+    const OnNotificationsChange = (enabled: boolean) => {
+
+        Millennium.callServerMethod("updater.set_update_notifs_status", { status: enabled})
+        .then((success: boolean) => {
+            if (success) {
+                setNotifications(enabled)
+                Settings.FetchAllSettings()
+            }
+        })
+    }
+
     return (
         <>
             <DialogHeader style={DialogHeaderStyles}>
@@ -137,6 +154,16 @@ const UpdatesViewModal: React.FC = () => {
                 }
             </DialogHeader>
             <DialogBody className={classMap.SettingsDialogBodyFade}>
+                <div className="S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _1ugIUbowxDg0qM0pJUbBRM _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel">
+                    <div className="H9WOq6bV_VhQ4QjJS_Bxg">
+                        <div className="_3b0U-QDD-uhFpw6xM716fw">{locale.updatePanelUpdateNotifications}</div>
+                        <div className={classMap.FieldChildrenWithIcon}>
+
+                            { showUpdateNotifications !== undefined && <Toggle value={showUpdateNotifications} onChange={OnNotificationsChange}></Toggle> }
+                        </div>
+                    </div>
+                    <div className={classMap.FieldDescription}>{locale.updatePanelUpdateNotificationsTooltip}</div>
+                </div> 
                 {updates && (!updates.length ? <UpToDateModal/> : <RenderAvailableUpdates updates={updates} setUpdates={setUpdates}/>)}   
             </DialogBody>
         </>

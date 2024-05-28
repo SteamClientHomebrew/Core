@@ -27,5 +27,7 @@
     "reloadRequired": "Reload Required",
     "reloadRequiredBody": "Selected changes need a reload in order to take affect. Should we reload right now?",
     "optionReloadNow": "Reload Now",
-    "optionReloadLater": "Reload Later"
+    "optionReloadLater": "Reload Later",
+    "updatePanelUpdateNotifications": "Push Notifications",
+    "updatePanelUpdateNotificationsTooltip": "Get Millennium to give you a reminder when a item in your library has an update!"
 }

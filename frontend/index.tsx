@@ -5,12 +5,8 @@ import { ConditionsStore, ThemeItem, SystemAccentColor, UpdateItem } from "./com
 import { DispatchSystemColors } from "./patcher/SystemColors";
 import { ParseLocalTheme } from "./patcher/ThemeParser";
 import { Logger } from "./components/Logger";
-
-const getBackendProps = () => {
-    return new Promise(async (resolve: any, _reject: any) => {
-        resolve(JSON.parse(await Millennium.callServerMethod("get_load_config")))
-    })
-}
+import { PatchNotification } from "./@interfaces/Notifications";
+import { Settings, SettingsStore } from "./components/Settings";
 
 const UnsetSilentStartup = () => {
     const params = new URLSearchParams(window.location.href);
@@ -60,6 +56,14 @@ const windowCreated = (windowContext: any): void => {
         }     
     }
 
+    if (windowContext.m_strTitle.includes("notificationtoasts")) {
+        console.log(windowContext.m_popup.document)
+
+        PatchNotification(windowContext.m_popup.document)
+    }
+
+    console.log(windowContext.m_strTitle)
+
     PatchMissedDocuments();
     patchDocumentContext(windowContext);
 }
@@ -87,18 +91,25 @@ const InitializePatcher = (startTime: number, result: any) => {
 
 const ProcessUpdates = (updates: UpdateItem[]) => {
 
-    for (const item in updates) {
-
-        console.log(updates[item])
+    if (!SettingsStore.settings.updateNotifications) {
+        return
     }
+
+    const len = updates.length
+    const message = `Millennium found ${len} available update${len > 1 ? "s" : ""}`
+
+    SteamClient.ClientNotifications.DisplayClientNotification(
+        1,
+        JSON.stringify({ title: 'Updates Available', body: message, state: 'online', steamid: 0 }),
+        (e: any) => {console.log(e)}
+    )
 }
 
 // Entry point on the front end of your plugin
 export default async function PluginMain() {
 
     const startTime = performance.now();
-
-    getBackendProps().then((result: any) => InitializePatcher(startTime, result))
+    Settings.FetchAllSettings().then((result: any) => InitializePatcher(startTime, result))
 
     Millennium.callServerMethod("updater.get_update_list")
         .then((result : any)          => JSON.parse(result).updates)

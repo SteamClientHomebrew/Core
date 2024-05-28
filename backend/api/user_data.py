@@ -6,7 +6,7 @@ from webkit.stack import WebkitStack, add_browser_css
 
 class Config:
 
-    def set_config_keypair(self, key: str, value: str) -> None:
+    def set_config_keypair(self, key: str, value) -> None:
         config = self.get_config()
         config[key] = value
         self.set_config(json.dumps(config, indent=4))
@@ -100,6 +100,7 @@ class Config:
         self.create_default("active", "default", str)
         self.create_default("scripts", True, bool)
         self.create_default("styles", True, bool)        
+        self.create_default("updateNotifications", True, bool)        
 
         active = self.config["active"]
         # the active skin is not valid [doesn't exist, or doesnt have skin.json/it isn't valid]

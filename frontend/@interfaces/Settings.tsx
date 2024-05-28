@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { PluginViewModal } from './router/Plugins'
 import { ThemeViewModal } from './router/Themes'
@@ -45,9 +45,19 @@ const PluginComponent: React.FC = () => {
 		});
 	}
 
+	useEffect(() => {
+		Millennium.findElement(pluginSelf.settingsDoc, ".DialogBody").then(_ => {
+			if (pluginSelf?.OpenOnUpdatesPanel ?? false) {
+				componentUpdate(Renderer.Updates)
+
+				pluginSelf.OpenOnUpdatesPanel = false
+			}
+		})
+	}, [])
+
 	return (
 		<>
-		<div className={`MillenniumTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Plugins ? "Myra7iGjzCdMPzitboVfh" : ""}`} onClick={() => componentUpdate(Renderer.Plugins)}>
+		<div className={`MillenniumTab PluginSettingsTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Plugins ? "Myra7iGjzCdMPzitboVfh" : ""}`} onClick={() => componentUpdate(Renderer.Plugins)}>
 			<div className="U6HcKswXzjmWtFxbjxuz4">
 				<svg version="1.1" id="Icons" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 32 32" xmlSpace="preserve">
 					<g>
@@ -59,7 +69,7 @@ const PluginComponent: React.FC = () => {
 			</div>
 			<div className="_2X9_IsQsEJDpAd2JGrHdJI">{locale.settingsPanelPlugins}</div>
 		</div>
-		<div className={`MillenniumTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Themes ? "Myra7iGjzCdMPzitboVfh" : ""}`} onClick={() => componentUpdate(Renderer.Themes)}>
+		<div className={`MillenniumTab ThemesSettingsTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Themes ? "Myra7iGjzCdMPzitboVfh" : ""}`} onClick={() => componentUpdate(Renderer.Themes)}>
 			<div className="U6HcKswXzjmWtFxbjxuz4">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
 					<g id="_21_-_30" data-name="21 - 30">
@@ -74,7 +84,7 @@ const PluginComponent: React.FC = () => {
 			</div>
 			<div className="_2X9_IsQsEJDpAd2JGrHdJI">{locale.settingsPanelThemes}</div>
 		</div>
-		<div className={`MillenniumTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Updates ? "Myra7iGjzCdMPzitboVfh" : ""}`} onClick={() => componentUpdate(Renderer.Updates)}>
+		<div className={`MillenniumTab UpdatesSettingsTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Updates ? "Myra7iGjzCdMPzitboVfh" : ""}`} onClick={() => componentUpdate(Renderer.Updates)}>
 			<div className="U6HcKswXzjmWtFxbjxuz4">
 				<IconsModule.Update/>
 			</div>

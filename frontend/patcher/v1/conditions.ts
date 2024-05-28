@@ -71,7 +71,7 @@ const InsertModule = (target: EvaluateTargetProps, document: Document) => {
     const activeTheme: ThemeItem = pluginSelf.activeTheme
 
     target?.TargetCss && DOMModifier.AddStyleSheet(document, constructThemePath(activeTheme.native, target.TargetCss))
-    target?.TargetJs && DOMModifier.AddJavaScript(document, constructThemePath(activeTheme.native, target.TargetJs))
+    target?.TargetJs  && DOMModifier.AddJavaScript(document, constructThemePath(activeTheme.native, target.TargetJs))
 }
 
 const EvaluateComboBox = (statement: V1StatementCombo, currentValue: any, document: Document) => {

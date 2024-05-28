@@ -123,3 +123,17 @@ export interface UpdateItem {
     native: string,
     name: string
 }
+
+export interface Settings {
+    active: string,
+    scripts: boolean,
+    styles: boolean,
+    updateNotifications: boolean
+}
+
+export interface SettingsProps {
+    accent_color: SystemAccentColor,
+    active_theme: ThemeItem,
+    conditions: Conditions,
+    settings: Settings
+}
