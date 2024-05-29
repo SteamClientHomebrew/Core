@@ -1409,11 +1409,12 @@ var millennium_main = (function (exports, React, ReactDOM) {
                     window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, locale.themePanelInjectCSSToolTip)))));
     };
 
-    pluginSelf.SettingsStore;
+    let SettingsStore = pluginSelf.SettingsStore;
     const Settings = {
         FetchAllSettings: () => {
             return new Promise(async (resolve, _reject) => {
                 const settingsStore = JSON.parse(await wrappedCallServerMethod("get_load_config"));
+                SettingsStore = settingsStore;
                 resolve(settingsStore);
             });
         }
@@ -1725,15 +1726,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
     }`;
     };
 
-    const UnsetSilentStartup = () => {
-        const params = new URLSearchParams(window.location.href);
-        if (params.get("SILENT_STARTUP") === "true") {
-            params.set("SILENT_STARTUP", "false");
-            const newSearchParams = decodeURIComponent(params.toString());
-            console.log("new url", newSearchParams);
-            window.location.href = newSearchParams;
-        }
-    };
     const PatchMissedDocuments = () => {
         // @ts-ignore
         g_PopupManager.m_mapPopups.data_.forEach((element) => {
@@ -1745,10 +1737,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
     const windowCreated = (windowContext) => {
         switch (windowContext.m_strTitle) {
             /** @ts-ignore */
-            case LocalizationManager.LocalizeString("#Steam_Platform"): {
-                UnsetSilentStartup();
-            }
-            /** @ts-ignore */
+            case LocalizationManager.LocalizeString("#Steam_Platform"):        /** @ts-ignore */
             case LocalizationManager.LocalizeString("#Settings_Title"): {
                 RenderSettingsModal(windowContext);
             }
@@ -1778,13 +1767,21 @@ var millennium_main = (function (exports, React, ReactDOM) {
         }
         PatchMissedDocuments();
     };
+    const ProcessUpdates = (updates) => {
+        if (!SettingsStore.settings.updateNotifications) {
+            return;
+        }
+        const len = updates.length;
+        const message = `Millennium found ${len} available update${len > 1 ? "s" : ""}`;
+        SteamClient.ClientNotifications.DisplayClientNotification(1, JSON.stringify({ title: 'Updates Available', body: message, state: 'online', steamid: 0 }), (_) => { });
+    };
     // Entry point on the front end of your plugin
     async function PluginMain() {
         const startTime = performance.now();
         Settings.FetchAllSettings().then((result) => InitializePatcher(startTime, result));
-        // wrappedCallServerMethod("updater.get_update_list")
-        //     .then((result : any)          => JSON.parse(result).updates)
-        //     .then((updates: UpdateItem[]) => ProcessUpdates(updates))
+        wrappedCallServerMethod("updater.get_update_list")
+            .then((result) => JSON.parse(result).updates)
+            .then((updates) => ProcessUpdates(updates));
         Millennium.AddWindowCreateHook(windowCreated);
     }
 

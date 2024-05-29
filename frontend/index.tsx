@@ -48,7 +48,7 @@ const windowCreated = (windowContext: any): void => {
     switch (windowContext.m_strTitle) {
         /** @ts-ignore */
         case LocalizationManager.LocalizeString("#Steam_Platform"): {
-            UnsetSilentStartup()
+            //UnsetSilentStartup()
 
         }
         /** @ts-ignore */
@@ -112,9 +112,9 @@ export default async function PluginMain() {
     const startTime = performance.now();
     Settings.FetchAllSettings().then((result: SettingsProps) => InitializePatcher(startTime, result))
 
-    // Millennium.callServerMethod("updater.get_update_list")
-    //     .then((result : any)          => JSON.parse(result).updates)
-    //     .then((updates: UpdateItem[]) => ProcessUpdates(updates))
+    Millennium.callServerMethod("updater.get_update_list")
+        .then((result : any)          => JSON.parse(result).updates)
+        .then((updates: UpdateItem[]) => ProcessUpdates(updates))
 
     Millennium.AddWindowCreateHook(windowCreated)
 }
