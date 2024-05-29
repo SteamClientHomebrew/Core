@@ -9,6 +9,9 @@ import { PatchNotification } from "./@interfaces/Notifications";
 import { Settings, SettingsStore } from "./components/Settings";
 import { DispatchGlobalColors } from "./patcher/v1/GlobalColors";
 
+/**
+ * @note crashes steam on silent boot startup
+ */
 const UnsetSilentStartup = () => {
     const params = new URLSearchParams(window.location.href);
     
