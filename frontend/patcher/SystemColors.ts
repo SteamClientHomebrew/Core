@@ -1,6 +1,10 @@
 import { pluginSelf } from "millennium-lib"
 import { SystemAccentColor } from "../components/types"
 
+/**
+ * appends a virtual CSS script into self module
+ * @param systemColors SystemAccentColors
+ */
 export const DispatchSystemColors = (systemColors: SystemAccentColor) => {
     pluginSelf.systemColor = `
     :root {

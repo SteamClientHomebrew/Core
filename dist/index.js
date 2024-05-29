@@ -605,6 +605,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
         const documentTitle = windowContext.m_strTitle;
         // Append System Accent Colors to global document (publically shared)
         DOMModifier.AddStyleSheetFromText(document, pluginSelf.systemColor, "SystemAccentColorInject");
+        // Append old global colors struct to DOM
+        pluginSelf?.GlobalsColors && DOMModifier.AddStyleSheetFromText(document, pluginSelf.GlobalsColors, "GlobalColors");
         activeTheme?.data?.hasOwnProperty("Patches") && evaluatePatches(activeTheme, documentTitle, classList, document, windowContext);
         activeTheme?.data?.hasOwnProperty("Conditions") && evaluateConditions(activeTheme, documentTitle, classList, document);
     }
@@ -1407,12 +1409,11 @@ var millennium_main = (function (exports, React, ReactDOM) {
                     window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, locale.themePanelInjectCSSToolTip)))));
     };
 
-    let SettingsStore = pluginSelf.SettingsStore;
+    pluginSelf.SettingsStore;
     const Settings = {
         FetchAllSettings: () => {
             return new Promise(async (resolve, _reject) => {
                 const settingsStore = JSON.parse(await wrappedCallServerMethod("get_load_config"));
-                SettingsStore = settingsStore;
                 resolve(settingsStore);
             });
         }
@@ -1621,6 +1622,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
         });
     }
 
+    /**
+     * appends a virtual CSS script into self module
+     * @param systemColors SystemAccentColors
+     */
     const DispatchSystemColors = (systemColors) => {
         pluginSelf.systemColor = `
     :root {
@@ -1709,6 +1714,17 @@ var millennium_main = (function (exports, React, ReactDOM) {
         });
     };
 
+    /**
+     * appends a virtual CSS script into self module
+     * @param globalColors V1 Global Colors struct
+     */
+    const DispatchGlobalColors = (globalColors) => {
+        pluginSelf.GlobalsColors = `
+    :root {
+        ${globalColors.map((color) => `${color.ColorName}: ${color.HexColorCode};`).join(" ")}
+    }`;
+    };
+
     const UnsetSilentStartup = () => {
         const params = new URLSearchParams(window.location.href);
         if (params.get("SILENT_STARTUP") === "true") {
@@ -1749,6 +1765,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
         const systemColors = result.accent_color;
         ParseLocalTheme(theme);
         DispatchSystemColors(systemColors);
+        const themeV1 = result?.active_theme?.data;
+        if (themeV1?.GlobalsColors) {
+            DispatchGlobalColors(themeV1?.GlobalsColors);
+        }
         pluginSelf.conditionals = result.conditions;
         pluginSelf.scriptsAllowed = result?.settings?.scripts ?? true;
         pluginSelf.stylesAllowed = result?.settings?.styles ?? true;
@@ -1758,21 +1778,13 @@ var millennium_main = (function (exports, React, ReactDOM) {
         }
         PatchMissedDocuments();
     };
-    const ProcessUpdates = (updates) => {
-        if (!SettingsStore.settings.updateNotifications) {
-            return;
-        }
-        const len = updates.length;
-        const message = `Millennium found ${len} available update${len > 1 ? "s" : ""}`;
-        SteamClient.ClientNotifications.DisplayClientNotification(1, JSON.stringify({ title: 'Updates Available', body: message, state: 'online', steamid: 0 }), (_) => { });
-    };
     // Entry point on the front end of your plugin
     async function PluginMain() {
         const startTime = performance.now();
         Settings.FetchAllSettings().then((result) => InitializePatcher(startTime, result));
-        wrappedCallServerMethod("updater.get_update_list")
-            .then((result) => JSON.parse(result).updates)
-            .then((updates) => ProcessUpdates(updates));
+        // wrappedCallServerMethod("updater.get_update_list")
+        //     .then((result : any)          => JSON.parse(result).updates)
+        //     .then((updates: UpdateItem[]) => ProcessUpdates(updates))
         Millennium.AddWindowCreateHook(windowCreated);
     }
 

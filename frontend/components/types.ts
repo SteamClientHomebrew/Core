@@ -134,6 +134,17 @@ export interface Settings {
 export interface SettingsProps {
     accent_color: SystemAccentColor,
     active_theme: ThemeItem,
-    conditions: Conditions,
+    conditions: ConditionsStore,
     settings: Settings
+}
+
+export interface ColorProp {
+    ColorName: string, 
+    Description: string, 
+    HexColorCode: string, 
+    OriginalColorCode: string
+}
+
+export interface ThemeItemV1 extends Theme {
+    GlobalsColors: ColorProp[]
 }

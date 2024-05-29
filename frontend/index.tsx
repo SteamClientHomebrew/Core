@@ -1,12 +1,13 @@
 import { Millennium, pluginSelf } from "millennium-lib"; 
 import { patchDocumentContext } from "./patcher/index"
 import { RenderSettingsModal } from "./@interfaces/Settings"
-import { ConditionsStore, ThemeItem, SystemAccentColor, UpdateItem } from "./components/types";
+import { ConditionsStore, ThemeItem, SystemAccentColor, UpdateItem, SettingsProps, ThemeItemV1 } from "./components/types";
 import { DispatchSystemColors } from "./patcher/SystemColors";
 import { ParseLocalTheme } from "./patcher/ThemeParser";
 import { Logger } from "./components/Logger";
 import { PatchNotification } from "./@interfaces/Notifications";
 import { Settings, SettingsStore } from "./components/Settings";
+import { DispatchGlobalColors } from "./patcher/v1/GlobalColors";
 
 const UnsetSilentStartup = () => {
     const params = new URLSearchParams(window.location.href);
@@ -64,7 +65,7 @@ const windowCreated = (windowContext: any): void => {
     patchDocumentContext(windowContext);
 }
 
-const InitializePatcher = (startTime: number, result: any) => {
+const InitializePatcher = (startTime: number, result: SettingsProps) => {
 
     Logger.Log(`Received props in [${(performance.now() - startTime).toFixed(3)}ms]`, result)
 
@@ -73,6 +74,12 @@ const InitializePatcher = (startTime: number, result: any) => {
     
     ParseLocalTheme(theme)
     DispatchSystemColors(systemColors)
+
+    const themeV1: ThemeItemV1 = result?.active_theme?.data as ThemeItemV1
+
+    if (themeV1?.GlobalsColors) {
+        DispatchGlobalColors(themeV1?.GlobalsColors)
+    }
     
     pluginSelf.conditionals   = result.conditions as ConditionsStore
     pluginSelf.scriptsAllowed = result?.settings?.scripts as boolean ?? true
@@ -103,11 +110,11 @@ const ProcessUpdates = (updates: UpdateItem[]) => {
 export default async function PluginMain() {
 
     const startTime = performance.now();
-    Settings.FetchAllSettings().then((result: any) => InitializePatcher(startTime, result))
+    Settings.FetchAllSettings().then((result: SettingsProps) => InitializePatcher(startTime, result))
 
-    Millennium.callServerMethod("updater.get_update_list")
-        .then((result : any)          => JSON.parse(result).updates)
-        .then((updates: UpdateItem[]) => ProcessUpdates(updates))
+    // Millennium.callServerMethod("updater.get_update_list")
+    //     .then((result : any)          => JSON.parse(result).updates)
+    //     .then((updates: UpdateItem[]) => ProcessUpdates(updates))
 
     Millennium.AddWindowCreateHook(windowCreated)
 }
