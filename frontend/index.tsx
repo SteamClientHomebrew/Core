@@ -97,12 +97,13 @@ const InitializePatcher = (startTime: number, result: SettingsProps) => {
 
 const ProcessUpdates = (updates: UpdateItem[]) => {
 
-    if (!SettingsStore.settings.updateNotifications) {
+    const updateCount = updates.length
+
+    if (!SettingsStore.settings.updateNotifications || updateCount <= 0) {
         return
     }
 
-    const len = updates.length
-    const message = `Millennium found ${len} available update${len > 1 ? "s" : ""}`
+    const message = `Millennium found ${updateCount} available update${updateCount > 1 ? "s" : ""}`
 
     SteamClient.ClientNotifications.DisplayClientNotification(
         1, JSON.stringify({ title: 'Updates Available', body: message, state: 'online', steamid: 0 }), (_: any) => {}
