@@ -27,13 +27,16 @@ def find_all_plugins() -> str:
             continue
 
         with open(skin_json_path, 'r') as json_file:
+
             try:
                 skin_data = json.load(json_file)
-                pname: str = "undefined_plugin_name"
+                plugin_name: str = "undefined_plugin_name"
+                
                 if 'name' in skin_data:
-                    pname = skin_data["name"]
-                # Process the skin_data as needed
-                plugins.append({'path': os.path.join(path, theme), 'enabled': is_enabled(pname), 'data': skin_data})
+                    plugin_name = skin_data["name"]
+
+                plugins.append({'path': os.path.join(path, theme), 'enabled': is_enabled(plugin_name), 'data': skin_data})
+
             except json.JSONDecodeError:
                 print(f"Error parsing {skin_json_path}. Invalid JSON format.")
 

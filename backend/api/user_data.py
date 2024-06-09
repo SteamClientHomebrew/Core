@@ -85,10 +85,7 @@ class Config:
         theme = json.loads(self.get_active_theme())
         name = self.get_active_theme_name()
 
-        # initialize webkit hooks
         self.start_webkit_hook(theme, name)
-
-        # setup theme conditionals
         self.setup_conditionals(theme, name, config)
 
 

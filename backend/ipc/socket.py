@@ -24,7 +24,8 @@ def check_install(repo, owner):
     return False if get_theme_from_gitpair(repo, owner) == None else True
 
 def make_dir_writable(function, path, exception):
-    """The path on Windows cannot be gracefully removed due to being read-only,
+    """
+    The path on Windows cannot be gracefully removed due to being read-only,
     so we make the directory writable on a failure and retry the original function.
     """
     os.chmod(path, stat.S_IWRITE)
@@ -131,3 +132,5 @@ async def serve_websocket():
 def start_websocket_server():
     asyncio.set_event_loop(asyncio.new_event_loop())
     asyncio.get_event_loop().run_until_complete(serve_websocket())
+
+    start_websocket_server()

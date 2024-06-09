@@ -995,9 +995,11 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 setPlugins(json);
             });
         }, []);
-        const checkBoxChange = (index, checked) => {
-            console.log(checked);
-            setCheckedItems({ ...checkedItems, [index]: checked });
+        const handleCheckboxChange = (index) => {
+            /* Prevent users from disabling this plugin, as its vital */
+            const updated = !checkedItems[index] || plugins[index]?.data?.name === "millennium__internal";
+            setCheckedItems({ ...checkedItems, [index]: updated });
+            wrappedCallServerMethod("update_plugin_status", { plugin_name: plugins[index]?.data?.name, enabled: updated });
         };
         return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
             window.SP_REACT.createElement(DialogHeader, null, locale.settingsPanelPlugins),
@@ -1007,7 +1009,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
                     window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon, style: { display: "flex", alignItems: "center" } },
                         window.SP_REACT.createElement(EditPlugin, { plugin: plugin }),
                         window.SP_REACT.createElement("div", { className: "_3N47t_-VlHS8JAEptE5rlR" },
-                            window.SP_REACT.createElement(Toggle, { disabled: plugin?.data?.name == "millennium__internal", value: checkedItems[index], onChange: (checked) => checkBoxChange(index, checked) })))),
+                            window.SP_REACT.createElement(Toggle, { disabled: plugin?.data?.name == "millennium__internal", value: checkedItems[index], onChange: (_checked) => handleCheckboxChange(index) })))),
                 window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, plugin?.data?.description ?? locale.itemNoDescription)))))));
     };
 
@@ -1618,6 +1620,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
             hookSettingsComponent();
             // Create a new div element
             var bufferDiv = document.createElement("div");
+            bufferDiv.classList.add("millennium-tabs-list");
             element[0].prepend(bufferDiv);
             ReactDOM.render(window.SP_REACT.createElement(PluginComponent, null), bufferDiv);
         });

@@ -56,14 +56,14 @@ class Plugin:
             name = cfg.get_active_theme_name()
 
             if "failed" not in theme and "Steam-WebKit" in theme["data"] and isinstance(theme["data"]["Steam-WebKit"], str):
-                print("pre-initiliazing browser css module")
+                print("pre-initializing browser css module")
                 add_browser_css(os.path.join(Millennium.steam_path(), "skins", name, theme["data"]["Steam-WebKit"]))
 
-        except Exception as excep:
-            print(f"exception thrown @ _load -> {excep}")
+        except Exception as exception:
+            print(f"exception thrown @ _load -> {exception}")
 
         websocket_thread = threading.Thread(target=start_websocket_server)
         websocket_thread.start()
 
     def _unload(self):
-        print("unloading")
+        pass

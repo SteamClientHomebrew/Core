@@ -73,7 +73,7 @@ const PluginViewModal: React.FC = () => {
 							<Toggle 
 								disabled={plugin?.data?.name == "millennium__internal"} 
 								value={checkedItems[index]} 
-								onChange={(checked: boolean) => checkBoxChange(index, checked)}>
+								onChange={(_checked: boolean) => handleCheckboxChange(index)}>
 							</Toggle>
 						</div>
 					</div>

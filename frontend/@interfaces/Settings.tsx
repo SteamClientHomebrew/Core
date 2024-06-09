@@ -131,6 +131,8 @@ function RenderSettingsModal(_context: any)
 		hookSettingsComponent()
 		// Create a new div element
 		var bufferDiv = document.createElement("div");
+		bufferDiv.classList.add("millennium-tabs-list")
+
 		element[0].prepend(bufferDiv);
 
 		ReactDOM.render(<PluginComponent />, bufferDiv);
