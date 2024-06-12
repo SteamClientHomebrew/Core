@@ -1,7 +1,8 @@
 {
   "scripts": {
-    "dev-build": "millennium-lib --build dev",
-    "prod-build": "millennium-lib --build prod"
+    "dev": "millennium-lib --build dev",
+    "build": "millennium-lib --build prod",
+    "create-env": "python -m venv .venv"
   },
   "devDependencies": {
     "@types/react": "16.14.0",
