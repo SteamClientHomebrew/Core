@@ -26,5 +26,8 @@
         "react-dom"
       ]
     }
+  },
+  "dependencies": {
+    "millennium-lib": "^3.4.8"
   }
 }

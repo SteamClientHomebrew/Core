@@ -91,7 +91,7 @@ class Config:
 
     def __init__(self):
 
-        self.config_path = os.path.join(Millennium.steam_path(), ".millennium", "theme.cfg.json")
+        self.config_path = os.path.join(Millennium.steam_path(), "ext", "themes.json")
         self.config = self.get_config()
 
         self.create_default("active", "default", str)
@@ -113,13 +113,12 @@ class Config:
     BEGIN CONDITIONAL SETUP
     """
     def get_conditionals(self):
-        path = Millennium.steam_path() + "/.millennium/theme.cfg.json"
 
-        if not os.path.exists(path):
-            with open(path, 'w') as file:
+        if not os.path.exists(self.config_path):
+            with open(self.config_path, 'w') as file:
                 json.dump({}, file)
 
-        with open(path, 'r') as conditionals:
+        with open(self.config_path, 'r') as conditionals:
             # Read the content of the file
 
             conditions = json.load(conditionals)["conditions"]

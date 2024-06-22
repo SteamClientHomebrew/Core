@@ -1,6 +1,6 @@
 import { Millennium, pluginSelf } from "millennium-lib"
 import { ThemeItem } from "../components/types"
-import { CreatePopup } from "./router/browser"
+import { CreatePopup } from "../components/Popups"
 import React from "react"
 import { locale } from "../@localization";
 

@@ -3,7 +3,7 @@ import json
 import Millennium
 
 def is_enabled(plugin_name: str) -> json:
-    with open(Millennium.steam_path() + "/.millennium/settings.json", 'r') as enabled:
+    with open(Millennium.steam_path() + "/ext/plugins.json", 'r') as enabled:
         obj = json.load(enabled)
 
         if plugin_name in obj["enabled"]:
@@ -11,17 +11,12 @@ def is_enabled(plugin_name: str) -> json:
     
     return False
 
-def find_all_plugins() -> str:
+def search_dirs(m_path: str, plugins: list) -> None:
 
-    plugins = [] 
-    path = Millennium.steam_path() + "/steamui/plugins"
-
-    filenames = os.listdir(path)
-    subdirectories = [filename for filename in filenames if os.path.isdir(os.path.join(path, filename))]
-    subdirectories.sort()
+    subdirectories = [filename for filename in os.listdir(m_path) if os.path.isdir(os.path.join(m_path, filename))]
 
     for theme in subdirectories:
-        skin_json_path = os.path.join(path, theme, "plugin.json")
+        skin_json_path = os.path.join(m_path, theme, "plugin.json")
 
         if not os.path.exists(skin_json_path):
             continue
@@ -35,9 +30,17 @@ def find_all_plugins() -> str:
                 if 'name' in skin_data:
                     plugin_name = skin_data["name"]
 
-                plugins.append({'path': os.path.join(path, theme), 'enabled': is_enabled(plugin_name), 'data': skin_data})
+                plugins.append({'path': os.path.join(m_path, theme), 'enabled': is_enabled(plugin_name), 'data': skin_data})
 
             except json.JSONDecodeError:
                 print(f"Error parsing {skin_json_path}. Invalid JSON format.")
+
+
+def find_all_plugins() -> str:
+
+    plugins = [] 
+
+    search_dirs(os.path.join(Millennium.steam_path(), "ext", "data"), plugins)
+    search_dirs(os.path.join(Millennium.steam_path(), "plugins"), plugins)
 
     return json.dumps(plugins)

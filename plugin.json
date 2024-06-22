@@ -2,5 +2,5 @@
     "name": "millennium__internal",
     "common_name": "Millennium",
     "description": "A built-in plugin to manage plugins, themes, and updates.",
-    "venv": ".venv"
+    "venv": ".millennium"
 }
