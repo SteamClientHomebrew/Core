@@ -1315,7 +1315,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
      */
     const RenderEditTheme = ({ active }) => {
         /** Current theme is not editable */
-        if (pluginSelf.isDefaultTheme || pluginSelf.activeTheme.data?.Conditions === undefined) {
+        if (pluginSelf?.isDefaultTheme || pluginSelf.activeTheme?.data?.Conditions === undefined) {
             return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null));
         }
         return (window.SP_REACT.createElement("button", { onClick: () => ShowThemeSettings(active), style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable millenniumIconButton" },
