@@ -65,5 +65,8 @@ class Plugin:
         websocket_thread = threading.Thread(target=start_websocket_server)
         websocket_thread.start()
 
+        print("millennium is ready!")
+        Millennium.ready()
+
     def _unload(self):
         pass
