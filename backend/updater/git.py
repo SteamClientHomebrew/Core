@@ -1,8 +1,8 @@
 import time
+
 import Millennium
 from datetime import datetime
-import git, os, json, shutil
-from unidiff import PatchSet
+import pygit2, os, json, shutil
 from api.themes_store import find_all_themes
 from api.user_data import cfg
 import requests
@@ -31,12 +31,11 @@ class Updater:
             path = os.path.join(Millennium.steam_path(), "steamui", "skins", theme["native"])
             # Initialize the repository
             try: 
-                repo = git.Repo(path)
-                # print(f"successfully opened {theme['native-name']}")
+                repo = pygit2.Repository(path)
+                # print(f"successfully opened {theme}")
                 self.update_query.append((theme, repo))
-                repo.close()
 
-            except git.InvalidGitRepositoryError:
+            except pygit2.GitError as e:
                 if "github" in theme["data"]:
                     needs_copy = True
                     update_queue.append((theme, path))
@@ -99,7 +98,7 @@ class Updater:
             repo_url = f'https://github.com/{data["owner"]}/{data["repo_name"]}.git'
             print(repo_url)
             # Clone the repository
-            git.Repo.clone_from(repo_url, path)
+            pygit2.clone_repository(repo_url, path)
 
         except Exception as e:
             # Code to handle the exception
@@ -107,31 +106,61 @@ class Updater:
 
     def update_theme(self, native: str) -> bool:
         path = os.path.join(Millennium.steam_path(), "steamui", "skins", native)
+        return False
+    
         # Initialize the repository
         try: 
-            repo = git.Repo(path)
-            o = repo.remotes.origin
-            repo.git.reset('--hard')
-            repo.git.clean('-xdf')
-            o.pull()
+            repo = pygit2.Repository(path)
 
-        except git.InvalidGitRepositoryError:
+            # Get active branch
+            active_branch = repo.head.shorthand
+
+            # Get remote and fetch changes
+            remote_name = 'origin'  # or any other remote name
+            remote = repo.remotes[remote_name]
+            remote.fetch()
+
+            # Construct the remote branch name
+            remote_branch_name = f'refs/remotes/{remote_name}/{active_branch}'
+
+            # Check if the remote branch exists
+            if remote_branch_name in repo.listall_references():
+                remote_branch = repo.lookup_reference(remote_branch_name)
+                try:
+                    # Attempt to merge the remote branch into the local branch
+                    repo.merge(remote_branch.target)
+                    print(f'Pulled latest changes into branch: {active_branch}')
+                except pygit2.GitError as e:
+                    print(f'Error merging remote branch into local branch: {e}')
+            else:
+                print(f'No remote branch found for {active_branch} on {remote_name}.')
+
+        except pygit2.GitError as e:
+            print(e)
             return False
+        
+        except Exception as e:
+            # Code to handle the exception
+            print(f"An exception occurred: {e}")
         
         self.re_initialize()
         return True
 
-    def needs_update(self, remote_commit: str, theme: str, repo: git.Repo):
+    def needs_update(self, remote_commit: str, theme: str, repo: pygit2.Repository):
 
         # Get the default branch name
-        default_branch = repo.active_branch.name
+        # default_branch = repo.active_branch.name
+
+        local_commit = repo[repo.head.target].id
+        print(f"local_commit: {local_commit}, remote_commit: {remote_commit}")
 
         # Get the local and remote commit hashes for the default branch
-        local_commit = getattr(repo.heads[default_branch], "commit", None)
+        # local_commit = getattr(repo.heads[default_branch], "commit", None)
         needs_update = str(local_commit) != str(remote_commit)
 
         # # Compare the local and remote commit hashes
         return needs_update
+    
 
     def check_theme(self, theme, repo_name, repo):
 
@@ -182,6 +211,8 @@ class Updater:
             return 
 
         self.remote_json = remote_json
+
+        print(json.dumps(remote_json, indent=4))
 
         for theme, repo in self.update_query:
 

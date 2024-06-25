@@ -3,6 +3,7 @@ import threading
 import Millennium
 import json, os
 import platform
+import pygit2
 
 from ipc.socket import serve_websocket, start_websocket_server
 
