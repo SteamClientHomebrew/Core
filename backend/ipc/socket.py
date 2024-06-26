@@ -1,7 +1,6 @@
 import asyncio
 import os, stat
 import shutil
-import git
 import websockets
 import json
 import Millennium
@@ -52,15 +51,14 @@ def uninstall_theme(repo, owner):
 
 def install_theme(repo, owner):
 
-    try:
-        path = os.path.join(Millennium.steam_path(), "steamui", "skins", repo)
-        print(f"cloning requested theme to -> {path}")
-        os.makedirs(path)
+    path = os.path.join(Millennium.steam_path(), "steamui", "skins", repo)
+    print(f"cloning requested theme to -> {path}")
+    os.makedirs(path)
 
-        git.Repo.clone_from(f"https://github.com/{owner}/{repo}.git", path, recursive=True)
+    success = Millennium.clone_repo(f"https://github.com/{owner}/{repo}.git", path)
 
-    except git.GitCommandError as e:
-        return json.dumps({'success': False, 'message': str(e)})
+    if not success:
+        return json.dumps({'success': False, 'message': "Failed to clone the theme repository!"})
     
     return json.dumps({'success': True})
 
