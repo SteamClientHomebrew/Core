@@ -1,19 +1,18 @@
-import asyncio
-import threading
-import Millennium
-import json, os
-import platform
-import pygit2
-
-from ipc.socket import serve_websocket, start_websocket_server
-
-# get runtime platform
+import platform, os
 _platform = platform.system()
 
 if _platform == "Windows":
-    from _win32.colors import get_accent_color
+    from win32.colors import get_accent_color
 elif _platform == "Linux":
-    from _posix.colors import get_accent_color
+    from posix.colors import get_accent_color
+
+
+import asyncio
+import threading
+import Millennium
+import json
+
+from ipc.socket import serve_websocket, start_websocket_server
 
 from api.themes_store import find_all_themes
 from api.plugins_store import find_all_plugins
@@ -21,7 +20,7 @@ from api.user_data import Config, cfg
 from webkit.stack import WebkitStack, add_browser_css, add_browser_js
 from ipc.socket import uninstall_theme
 
-from updater.git import Updater
+from ffi.git import Updater
 
 updater = Updater()
 
