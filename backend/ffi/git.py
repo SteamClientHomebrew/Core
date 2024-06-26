@@ -1,7 +1,8 @@
 import time
+
 import Millennium
 from datetime import datetime
-import os, json, shutil
+import pygit2, os, json, shutil
 from api.themes_store import find_all_themes
 from api.user_data import cfg
 import requests
@@ -26,19 +27,23 @@ class Updater:
         update_queue = []
 
         for theme in themes:
+
             path = os.path.join(Millennium.steam_path(), "steamui", "skins", theme["native"])
+            # Initialize the repository
+            try: 
+                repo = pygit2.Repository(path)
+                # print(f"successfully opened {theme}")
+                self.update_query.append((theme, repo))
 
-            if Millennium.is_repository(path):
-                print(f"theme is a git repo @ {path}")
-                self.update_query.append((theme, path))
-
-            else:
-                print(f"theme is not a git repo @ {path}")
-
+            except pygit2.GitError as e:
                 if "github" in theme["data"]:
                     needs_copy = True
                     update_queue.append((theme, path))
 
+
+            except Exception as e:
+                # Code to handle the exception
+                print(f"An exception occurred: {e}")
                 
         if needs_copy:
             source_dir = os.path.join(Millennium.steam_path(), "steamui", "skins")
@@ -93,7 +98,7 @@ class Updater:
             repo_url = f'https://github.com/{data["owner"]}/{data["repo_name"]}.git'
             print(repo_url)
             # Clone the repository
-            Millennium.clone_repo(repo_url, path)
+            pygit2.clone_repository(repo_url, path)
 
         except Exception as e:
             # Code to handle the exception
@@ -101,43 +106,80 @@ class Updater:
 
     def update_theme(self, native: str) -> bool:
         path = os.path.join(Millennium.steam_path(), "steamui", "skins", native)
-        success = Millennium.pull_repo_head(path)
+        return False
+    
+        # Initialize the repository
+        try: 
+            repo = pygit2.Repository(path)
 
-        if not success:
+            # Get active branch
+            active_branch = repo.head.shorthand
+
+            # Get remote and fetch changes
+            remote_name = 'origin'  # or any other remote name
+            remote = repo.remotes[remote_name]
+            remote.fetch()
+
+            # Construct the remote branch name
+            remote_branch_name = f'refs/remotes/{remote_name}/{active_branch}'
+
+            # Check if the remote branch exists
+            if remote_branch_name in repo.listall_references():
+                remote_branch = repo.lookup_reference(remote_branch_name)
+                try:
+                    # Attempt to merge the remote branch into the local branch
+                    repo.merge(remote_branch.target)
+                    print(f'Pulled latest changes into branch: {active_branch}')
+                except pygit2.GitError as e:
+                    print(f'Error merging remote branch into local branch: {e}')
+            else:
+                print(f'No remote branch found for {active_branch} on {remote_name}.')
+
+        except pygit2.GitError as e:
+            print(e)
             return False
+        
+        except Exception as e:
+            # Code to handle the exception
+            print(f"An exception occurred: {e}")
         
         self.re_initialize()
         return True
 
-    def needs_update(self, remote_commit: str, theme: str, repo_path: str):
+    def needs_update(self, remote_commit: str, theme: str, repo: pygit2.Repository):
 
-        local_commit = Millennium.get_repo_commit(repo_path)
+        # Get the default branch name
+        # default_branch = repo.active_branch.name
+
+        local_commit = repo[repo.head.target].id
+        print(f"local_commit: {local_commit}, remote_commit: {remote_commit}")
+
+        # Get the local and remote commit hashes for the default branch
+        # local_commit = getattr(repo.heads[default_branch], "commit", None)
         needs_update = str(local_commit) != str(remote_commit)
 
+        # # Compare the local and remote commit hashes
         return needs_update
+    
 
-    def check_theme(self, theme, repo_name, repo_path):
+    def check_theme(self, theme, repo_name, repo):
 
-        try:
-            remote = next((item for item in self.remote_json if item.get("name") == repo_name), None)
-            update_needed = self.needs_update(remote['commit'], theme, repo_path)
+        remote = next((item for item in self.remote_json if item.get("name") == repo_name), None)
+        update_needed = self.needs_update(remote['commit'], theme, repo)
 
-            commit_message = remote['message']
-            commit_date = arrow.get(remote['date']).humanize()
-            commit_url = remote['url']
+        commit_message = remote['message']
+        commit_date = arrow.get(remote['date']).humanize()
+        commit_url = remote['url']
 
-            name = theme["data"]["name"] if "name" in theme["data"] else theme["native"]
+        name = theme["data"]["name"] if "name" in theme["data"] else theme["native"]
 
-            if update_needed:
-                print(f"{theme['native']} has an update available")
+        if update_needed:
+            print(f"{theme['native']} has an update available")
 
-                self.update_list.append({
-                    'message': commit_message, 'date': commit_date, 'commit': commit_url,
-                    'native': theme["native"], 'name': name
-                })
-
-        except Exception as e:
-            print(f"an error occurred checking theme {theme['native']} -> {e}")
+            self.update_list.append({
+                'message': commit_message, 'date': commit_date, 'commit': commit_url,
+                'native': theme["native"], 'name': name
+            })
 
     def re_initialize(self):
         return self.__init__()
@@ -170,7 +212,9 @@ class Updater:
 
         self.remote_json = remote_json
 
-        for theme, repo_path in self.update_query:
+        print(json.dumps(remote_json, indent=4))
+
+        for theme, repo in self.update_query:
 
             if "data" not in theme:
                 continue
@@ -182,7 +226,7 @@ class Updater:
             repo_name = github_data.get("repo_name") if github_data else None
 
             if repo_name:
-                self.check_theme(theme, repo_name, repo_path)
+                self.check_theme(theme, repo_name, repo)
                 
 
         print(f"initialize_repositories took: {round((time.time() - start_time) * 1000, 4)} milliseconds")
