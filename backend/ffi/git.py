@@ -165,6 +165,11 @@ class Updater:
     def check_theme(self, theme, repo_name, repo):
 
         remote = next((item for item in self.remote_json if item.get("name") == repo_name), None)
+
+        if remote is None:
+            print(f"no remote found for {repo_name}")
+            return
+
         update_needed = self.needs_update(remote['commit'], theme, repo)
 
         commit_message = remote['message']
