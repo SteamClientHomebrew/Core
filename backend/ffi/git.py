@@ -118,22 +118,26 @@ class Updater:
 
     def check_theme(self, theme, repo_name, repo_path):
 
-        remote = next((item for item in self.remote_json if item.get("name") == repo_name), None)
-        update_needed = self.needs_update(remote['commit'], theme, repo_path)
+        try:
+            remote = next((item for item in self.remote_json if item.get("name") == repo_name), None)
+            update_needed = self.needs_update(remote['commit'], theme, repo_path)
 
-        commit_message = remote['message']
-        commit_date = arrow.get(remote['date']).humanize()
-        commit_url = remote['url']
+            commit_message = remote['message']
+            commit_date = arrow.get(remote['date']).humanize()
+            commit_url = remote['url']
 
-        name = theme["data"]["name"] if "name" in theme["data"] else theme["native"]
+            name = theme["data"]["name"] if "name" in theme["data"] else theme["native"]
 
-        if update_needed:
-            print(f"{theme['native']} has an update available")
+            if update_needed:
+                print(f"{theme['native']} has an update available")
 
-            self.update_list.append({
-                'message': commit_message, 'date': commit_date, 'commit': commit_url,
-                'native': theme["native"], 'name': name
-            })
+                self.update_list.append({
+                    'message': commit_message, 'date': commit_date, 'commit': commit_url,
+                    'native': theme["native"], 'name': name
+                })
+
+        except Exception as e:
+            print(f"an error occurred checking theme {theme['native']} -> {e}")
 
     def re_initialize(self):
         return self.__init__()
