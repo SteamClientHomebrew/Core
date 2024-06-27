@@ -4,7 +4,7 @@ _platform = platform.system()
 if _platform == "Windows":
     from win32.colors import get_accent_color
 elif _platform == "Linux":
-    from posix.colors import get_accent_color
+    from _posix.colors import get_accent_color
 
 
 import asyncio
