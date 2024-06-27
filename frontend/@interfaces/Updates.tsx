@@ -3,6 +3,7 @@ import { Millennium, DialogBody, DialogBodyText, DialogSubHeader, classMap, Dial
 import { locale } from '../@localization';
 import { ThemeItem } from '../components/types';
 import { Settings } from '../components/Settings';
+import { ConnectionFailed } from './ConnectionFailed';
 
 interface UpdateProps {
     updates: UpdateItemType[];
@@ -110,6 +111,7 @@ const UpdatesViewModal: React.FC = () => {
             setUpdates(updates.updates)
             setNotifications(updates.notifications ?? false)
         })
+        .catch((_: any) => pluginSelf.connectionFailed = true)
     }, [])
 
     const checkForUpdates = async () => {
@@ -122,6 +124,7 @@ const UpdatesViewModal: React.FC = () => {
             setUpdates(JSON.parse(result).updates)
             setCheckingForUpdates(false)
         })
+        .catch((_: any) => pluginSelf.connectionFailed = true)
     }
 
     const DialogHeaderStyles: any = {
@@ -137,6 +140,10 @@ const UpdatesViewModal: React.FC = () => {
                 Settings.FetchAllSettings()
             }
         })
+    }
+
+    if (pluginSelf.connectionFailed) {
+        return <ConnectionFailed/>
     }
 
     return (

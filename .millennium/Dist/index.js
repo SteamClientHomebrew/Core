@@ -12,8 +12,14 @@ function InitializePlugins() {
 }
 InitializePlugins()
 async function wrappedCallServerMethod(methodName, kwargs) {
-    // @ts-ignore
-    return await Millennium.callServerMethod(pluginName, methodName, kwargs);
+    return new Promise((resolve, reject) => {
+        // @ts-ignore
+        Millennium.callServerMethod(pluginName, methodName, kwargs).then((result) => {
+            resolve(result);
+        }).catch((error) => {
+            reject(error);
+        });
+    });
 }
 var millennium_main = (function (exports, React, ReactDOM) {
     'use strict';
@@ -111,9 +117,15 @@ var millennium_main = (function (exports, React, ReactDOM) {
     MappedDialogDivs.get('DialogControlsSection');
     MappedDialogDivs.get('DialogControlsSectionHeader');
     Object.values(CommonUIModule).find((mod) => mod?.render?.toString()?.includes('DialogButton') && mod?.render?.toString()?.includes('Primary'));
-    Object.values(CommonUIModule).find((mod) => mod?.render?.toString()?.includes('Object.assign({type:"button"') &&
+    const DialogButtonSecondary = Object.values(CommonUIModule).find((mod) => mod?.render?.toString()?.includes('Object.assign({type:"button"') &&
         mod?.render?.toString()?.includes('DialogButton') &&
         mod?.render?.toString()?.includes('Secondary'));
+    // This is the "main" button. The Primary can act as a submit button,
+    // therefore secondary is chosen (also for backwards comp. reasons)
+    const DialogButton = DialogButtonSecondary;
+
+    // Button isn't exported, so call DialogButton to grab it
+    const Button = DialogButton?.render({}).type;
 
     const Dropdown = Object.values(CommonUIModule).find((mod) => mod?.prototype?.SetSelectedOption && mod?.prototype?.BuildMenu);
     Object.values(CommonUIModule).find((mod) => mod?.toString()?.includes('"dropDownControlRef","description"'));
@@ -290,27 +302,18 @@ var millennium_main = (function (exports, React, ReactDOM) {
     window.MILLENNIUM_BACKEND_IPC = IPCMain;
     window.Millennium = {
         // @ts-ignore (ignore overloaded function)
-        callServerMethod: (pluginName, methodName, kwargs) => {
+        callServerMethod: (pluginName, methodName, keywordArguments) => {
             return new Promise((resolve, reject) => {
-                const query = {
+                const messageQuery = {
                     pluginName: pluginName,
-                    methodName: methodName
+                    methodName: methodName,
+                    ...(keywordArguments && { argumentList: keywordArguments })
                 };
-                if (kwargs)
-                    query.argumentList = kwargs;
-                /* call handled from "src\core\ipc\pipe.cpp @ L:67" */
-                window.MILLENNIUM_BACKEND_IPC.postMessage(0, query).then((response) => {
+                window.MILLENNIUM_BACKEND_IPC.postMessage(0, messageQuery).then((response) => {
                     if (response?.failedRequest) {
-                        const m = ` wrappedCallServerMethod() from [name: ${pluginName}, method: ${methodName}] failed on exception -> ${response.failMessage}`;
-                        // Millennium can't accurately pin point where this came from
-                        // check the sources tab and find your plugins index.js, and look for a call that could error this
-                        throw new Error(m);
+                        reject(`\nCall server method failed!\n\tplugin: ${pluginName}\n\tmethod: ${methodName}]\n\texception: ${response.failMessage}`);
                     }
-                    const val = response.returnValue;
-                    if (typeof val === 'string') {
-                        resolve(atob(val));
-                    }
-                    resolve(val);
+                    resolve(typeof response.returnValue === 'string' ? atob(response.returnValue) : response.returnValue);
                 });
             });
         },
@@ -972,6 +975,20 @@ var millennium_main = (function (exports, React, ReactDOM) {
     // setup locales on startup
     GetLocalization();
 
+    const ConnectionFailed = () => {
+        return (window.SP_REACT.createElement("div", { className: "__up-to-date-container", style: {
+                display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "center"
+            } },
+            window.SP_REACT.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", xmlnsXlink: "http://www.w3.org/1999/xlink", version: "1.1", width: 25, height: 25, viewBox: "0 0 256 256", xmlSpace: "preserve" },
+                window.SP_REACT.createElement("defs", null),
+                window.SP_REACT.createElement("g", { style: { stroke: 'none', strokeWidth: 0, strokeDasharray: 'none', strokeLinecap: 'butt', strokeLinejoin: 'miter', strokeMiterlimit: 10, fill: 'none', fillRule: 'nonzero', opacity: 1 }, transform: "translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)" },
+                    window.SP_REACT.createElement("path", { d: "M 11 90 c -2.815 0 -5.63 -1.074 -7.778 -3.222 c -4.295 -4.296 -4.295 -11.261 0 -15.557 l 68 -68 c 4.297 -4.296 11.26 -4.296 15.557 0 c 4.296 4.296 4.296 11.261 0 15.557 l -68 68 C 16.63 88.926 13.815 90 11 90 z", style: { stroke: 'none', strokeWidth: 1, strokeDasharray: 'none', strokeLinecap: 'butt', strokeLinejoin: 'miter', strokeMiterlimit: 10, fill: 'rgb(214,0,0)', fillRule: 'nonzero', opacity: 1 }, transform: " matrix(1 0 0 1 0 0) ", strokeLinecap: "round" }),
+                    window.SP_REACT.createElement("path", { d: "M 79 90 c -2.815 0 -5.63 -1.074 -7.778 -3.222 l -68 -68 c -4.295 -4.296 -4.295 -11.261 0 -15.557 c 4.296 -4.296 11.261 -4.296 15.557 0 l 68 68 c 4.296 4.296 4.296 11.261 0 15.557 C 84.63 88.926 81.815 90 79 90 z", style: { stroke: 'none', strokeWidth: 1, strokeDasharray: 'none', strokeLinecap: 'butt', strokeLinejoin: 'miter', strokeMiterlimit: 10, fill: 'rgb(214,0,0)', fillRule: 'nonzero', opacity: 1 }, transform: " matrix(1 0 0 1 0 0) ", strokeLinecap: "round" }))),
+            window.SP_REACT.createElement("div", { className: "__up-to-date-header", style: { marginTop: "20px", color: "white", fontWeight: "500", fontSize: "15px" } }, "Failed to connect to Millennium!"),
+            window.SP_REACT.createElement("p", { style: { fontSize: "12px", color: "grey", textAlign: "center", maxWidth: "76%" } }, "This issue isn't network related, you're most likely missing a file millennium needs, or are experiencing an unexpected bug."),
+            window.SP_REACT.createElement(Button, { onClick: () => SteamClient.System.OpenLocalDirectoryInSystemExplorer("ext\\data\\logs\\"), style: { marginTop: "20px" } }, "Open Logs Folder")));
+    };
+
     const isEditablePlugin = (plugin_name) => {
         return window.PLUGIN_LIST && window.PLUGIN_LIST[plugin_name]
             && typeof window.PLUGIN_LIST[plugin_name].renderPluginSettings === 'function' ? true : false;
@@ -993,7 +1010,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 setCheckedItems(json.map((plugin, index) => ({ plugin, index })).filter(({ plugin }) => plugin.enabled)
                     .reduce((acc, { index }) => ({ ...acc, [index]: true }), {}));
                 setPlugins(json);
-            });
+            })
+                .catch((_) => pluginSelf.connectionFailed = true);
         }, []);
         const handleCheckboxChange = (index) => {
             /* Prevent users from disabling this plugin, as its vital */
@@ -1001,6 +1019,9 @@ var millennium_main = (function (exports, React, ReactDOM) {
             setCheckedItems({ ...checkedItems, [index]: updated });
             wrappedCallServerMethod("update_plugin_status", { plugin_name: plugins[index]?.data?.name, enabled: updated });
         };
+        if (pluginSelf.connectionFailed) {
+            return window.SP_REACT.createElement(ConnectionFailed, null);
+        }
         return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
             window.SP_REACT.createElement(DialogHeader, null, locale.settingsPanelPlugins),
             window.SP_REACT.createElement(DialogBody, { className: classMap.SettingsDialogBodyFade }, plugins.map((plugin, index) => (window.SP_REACT.createElement("div", { className: "S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel", key: index },
@@ -1342,13 +1363,14 @@ var millennium_main = (function (exports, React, ReactDOM) {
         const [cssState, setCssState] = React.useState(undefined);
         React.useEffect(() => {
             const activeTheme = pluginSelf.activeTheme;
-            pluginSelf.isDefaultTheme ? setActive("Default") : setActive(activeTheme?.data?.name ?? activeTheme.native);
+            pluginSelf.isDefaultTheme ? setActive("Default") : setActive(activeTheme?.data?.name ?? activeTheme?.native);
             findAllThemes().then((result) => setThemes(result));
             wrappedCallServerMethod("cfg.get_config_str").then((value) => {
                 const json = JSON.parse(value);
                 setJsState(json.scripts);
                 setCssState(json.styles);
-            });
+            })
+                .catch((_) => pluginSelf.connectionFailed = true);
         }, []);
         const onScriptToggle = (enabled) => {
             setJsState(enabled);
@@ -1363,7 +1385,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
             setCssState(enabled);
             PromptReload().then((selection) => {
                 if (selection == MessageBoxResult.okay) {
-                    wrappedCallServerMethod("cfg.set_config_keypair", { key: "styles", value: enabled });
+                    wrappedCallServerMethod("cfg.set_config_keypair", { key: "styles", value: enabled })
+                        .catch((_) => pluginSelf.connectionFailed = true);
                     SteamClient.Browser.RestartJSContext();
                 }
             });
@@ -1381,6 +1404,9 @@ var millennium_main = (function (exports, React, ReactDOM) {
         const OpenThemeRepository = () => {
             SteamClient.System.OpenInSystemBrowser("https://steambrew.app/themes");
         };
+        if (pluginSelf.connectionFailed) {
+            return window.SP_REACT.createElement(ConnectionFailed, null);
+        }
         return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
             window.SP_REACT.createElement("style", null, `.DialogDropDown._DialogInputContainer.Panel.Focusable {
                         min-width: max-content !important;
@@ -1417,7 +1443,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
     const Settings = {
         FetchAllSettings: () => {
             return new Promise(async (resolve, _reject) => {
-                const settingsStore = JSON.parse(await wrappedCallServerMethod("get_load_config"));
+                const settingsStore = JSON.parse(await wrappedCallServerMethod("get_load_config").catch((_) => pluginSelf.connectionFailed = true));
                 SettingsStore = settingsStore;
                 resolve(settingsStore);
             });
@@ -1484,7 +1510,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 console.log(updates);
                 setUpdates(updates.updates);
                 setNotifications(updates.notifications ?? false);
-            });
+            })
+                .catch((_) => pluginSelf.connectionFailed = true);
         }, []);
         const checkForUpdates = async () => {
             if (checkingForUpdates)
@@ -1494,7 +1521,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
             wrappedCallServerMethod("updater.get_update_list").then((result) => {
                 setUpdates(JSON.parse(result).updates);
                 setCheckingForUpdates(false);
-            });
+            })
+                .catch((_) => pluginSelf.connectionFailed = true);
         };
         const DialogHeaderStyles = {
             display: "flex", alignItems: "center", gap: "15px"
@@ -1508,6 +1536,9 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 }
             });
         };
+        if (pluginSelf.connectionFailed) {
+            return window.SP_REACT.createElement(ConnectionFailed, null);
+        }
         return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
             window.SP_REACT.createElement(DialogHeader, { style: DialogHeaderStyles },
                 locale.settingsPanelUpdates,
@@ -1786,7 +1817,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
         Settings.FetchAllSettings().then((result) => InitializePatcher(startTime, result));
         wrappedCallServerMethod("updater.get_update_list")
             .then((result) => JSON.parse(result).updates)
-            .then((updates) => ProcessUpdates(updates));
+            .then((updates) => ProcessUpdates(updates))
+            .catch((_) => pluginSelf.connectionFailed = true);
         Millennium.AddWindowCreateHook(windowCreated);
     }
 

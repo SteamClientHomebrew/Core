@@ -5,6 +5,7 @@ import { ComboItem, ThemeItem } from '../components/types'
 import { PromptReload } from './RestartModal'
 import { SetupAboutRenderer } from './AboutTheme'
 import { locale } from '../@localization'
+import { ConnectionFailed } from './ConnectionFailed'
 
 const ShowThemeSettings = async (activeTheme: string) => {
 
@@ -120,7 +121,7 @@ const ThemeViewModal: React.FC = () => {
     useEffect(() => {
 
         const activeTheme: ThemeItem = pluginSelf.activeTheme
-        pluginSelf.isDefaultTheme ? setActive("Default") : setActive(activeTheme?.data?.name ?? activeTheme.native)
+        pluginSelf.isDefaultTheme ? setActive("Default") : setActive(activeTheme?.data?.name ?? activeTheme?.native)
 
         findAllThemes().then((result: ComboItem[]) => setThemes(result))
 
@@ -130,6 +131,7 @@ const ThemeViewModal: React.FC = () => {
             setJsState(json.scripts)
             setCssState(json.styles)
         })
+        .catch((_: any) => pluginSelf.connectionFailed = true)
     }, [])
 
     const onScriptToggle = (enabled: boolean) => {
@@ -149,6 +151,8 @@ const ThemeViewModal: React.FC = () => {
         PromptReload().then((selection: MessageBoxResult) => {
             if (selection == MessageBoxResult.okay) {
                 Millennium.callServerMethod("cfg.set_config_keypair", {key: "styles", value: enabled})
+                .catch((_: any) => pluginSelf.connectionFailed = true)
+
                 SteamClient.Browser.RestartJSContext()
             }
         })
@@ -170,6 +174,10 @@ const ThemeViewModal: React.FC = () => {
     const OpenThemeRepository = () => {
         SteamClient.System.OpenInSystemBrowser("https://steambrew.app/themes")
     }
+
+	if (pluginSelf.connectionFailed) {
+		return <ConnectionFailed/>
+	}
 
     return (
         <>

@@ -119,6 +119,7 @@ export default async function PluginMain() {
     Millennium.callServerMethod("updater.get_update_list")
         .then((result : any)          => JSON.parse(result).updates)
         .then((updates: UpdateItem[]) => ProcessUpdates(updates))
+        .catch((_: any)               => pluginSelf.connectionFailed = true)
 
     Millennium.AddWindowCreateHook(windowCreated)
 }

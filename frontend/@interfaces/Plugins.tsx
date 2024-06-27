@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { DialogBody, DialogHeader, IconsModule, Millennium, Toggle, classMap, findClass } from 'millennium-lib';
+import { DialogBody, DialogHeader, IconsModule, Millennium, Toggle, classMap, findClass, pluginSelf } from 'millennium-lib';
 import { PluginComponent } from '../components/types';
 import { locale } from '../@localization';
+import { ConnectionFailed } from './ConnectionFailed';
 
 interface EditPluginProps {
 	plugin: PluginComponent
@@ -42,6 +43,7 @@ const PluginViewModal: React.FC = () => {
 			)
 			setPlugins(json)
 		})
+		.catch((_: any) => pluginSelf.connectionFailed = true)
 	}, [])
 
 	const checkBoxChange = (index: number, checked: boolean): void => {
@@ -57,6 +59,11 @@ const PluginViewModal: React.FC = () => {
 
 		Millennium.callServerMethod("update_plugin_status", { plugin_name: plugins[index]?.data?.name, enabled: updated })
 	};
+
+
+	if (pluginSelf.connectionFailed) {
+		return <ConnectionFailed/>
+	}
 
 	return (
 		<>
