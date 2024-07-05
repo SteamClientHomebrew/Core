@@ -15,7 +15,7 @@ Clone this repository place it in your plugins folder and start Steam. You can n
 git clone https://github.com/SteamClientHomebrew/__builtins__.git --recursive
 cd __builtins__
 npm i
-npm install millennium-lib
+npm install @millennium/ui
 
 npm run dev-build
 ```

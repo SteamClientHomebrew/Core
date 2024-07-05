@@ -1,0 +1,8 @@
+arrow
+psutil
+pywin32
+requests
+winrt-Windows.UI.ViewManagement
+winrt-Windows.UI
+pygit2
+websockets

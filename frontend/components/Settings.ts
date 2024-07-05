@@ -1,4 +1,4 @@
-import { Millennium, pluginSelf } from "millennium-lib"
+import { Millennium, pluginSelf } from "@millennium/ui"
 import { SettingsProps } from "./types"
 
 export let SettingsStore: SettingsProps = pluginSelf.SettingsStore
@@ -9,7 +9,10 @@ export const Settings = {
         return new Promise<SettingsProps>(async (resolve: any, _reject: any) => {
 
             const settingsStore: SettingsProps = JSON.parse(
-                await Millennium.callServerMethod("get_load_config").catch((_: any) => pluginSelf.connectionFailed = true)
+                await Millennium.callServerMethod("get_load_config").catch((_: any) => {
+                    console.error("Failed to fetch settings")
+                    pluginSelf.connectionFailed = true
+                })
             )
 
             SettingsStore = settingsStore

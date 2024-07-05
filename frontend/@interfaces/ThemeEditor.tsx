@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Dropdown, Millennium, SingleDropdownOption, Toggle, classMap, pluginSelf } from "millennium-lib"
+import { Dropdown, Millennium, SingleDropdownOption, Toggle, classMap, pluginSelf } from "@millennium/ui"
 import { Conditions, ConditionsStore, ICondition, ThemeItem } from "../components/types"
 
 interface ConditionalComponent {

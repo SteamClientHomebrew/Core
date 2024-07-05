@@ -1,4 +1,4 @@
-import { Button } from "millennium-lib";
+import { Button } from "@millennium/ui";
 
 export const ConnectionFailed = () => {
     return (

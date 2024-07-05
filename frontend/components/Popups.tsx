@@ -1,4 +1,4 @@
-import { findModuleChild } from "millennium-lib";
+import { findModuleChild } from "@millennium/ui";
 import ReactDOM from "react-dom";
 import { RenderThemeEditor } from "../@interfaces/ThemeEditor";
 import { ReactNode } from "react";

@@ -1,4 +1,4 @@
-import { ConfirmModalProps, MessageBoxResult, ShowMessageBox, ShowModalProps } from "millennium-lib"
+import { ConfirmModalProps, MessageBoxResult, ShowMessageBox, ShowModalProps } from "@millennium/ui"
 import { locale } from "../@localization"
 
 export const PromptReload = async (message?: string) => {

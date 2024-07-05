@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "dev": "millennium-lib --build dev",
-    "build": "millennium-lib --build prod",
+    "dev": "millennium-ttc --build dev",
+    "build": "millennium-ttc --build prod",
     "create-env": "python -m venv .venv"
   },
   "devDependencies": {
@@ -28,6 +28,6 @@
     }
   },
   "dependencies": {
-    "millennium-lib": "^3.4.8"
+    "@millennium/ui": "^3.4.8"
   }
 }

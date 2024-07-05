@@ -1,4 +1,4 @@
-import { Millennium, pluginSelf } from "millennium-lib"; 
+import { Millennium, pluginSelf } from "@millennium/ui"; 
 import { patchDocumentContext } from "./patcher/index"
 import { RenderSettingsModal } from "./@interfaces/Settings"
 import { ConditionsStore, ThemeItem, SystemAccentColor, UpdateItem, SettingsProps, ThemeItemV1 } from "./components/types";
@@ -119,7 +119,10 @@ export default async function PluginMain() {
     Millennium.callServerMethod("updater.get_update_list")
         .then((result : any)          => JSON.parse(result).updates)
         .then((updates: UpdateItem[]) => ProcessUpdates(updates))
-        .catch((_: any)               => pluginSelf.connectionFailed = true)
+        .catch((_: any)               => {
+            console.error("Failed to fetch updates")
+            pluginSelf.connectionFailed = true
+        })
 
     Millennium.AddWindowCreateHook(windowCreated)
 }

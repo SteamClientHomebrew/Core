@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DialogBody, DialogHeader, IconsModule, Millennium, Toggle, classMap, findClass, pluginSelf } from 'millennium-lib';
+import { DialogBody, DialogHeader, IconsModule, Millennium, Toggle, classMap, findClass, pluginSelf } from '@millennium/ui';
 import { PluginComponent } from '../components/types';
 import { locale } from '../@localization';
 import { ConnectionFailed } from './ConnectionFailed';

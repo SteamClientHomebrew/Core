@@ -1,4 +1,4 @@
-import { SingleDropdownOption } from 'millennium-lib'
+import { SingleDropdownOption } from '@millennium/ui'
 
 export interface Patch {
     MatchRegexString: string, 

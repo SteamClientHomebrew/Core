@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { PluginViewModal } from './Plugins'
 import { ThemeViewModal } from './Themes'
 import { UpdatesViewModal } from './Updates'
-import { IconsModule, Millennium, pluginSelf } from 'millennium-lib';
+import { IconsModule, Millennium, pluginSelf } from '@millennium/ui';
 import { locale } from '../@localization';
 
 enum Renderer {
@@ -19,7 +19,7 @@ const RenderViewComponent = (componentType: Renderer): any => {
 		switch (componentType) {
 			case Renderer.Plugins:   
 				ReactDOM.render(<PluginViewModal/>, element[0]);
-				break;   
+				break;   	
 			case Renderer.Themes:
 				ReactDOM.render(<ThemeViewModal/>, element[0]);
 				break;  

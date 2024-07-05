@@ -1,4 +1,4 @@
-import { pluginSelf } from "millennium-lib"
+import { pluginSelf } from "@millennium/ui"
 import { ColorProp } from "../../components/types"
 
 /**

@@ -1,4 +1,17 @@
-import { Millennium, Dropdown, DialogHeader, DialogBody, classMap, IconsModule, pluginSelf, ShowModalProps, Toggle, ShowMessageBox, ConfirmModalProps, MessageBoxResult, showModal, findModuleChild } from 'millennium-lib'
+import { 
+    Millennium, 
+    Dropdown, 
+    DialogHeader, 
+    DialogBody, 
+    classMap, 
+    IconsModule, 
+    pluginSelf, 
+    ShowModalProps, 
+    Toggle, 
+    MessageBoxResult, 
+    showModal 
+} from '@millennium/ui'
+
 import { FC, useEffect, useState } from 'react'
 import { RenderThemeEditor } from './ThemeEditor'
 import { ComboItem, ThemeItem } from '../components/types'
@@ -131,7 +144,10 @@ const ThemeViewModal: React.FC = () => {
             setJsState(json.scripts)
             setCssState(json.styles)
         })
-        .catch((_: any) => pluginSelf.connectionFailed = true)
+        .catch((_: any) => {
+            console.error("Failed to fetch theme settings")
+            pluginSelf.connectionFailed = true
+        })
     }, [])
 
     const onScriptToggle = (enabled: boolean) => {
@@ -151,7 +167,10 @@ const ThemeViewModal: React.FC = () => {
         PromptReload().then((selection: MessageBoxResult) => {
             if (selection == MessageBoxResult.okay) {
                 Millennium.callServerMethod("cfg.set_config_keypair", {key: "styles", value: enabled})
-                .catch((_: any) => pluginSelf.connectionFailed = true)
+                .catch((_: any) => {
+                    console.error("Failed to update settings")
+                    pluginSelf.connectionFailed = true
+                })
 
                 SteamClient.Browser.RestartJSContext()
             }
@@ -181,15 +200,6 @@ const ThemeViewModal: React.FC = () => {
 
     return (
         <>
-
-            <style>
-                {
-                    `.DialogDropDown._DialogInputContainer.Panel.Focusable {
-                        min-width: max-content !important;
-                    }`
-                }
-            </style>
-
             <DialogHeader>{locale.settingsPanelThemes}</DialogHeader>
             <DialogBody className={classMap.SettingsDialogBodyFade}>
                 <div className="S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _1ugIUbowxDg0qM0pJUbBRM _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel">

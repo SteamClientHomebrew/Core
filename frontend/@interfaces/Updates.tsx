@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Millennium, DialogBody, DialogBodyText, DialogSubHeader, classMap, DialogHeader, IconsModule, pluginSelf, Toggle } from 'millennium-lib'
+import { Millennium, DialogBody, DialogBodyText, DialogSubHeader, classMap, DialogHeader, IconsModule, pluginSelf, Toggle } from '@millennium/ui'
 import { locale } from '../@localization';
 import { ThemeItem } from '../components/types';
 import { Settings } from '../components/Settings';
@@ -111,7 +111,10 @@ const UpdatesViewModal: React.FC = () => {
             setUpdates(updates.updates)
             setNotifications(updates.notifications ?? false)
         })
-        .catch((_: any) => pluginSelf.connectionFailed = true)
+        .catch((_: any) => {
+            console.error("Failed to fetch updates")
+            pluginSelf.connectionFailed = true
+        })
     }, [])
 
     const checkForUpdates = async () => {
@@ -124,7 +127,10 @@ const UpdatesViewModal: React.FC = () => {
             setUpdates(JSON.parse(result).updates)
             setCheckingForUpdates(false)
         })
-        .catch((_: any) => pluginSelf.connectionFailed = true)
+        .catch((_: any) => {
+            console.error("Failed to fetch updates")
+            pluginSelf.connectionFailed = true
+        })
     }
 
     const DialogHeaderStyles: any = {

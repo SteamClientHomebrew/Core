@@ -1,4 +1,4 @@
-import { pluginSelf } from "millennium-lib"
+import { pluginSelf } from "@millennium/ui"
 import { SystemAccentColor } from "../components/types"
 
 /**

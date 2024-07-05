@@ -24,35 +24,127 @@ async function wrappedCallServerMethod(methodName, kwargs) {
 var millennium_main = (function (exports, React, ReactDOM) {
     'use strict';
 
-    let webpackCache = {};
-    const id = Math.random();
-    let initReq;
-    window.webpackChunksteamui.push([
-        [id],
-        {},
-        (r) => {
-            initReq = r;
-        },
-    ]);
-    for (let i of Object.keys(initReq.m)) {
-        try {
-            webpackCache[i] = initReq(i);
+    const bgStyle1 = 'background: #8a16a2; color: black;';
+    const log = (name, ...args) => {
+        console.log(`%c @millennium/ui %c ${name} %c`, bgStyle1, 'background: #b11cce; color: black;', 'background: transparent;', ...args);
+    };
+    const group = (name, ...args) => {
+        console.group(`%c @millennium/ui %c ${name} %c`, bgStyle1, 'background: #b11cce; color: black;', 'background: transparent;', ...args);
+    };
+    const groupEnd = (name, ...args) => {
+        console.groupEnd();
+        if (args?.length > 0)
+            console.log(`^ %c @millennium/ui %c ${name} %c`, bgStyle1, 'background: #b11cce; color: black;', 'background: transparent;', ...args);
+    };
+    const debug = (name, ...args) => {
+        console.debug(`%c @millennium/ui %c ${name} %c`, bgStyle1, 'background: #1abc9c; color: black;', 'color: blue;', ...args);
+    };
+    const warn = (name, ...args) => {
+        console.warn(`%c @millennium/ui %c ${name} %c`, bgStyle1, 'background: #ffbb00; color: black;', 'color: blue;', ...args);
+    };
+    const error = (name, ...args) => {
+        console.error(`%c @millennium/ui %c ${name} %c`, bgStyle1, 'background: #FF0000;', 'background: transparent;', ...args);
+    };
+    let Logger$1 = class Logger {
+        constructor(name) {
+            this.name = name;
+            this.name = name;
         }
-        catch (e) {
-            console.debug("[DFL:Webpack]: Ignoring require error for module", i, e);
+        log(...args) {
+            log(this.name, ...args);
         }
+        debug(...args) {
+            debug(this.name, ...args);
+        }
+        warn(...args) {
+            warn(this.name, ...args);
+        }
+        error(...args) {
+            error(this.name, ...args);
+        }
+        group(...args) {
+            group(this.name, ...args);
+        }
+        groupEnd(...args) {
+            groupEnd(this.name, ...args);
+        }
+    };
+
+    const logger = new Logger$1('Webpack');
+    let modules = [];
+    function initModuleCache() {
+        const startTime = performance.now();
+        logger.group('Webpack Module Init');
+        // Webpack 5, currently on beta
+        // Generate a fake module ID
+        const id = Math.random(); // really should be an int and not a float but who cares
+        let webpackRequire;
+        // Insert our module in a new chunk.
+        // The module will then be called with webpack's internal require function as its first argument
+        window.webpackChunksteamui.push([
+            [id],
+            {},
+            (r) => {
+                webpackRequire = r;
+            },
+        ]);
+        logger.log('Initializing all modules. Errors here likely do not matter, as they are usually just failing module side effects.');
+        // Loop over every module ID
+        for (let i of Object.keys(webpackRequire.m)) {
+            try {
+                const module = webpackRequire(i);
+                if (module) {
+                    modules.push(module);
+                }
+            }
+            catch (e) {
+                logger.debug('Ignoring require error for module', i, e);
+            }
+        }
+        logger.groupEnd(`Modules initialized in ${performance.now() - startTime}ms...`);
     }
-    const allModules = Object.values(webpackCache).filter((x) => x);
+    initModuleCache();
     const findModule = (filter) => {
-        for (const m of allModules) {
+        for (const m of modules) {
             if (m.default && filter(m.default))
                 return m.default;
             if (filter(m))
                 return m;
         }
     };
+    const findModuleDetailsByExport = (filter, minExports) => {
+        for (const m of modules) {
+            if (!m)
+                continue;
+            for (const mod of [m.default, m]) {
+                if (typeof mod !== 'object')
+                    continue;
+                for (let exportName in mod) {
+                    if (mod?.[exportName]) {
+                        const filterRes = filter(mod[exportName], exportName);
+                        if (filterRes) {
+                            return [mod, mod[exportName], exportName];
+                        }
+                        else {
+                            continue;
+                        }
+                    }
+                }
+            }
+        }
+        return [undefined, undefined, undefined];
+    };
+    const findModuleByExport = (filter, minExports) => {
+        return findModuleDetailsByExport(filter)?.[0];
+    };
+    const findModuleExport = (filter, minExports) => {
+        return findModuleDetailsByExport(filter)?.[1];
+    };
+    /**
+     * @deprecated use findModuleExport instead
+     */
     const findModuleChild = (filter) => {
-        for (const m of allModules) {
+        for (const m of modules) {
             for (const mod of [m.default, m]) {
                 const filterRes = filter(mod);
                 if (filterRes) {
@@ -66,7 +158,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
     };
     const findAllModules = (filter) => {
         const out = [];
-        for (const m of allModules) {
+        for (const m of modules) {
             if (m.default && filter(m.default))
                 out.push(m.default);
             if (filter(m))
@@ -74,7 +166,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
         }
         return out;
     };
-    const CommonUIModule = allModules.find((m) => {
+    const CommonUIModule = modules.find((m) => {
         if (typeof m !== 'object')
             return false;
         for (let prop in m) {
@@ -83,30 +175,21 @@ var millennium_main = (function (exports, React, ReactDOM) {
         }
         return false;
     });
-    const IconsModule = findModule((m) => {
-        if (typeof m !== 'object')
-            return false;
-        for (let prop in m) {
-            if (m[prop]?.toString && /Spinner\)}\),.\.createElement\(\"path\",{d:\"M18 /.test(m[prop].toString()))
-                return true;
-        }
-        return false;
-    });
-    allModules.find((m) => {
-        if (typeof m !== 'object')
-            return undefined;
-        for (let prop in m) {
-            if (m[prop]?.computeRootMatch)
-                return true;
-        }
-        return false;
-    });
+    const IconsModule = findModuleByExport((e) => e?.toString && /Spinner\)}\)?,.\.createElement\(\"path\",{d:\"M18 /.test(e.toString()));
+    const ReactRouter = findModuleByExport((e) => e.computeRootMatch);
 
-    const CommonDialogDivs = Object.values(CommonUIModule).filter((m) => typeof m === 'object' && m?.render?.toString().includes('"div",Object.assign({},'));
+    const CommonDialogDivs = Object.values(CommonUIModule).filter((m) => typeof m === 'object' && m?.render?.toString().includes('createElement("div",{...') ||
+        m?.render?.toString().includes('createElement("div",Object.assign({},'));
     const MappedDialogDivs = new Map(Object.values(CommonDialogDivs).map((m) => {
-        const renderedDiv = m.render({});
-        // Take only the first class name segment as it identifies the element we want
-        return [renderedDiv.props.className.split(' ')[0], m];
+        try {
+            const renderedDiv = m.render({});
+            // Take only the first class name segment as it identifies the element we want
+            return [renderedDiv.props.className.split(' ')[0], m];
+        }
+        catch (e) {
+            console.error("[DFL:Dialog]: failed to render common dialog component", e);
+            return [null, null];
+        }
     }));
     const DialogHeader = MappedDialogDivs.get('DialogHeader');
     const DialogSubHeader = MappedDialogDivs.get('DialogSubHeader');
@@ -116,10 +199,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
     const DialogBody = MappedDialogDivs.get('DialogBody');
     MappedDialogDivs.get('DialogControlsSection');
     MappedDialogDivs.get('DialogControlsSectionHeader');
-    Object.values(CommonUIModule).find((mod) => mod?.render?.toString()?.includes('DialogButton') && mod?.render?.toString()?.includes('Primary'));
-    const DialogButtonSecondary = Object.values(CommonUIModule).find((mod) => mod?.render?.toString()?.includes('Object.assign({type:"button"') &&
-        mod?.render?.toString()?.includes('DialogButton') &&
-        mod?.render?.toString()?.includes('Secondary'));
+    Object.values(CommonUIModule).find((mod) => mod?.render?.toString()?.includes('"DialogButton","_DialogLayout","Primary"'));
+    const DialogButtonSecondary = Object.values(CommonUIModule).find((mod) => mod?.render?.toString()?.includes('"DialogButton","_DialogLayout","Secondary"'));
     // This is the "main" button. The Primary can act as a submit button,
     // therefore secondary is chosen (also for backwards comp. reasons)
     const DialogButton = DialogButtonSecondary;
@@ -127,9 +208,104 @@ var millennium_main = (function (exports, React, ReactDOM) {
     // Button isn't exported, so call DialogButton to grab it
     const Button = DialogButton?.render({}).type;
 
-    const Dropdown = Object.values(CommonUIModule).find((mod) => mod?.prototype?.SetSelectedOption && mod?.prototype?.BuildMenu);
-    Object.values(CommonUIModule).find((mod) => mod?.toString()?.includes('"dropDownControlRef","description"'));
+    (window && window.__setFunctionName) || function (f, name, prefix) {
+        if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
+        return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
+    };
+    /**
+     * Create a Regular Expression to search for a React component that uses certain props in order.
+     *
+     * @export
+     * @param {string[]} propList Ordererd list of properties to search for
+     * @returns {RegExp} RegEx to call .test(component.toString()) on
+     */
+    function createPropListRegex(propList, fromStart = true) {
+        let regexString = fromStart ? "const\{" : "";
+        propList.forEach((prop, propIdx) => {
+            regexString += `"?${prop}"?:[a-zA-Z_$]{1,2}`;
+            if (propIdx < propList.length - 1) {
+                regexString += ",";
+            }
+        });
+        // TODO provide a way to enable this
+        // console.debug(`[DFL:Utils] createPropListRegex generated regex "${regexString}" for props`, propList);
+        return new RegExp(regexString);
+    }
+    function fakeRenderComponent(fun, customHooks = {}) {
+        const hooks = window.SP_REACT.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentDispatcher
+            .current;
+        // TODO: add more hooks
+        let oldHooks = {
+            useContext: hooks.useContext,
+            useCallback: hooks.useCallback,
+            useLayoutEffect: hooks.useLayoutEffect,
+            useEffect: hooks.useEffect,
+            useMemo: hooks.useMemo,
+            useRef: hooks.useRef,
+            useState: hooks.useState,
+        };
+        hooks.useCallback = (cb) => cb;
+        hooks.useContext = (cb) => cb._currentValue;
+        hooks.useLayoutEffect = (_) => { }; //cb();
+        hooks.useMemo = (cb, _) => cb;
+        hooks.useEffect = (_) => { }; //cb();
+        hooks.useRef = (val) => ({ current: val || {} });
+        hooks.useState = (v) => {
+            let val = v;
+            return [val, (n) => (val = n)];
+        };
+        Object.assign(hooks, customHooks);
+        const res = fun(hooks);
+        Object.assign(hooks, oldHooks);
+        return res;
+    }
 
+    const classMapList = findAllModules((m) => {
+        if (typeof m == 'object' && !m.__esModule) {
+            const keys = Object.keys(m);
+            // special case some libraries
+            if (keys.length == 1 && m.version)
+                return false;
+            // special case localization
+            if (keys.length > 1000 && m.AboutSettings)
+                return false;
+            return keys.length > 0 && keys.every((k) => !Object.getOwnPropertyDescriptor(m, k)?.get && typeof m[k] == 'string');
+        }
+        return false;
+    });
+    const classMap = Object.assign({}, ...classMapList.map(obj => Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, value]))));
+    function findClassModule(filter) {
+        return classMapList.find((m) => filter(m));
+    }
+
+    findClassModule((m) => m.Title && m.QuickAccessMenu && m.BatteryDetailsLabels);
+    findClassModule((m) => m.ScrollPanel);
+    findClassModule((m) => m.GamepadDialogContent && !m.BindingButtons);
+    findClassModule((m) => m.BatteryPercentageLabel && m.PanelSection && !m['vr-dashboard-bar-height'] && !m.QuickAccessMenu && !m.QuickAccess && !m.PerfProfileInfo);
+    findClassModule((m) => m.OOBEUpdateStatusContainer);
+    findClassModule((m) => m.PlayBarDetailLabel);
+    findClassModule((m) => m.SliderControlPanelGroup);
+    findClassModule((m) => m.TopCapsule);
+    findClassModule((m) => m.HeaderLoaded);
+    findClassModule((m) => m.BasicUiRoot);
+    findClassModule((m) => m.GamepadTabbedPage);
+    findClassModule((m) => m.BasicContextMenuModal);
+    findClassModule((m) => m.AchievementListItemBase && !m.Page);
+    findClassModule((m) => m.AchievementListItemBase && m.Page);
+    findClassModule((m) => m.AppRunningControls && m.OverlayAchievements);
+    findClassModule((m) => m.AppDetailsRoot);
+    findClassModule(m => m.SpinnerLoaderContainer);
+    findClassModule(m => m.QuickAccessFooter);
+    findClassModule(m => m.PlayButtonContainer);
+    findClassModule(m => m.LongTitles && m.GreyBackground);
+    findClassModule(m => m.GamepadLibrary);
+    findClassModule(m => m.FocusRingRoot);
+    findClassModule(m => m.SearchAndTitleContainer);
+    findClassModule(m => m.MainBrowserContainer);
+
+    function sleep(ms) {
+        return new Promise((res) => setTimeout(res, ms));
+    }
     /**
      * Finds the SP window, since it is a render target as of 10-19-2022's beta
      */
@@ -155,6 +331,90 @@ var millennium_main = (function (exports, React, ReactDOM) {
         const context = focusNav.m_ActiveContext || focusNav.m_LastActiveContext;
         return context?.m_rgGamepadNavigationTrees;
     }
+
+    const buttonItemRegex = createPropListRegex(["highlightOnFocus", "childrenContainerWidth"], false);
+    Object.values(CommonUIModule).find((mod) => (mod?.render?.toString && buttonItemRegex.test(mod.render.toString())) ||
+        mod?.render?.toString?.().includes('childrenContainerWidth:"min"'));
+
+    findModuleExport((e) => e.render?.toString().includes('setFocusedColumn:'));
+
+    findModuleExport((e) => e?.toString && e.toString().includes('().ControlsListChild') && e.toString().includes('().ControlsListOuterPanel'));
+
+    Object.values(findModule((m) => {
+        if (typeof m !== 'object')
+            return false;
+        for (const prop in m) {
+            if (m[prop]?.prototype?.GetPanelElementProps)
+                return true;
+        }
+        return false;
+    })).find((m) => m.contextType &&
+        m.prototype?.render.toString().includes('fallback:') &&
+        m?.prototype?.SetChecked &&
+        m?.prototype?.Toggle &&
+        m?.prototype?.GetPanelElementProps);
+
+    const Dropdown = Object.values(CommonUIModule).find((mod) => mod?.prototype?.SetSelectedOption && mod?.prototype?.BuildMenu);
+    const dropdownItemRegex = createPropListRegex(["dropDownControlRef", "description"], false);
+    Object.values(CommonUIModule).find((mod) => mod?.toString && dropdownItemRegex.test(mod.toString()));
+
+    findModuleExport((e) => e.InstallErrorReportingStore && e?.prototype?.Reset && e?.prototype?.componentDidCatch); // Actually a class but @types/react is broken lol
+
+    findModuleExport((e) => e?.render?.toString().includes('"shift-children-below"'));
+
+    const focusableRegex = createPropListRegex(["flow-children", "onActivate", "onCancel", "focusClassName", "focusWithinClassName"]);
+    findModuleExport((e) => e?.render?.toString && focusableRegex.test(e.render.toString()));
+
+    findModuleExport((e) => e?.toString()?.includes('.GetShowDebugFocusRing())'));
+
+    var GamepadButton;
+    (function (GamepadButton) {
+        GamepadButton[GamepadButton["INVALID"] = 0] = "INVALID";
+        GamepadButton[GamepadButton["OK"] = 1] = "OK";
+        GamepadButton[GamepadButton["CANCEL"] = 2] = "CANCEL";
+        GamepadButton[GamepadButton["SECONDARY"] = 3] = "SECONDARY";
+        GamepadButton[GamepadButton["OPTIONS"] = 4] = "OPTIONS";
+        GamepadButton[GamepadButton["BUMPER_LEFT"] = 5] = "BUMPER_LEFT";
+        GamepadButton[GamepadButton["BUMPER_RIGHT"] = 6] = "BUMPER_RIGHT";
+        GamepadButton[GamepadButton["TRIGGER_LEFT"] = 7] = "TRIGGER_LEFT";
+        GamepadButton[GamepadButton["TRIGGER_RIGHT"] = 8] = "TRIGGER_RIGHT";
+        GamepadButton[GamepadButton["DIR_UP"] = 9] = "DIR_UP";
+        GamepadButton[GamepadButton["DIR_DOWN"] = 10] = "DIR_DOWN";
+        GamepadButton[GamepadButton["DIR_LEFT"] = 11] = "DIR_LEFT";
+        GamepadButton[GamepadButton["DIR_RIGHT"] = 12] = "DIR_RIGHT";
+        GamepadButton[GamepadButton["SELECT"] = 13] = "SELECT";
+        GamepadButton[GamepadButton["START"] = 14] = "START";
+        GamepadButton[GamepadButton["LSTICK_CLICK"] = 15] = "LSTICK_CLICK";
+        GamepadButton[GamepadButton["RSTICK_CLICK"] = 16] = "RSTICK_CLICK";
+        GamepadButton[GamepadButton["LSTICK_TOUCH"] = 17] = "LSTICK_TOUCH";
+        GamepadButton[GamepadButton["RSTICK_TOUCH"] = 18] = "RSTICK_TOUCH";
+        GamepadButton[GamepadButton["LPAD_TOUCH"] = 19] = "LPAD_TOUCH";
+        GamepadButton[GamepadButton["LPAD_CLICK"] = 20] = "LPAD_CLICK";
+        GamepadButton[GamepadButton["RPAD_TOUCH"] = 21] = "RPAD_TOUCH";
+        GamepadButton[GamepadButton["RPAD_CLICK"] = 22] = "RPAD_CLICK";
+        GamepadButton[GamepadButton["REAR_LEFT_UPPER"] = 23] = "REAR_LEFT_UPPER";
+        GamepadButton[GamepadButton["REAR_LEFT_LOWER"] = 24] = "REAR_LEFT_LOWER";
+        GamepadButton[GamepadButton["REAR_RIGHT_UPPER"] = 25] = "REAR_RIGHT_UPPER";
+        GamepadButton[GamepadButton["REAR_RIGHT_LOWER"] = 26] = "REAR_RIGHT_LOWER";
+        GamepadButton[GamepadButton["STEAM_GUIDE"] = 27] = "STEAM_GUIDE";
+        GamepadButton[GamepadButton["STEAM_QUICK_MENU"] = 28] = "STEAM_QUICK_MENU";
+    })(GamepadButton || (GamepadButton = {}));
+
+    findModuleExport((e) => e?.toString && e.toString().includes('.Marquee') && e.toString().includes('--fade-length'));
+
+    findModuleExport((e) => typeof e === 'function' && e.toString().includes('GetContextMenuManagerFromWindow(')
+        && e.toString().includes('.CreateContextMenuInstance('));
+    findModuleExport((e) => e?.prototype?.HideIfSubmenu && e?.prototype?.HideMenu);
+    findModuleExport((e) => (e?.toString()?.includes?.('bInGamepadUI:') &&
+        fakeRenderComponent(() => e({ overview: { appid: 7 } }), { useContext: () => ({ IN_GAMEPADUI: true }) })?.type?.prototype?.RenderSubMenu) ||
+        (e?.prototype?.RenderSubMenu && e?.prototype?.ShowSubMenu));
+    findModuleExport((e) => e?.render?.toString()?.includes('bPlayAudio:') || (e?.prototype?.OnOKButton && e?.prototype?.OnMouseEnter));
+    /*
+    all().map(m => {
+    if (typeof m !== "object") return undefined;
+    for (let prop in m) { if (m[prop]?.prototype?.OK && m[prop]?.prototype?.Cancel && m[prop]?.prototype?.render) return m[prop]}
+    }).find(x => x)
+    */
 
     const showModalRaw = findModuleChild((m) => {
         if (typeof m !== 'object')
@@ -263,22 +523,157 @@ var millennium_main = (function (exports, React, ReactDOM) {
         });
     };
 
+    const [mod, panelSection] = findModuleDetailsByExport((e) => e.toString()?.includes('.PanelSection'));
+    Object.values(mod).filter((exp) => !exp?.toString()?.includes('.PanelSection'))[0];
+
+    findModuleExport((e) => e?.toString()?.includes('.ProgressBar,"standard"=='));
+    findModuleExport((e) => e?.toString()?.includes('.ProgressBarFieldStatus},'));
+    const progressBarItemRegex = createPropListRegex(["indeterminate", "nTransitionSec", "nProgress"]);
+    findModuleExport((e) => e?.toString && progressBarItemRegex.test(e.toString()));
+
+    const sidebarNavigationRegex = createPropListRegex(["pages", "fnSetNavigateToPage", "disableRouteReporting"]);
+    findModuleExport((e) => e?.toString && sidebarNavigationRegex.test(e.toString()));
+
+    Object.values(CommonUIModule).find((mod) => mod?.toString()?.includes('SliderField,fallback'));
+
+    // TODO type this and other icons?
+    Object.values(IconsModule)?.find((mod) => mod?.toString && /Spinner\)}\)?,.\.createElement\(\"path\",{d:\"M18 /.test(mod.toString()));
+
+    findModuleExport((e) => e?.toString?.()?.includes('Steam Spinner') && e?.toString?.()?.includes('src'));
+
+    let oldTabs;
+    try {
+        const oldTabsModule = findModuleByExport((e) => e.Unbleed);
+        if (oldTabsModule)
+            oldTabs = Object.values(oldTabsModule).find((x) => x?.type?.toString()?.includes('((function(){'));
+    }
+    catch (e) {
+        console.error('Error finding oldTabs:', e);
+    }
+
+    Object.values(CommonUIModule).find((mod) => mod?.validateUrl && mod?.validateEmail);
+
     const Toggle = Object.values(CommonUIModule).find((mod) => mod?.render?.toString()?.includes('.ToggleOff)'));
 
-    const classMapList = findAllModules((m) => {
-        if (typeof m == "object" && !m.__esModule) {
-            const keys = Object.keys(m);
-            // special case some libraries
-            if (keys.length == 1 && m.version)
-                return false;
-            // special case localization
-            if (keys.length > 1000 && m.AboutSettings)
-                return false;
-            return keys.length > 0 && keys.every(k => !Object.getOwnPropertyDescriptor(m, k)?.get && typeof m[k] == "string");
-        }
-        return false;
-    });
-    const classMap = Object.assign({}, ...classMapList.map(obj => Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, value]))));
+    Object.values(CommonUIModule).find((mod) => mod?.render?.toString()?.includes('ToggleField,fallback'));
+
+    const ScrollingModule = findModuleByExport((e) => e?.render?.toString?.().includes('{case"x":'));
+    const ScrollingModuleProps = ScrollingModule ? Object.values(ScrollingModule) : [];
+    ScrollingModuleProps.find((prop) => prop?.render?.toString?.().includes('{case"x":'));
+    findModuleExport((e) => e?.render?.toString().includes('.FocusVisibleChild()),[])'));
+
+    /**
+     * Get the current params from ReactRouter
+     *
+     * @returns an object with the current ReactRouter params
+     *
+     * @example
+     * import { useParams } from "decky-frontend-lib";
+     *
+     * const { appid } = useParams<{ appid: string }>()
+     */
+    Object.values(ReactRouter).find((val) => /return (\w)\?\1\.params:{}/.test(`${val}`));
+
+    var SideMenu;
+    (function (SideMenu) {
+        SideMenu[SideMenu["None"] = 0] = "None";
+        SideMenu[SideMenu["Main"] = 1] = "Main";
+        SideMenu[SideMenu["QuickAccess"] = 2] = "QuickAccess";
+    })(SideMenu || (SideMenu = {}));
+    var QuickAccessTab;
+    (function (QuickAccessTab) {
+        QuickAccessTab[QuickAccessTab["Notifications"] = 0] = "Notifications";
+        QuickAccessTab[QuickAccessTab["RemotePlayTogetherControls"] = 1] = "RemotePlayTogetherControls";
+        QuickAccessTab[QuickAccessTab["VoiceChat"] = 2] = "VoiceChat";
+        QuickAccessTab[QuickAccessTab["Friends"] = 3] = "Friends";
+        QuickAccessTab[QuickAccessTab["Settings"] = 4] = "Settings";
+        QuickAccessTab[QuickAccessTab["Perf"] = 5] = "Perf";
+        QuickAccessTab[QuickAccessTab["Help"] = 6] = "Help";
+        QuickAccessTab[QuickAccessTab["Music"] = 7] = "Music";
+        QuickAccessTab[QuickAccessTab["Decky"] = 999] = "Decky";
+    })(QuickAccessTab || (QuickAccessTab = {}));
+    var DisplayStatus;
+    (function (DisplayStatus) {
+        DisplayStatus[DisplayStatus["Invalid"] = 0] = "Invalid";
+        DisplayStatus[DisplayStatus["Launching"] = 1] = "Launching";
+        DisplayStatus[DisplayStatus["Uninstalling"] = 2] = "Uninstalling";
+        DisplayStatus[DisplayStatus["Installing"] = 3] = "Installing";
+        DisplayStatus[DisplayStatus["Running"] = 4] = "Running";
+        DisplayStatus[DisplayStatus["Validating"] = 5] = "Validating";
+        DisplayStatus[DisplayStatus["Updating"] = 6] = "Updating";
+        DisplayStatus[DisplayStatus["Downloading"] = 7] = "Downloading";
+        DisplayStatus[DisplayStatus["Synchronizing"] = 8] = "Synchronizing";
+        DisplayStatus[DisplayStatus["ReadyToInstall"] = 9] = "ReadyToInstall";
+        DisplayStatus[DisplayStatus["ReadyToPreload"] = 10] = "ReadyToPreload";
+        DisplayStatus[DisplayStatus["ReadyToLaunch"] = 11] = "ReadyToLaunch";
+        DisplayStatus[DisplayStatus["RegionRestricted"] = 12] = "RegionRestricted";
+        DisplayStatus[DisplayStatus["PresaleOnly"] = 13] = "PresaleOnly";
+        DisplayStatus[DisplayStatus["InvalidPlatform"] = 14] = "InvalidPlatform";
+        DisplayStatus[DisplayStatus["PreloadComplete"] = 16] = "PreloadComplete";
+        DisplayStatus[DisplayStatus["BorrowerLocked"] = 17] = "BorrowerLocked";
+        DisplayStatus[DisplayStatus["UpdatePaused"] = 18] = "UpdatePaused";
+        DisplayStatus[DisplayStatus["UpdateQueued"] = 19] = "UpdateQueued";
+        DisplayStatus[DisplayStatus["UpdateRequired"] = 20] = "UpdateRequired";
+        DisplayStatus[DisplayStatus["UpdateDisabled"] = 21] = "UpdateDisabled";
+        DisplayStatus[DisplayStatus["DownloadPaused"] = 22] = "DownloadPaused";
+        DisplayStatus[DisplayStatus["DownloadQueued"] = 23] = "DownloadQueued";
+        DisplayStatus[DisplayStatus["DownloadRequired"] = 24] = "DownloadRequired";
+        DisplayStatus[DisplayStatus["DownloadDisabled"] = 25] = "DownloadDisabled";
+        DisplayStatus[DisplayStatus["LicensePending"] = 26] = "LicensePending";
+        DisplayStatus[DisplayStatus["LicenseExpired"] = 27] = "LicenseExpired";
+        DisplayStatus[DisplayStatus["AvailForFree"] = 28] = "AvailForFree";
+        DisplayStatus[DisplayStatus["AvailToBorrow"] = 29] = "AvailToBorrow";
+        DisplayStatus[DisplayStatus["AvailGuestPass"] = 30] = "AvailGuestPass";
+        DisplayStatus[DisplayStatus["Purchase"] = 31] = "Purchase";
+        DisplayStatus[DisplayStatus["Unavailable"] = 32] = "Unavailable";
+        DisplayStatus[DisplayStatus["NotLaunchable"] = 33] = "NotLaunchable";
+        DisplayStatus[DisplayStatus["CloudError"] = 34] = "CloudError";
+        DisplayStatus[DisplayStatus["CloudOutOfDate"] = 35] = "CloudOutOfDate";
+        DisplayStatus[DisplayStatus["Terminating"] = 36] = "Terminating";
+    })(DisplayStatus || (DisplayStatus = {}));
+    const Router = findModuleExport((e) => e.Navigate && e.NavigationManager);
+    let Navigation = {};
+    try {
+        (async () => {
+            let InternalNavigators = {};
+            if (!Router.NavigateToAppProperties || Router.deckyShim) {
+                function initInternalNavigators() {
+                    try {
+                        InternalNavigators = findModuleExport((e) => e.GetNavigator && e.SetNavigator)?.GetNavigator();
+                    }
+                    catch (e) {
+                        console.error('[DFL:Router]: Failed to init internal navigators, trying again');
+                    }
+                }
+                initInternalNavigators();
+                while (!InternalNavigators?.AppProperties) {
+                    console.log('[DFL:Router]: Trying to init internal navigators again');
+                    await sleep(2000);
+                    initInternalNavigators();
+                }
+            }
+            const newNavigation = {
+                Navigate: Router.Navigate?.bind(Router),
+                NavigateBack: Router.WindowStore?.GamepadUIMainWindowInstance?.NavigateBack?.bind(Router.WindowStore.GamepadUIMainWindowInstance),
+                NavigateToAppProperties: InternalNavigators?.AppProperties || Router.NavigateToAppProperties?.bind(Router),
+                NavigateToExternalWeb: InternalNavigators?.ExternalWeb || Router.NavigateToExternalWeb?.bind(Router),
+                NavigateToInvites: InternalNavigators?.Invites || Router.NavigateToInvites?.bind(Router),
+                NavigateToChat: InternalNavigators?.Chat || Router.NavigateToChat?.bind(Router),
+                NavigateToLibraryTab: InternalNavigators?.LibraryTab || Router.NavigateToLibraryTab?.bind(Router),
+                NavigateToLayoutPreview: Router.NavigateToLayoutPreview?.bind(Router),
+                NavigateToSteamWeb: Router.WindowStore?.GamepadUIMainWindowInstance?.NavigateToSteamWeb?.bind(Router.WindowStore.GamepadUIMainWindowInstance),
+                OpenSideMenu: Router.WindowStore?.GamepadUIMainWindowInstance?.MenuStore.OpenSideMenu?.bind(Router.WindowStore.GamepadUIMainWindowInstance.MenuStore),
+                OpenQuickAccessMenu: Router.WindowStore?.GamepadUIMainWindowInstance?.MenuStore.OpenQuickAccessMenu?.bind(Router.WindowStore.GamepadUIMainWindowInstance.MenuStore),
+                OpenMainMenu: Router.WindowStore?.GamepadUIMainWindowInstance?.MenuStore.OpenMainMenu?.bind(Router.WindowStore.GamepadUIMainWindowInstance.MenuStore),
+                CloseSideMenus: Router.CloseSideMenus?.bind(Router),
+                OpenPowerMenu: Router.OpenPowerMenu?.bind(Router),
+            };
+            Object.assign(Navigation, newNavigation);
+        })();
+    }
+    catch (e) {
+        console.error('[DFL:Router]: Error initializing Navigation interface', e);
+    }
 
     const IPCMain = {
         postMessage: (messageId, contents) => {
@@ -302,18 +697,27 @@ var millennium_main = (function (exports, React, ReactDOM) {
     window.MILLENNIUM_BACKEND_IPC = IPCMain;
     window.Millennium = {
         // @ts-ignore (ignore overloaded function)
-        callServerMethod: (pluginName, methodName, keywordArguments) => {
+        callServerMethod: (pluginName, methodName, kwargs) => {
             return new Promise((resolve, reject) => {
-                const messageQuery = {
+                const query = {
                     pluginName: pluginName,
-                    methodName: methodName,
-                    ...(keywordArguments && { argumentList: keywordArguments })
+                    methodName: methodName
                 };
-                window.MILLENNIUM_BACKEND_IPC.postMessage(0, messageQuery).then((response) => {
+                if (kwargs)
+                    query.argumentList = kwargs;
+                /* call handled from "src\core\ipc\pipe.cpp @ L:67" */
+                window.MILLENNIUM_BACKEND_IPC.postMessage(0, query).then((response) => {
                     if (response?.failedRequest) {
-                        reject(`\nCall server method failed!\n\tplugin: ${pluginName}\n\tmethod: ${methodName}]\n\texception: ${response.failMessage}`);
+                        const m = ` wrappedCallServerMethod() from [name: ${pluginName}, method: ${methodName}] failed on exception -> ${response.failMessage}`;
+                        // Millennium can't accurately pin point where this came from
+                        // check the sources tab and find your plugins index.js, and look for a call that could error this
+                        throw new Error(m);
                     }
-                    resolve(typeof response.returnValue === 'string' ? atob(response.returnValue) : response.returnValue);
+                    const val = response.returnValue;
+                    if (typeof val === 'string') {
+                        resolve(atob(val));
+                    }
+                    resolve(val);
                 });
             });
         },
@@ -1370,7 +1774,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 setJsState(json.scripts);
                 setCssState(json.styles);
             })
-                .catch((_) => pluginSelf.connectionFailed = true);
+                .catch((_) => {
+                console.error("Failed to fetch theme settings");
+                pluginSelf.connectionFailed = true;
+            });
         }, []);
         const onScriptToggle = (enabled) => {
             setJsState(enabled);
@@ -1386,7 +1793,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
             PromptReload().then((selection) => {
                 if (selection == MessageBoxResult.okay) {
                     wrappedCallServerMethod("cfg.set_config_keypair", { key: "styles", value: enabled })
-                        .catch((_) => pluginSelf.connectionFailed = true);
+                        .catch((_) => {
+                        console.error("Failed to update settings");
+                        pluginSelf.connectionFailed = true;
+                    });
                     SteamClient.Browser.RestartJSContext();
                 }
             });
@@ -1408,9 +1818,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
             return window.SP_REACT.createElement(ConnectionFailed, null);
         }
         return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
-            window.SP_REACT.createElement("style", null, `.DialogDropDown._DialogInputContainer.Panel.Focusable {
-                        min-width: max-content !important;
-                    }`),
             window.SP_REACT.createElement(DialogHeader, null, locale.settingsPanelThemes),
             window.SP_REACT.createElement(DialogBody, { className: classMap.SettingsDialogBodyFade },
                 window.SP_REACT.createElement("div", { className: "S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _1ugIUbowxDg0qM0pJUbBRM _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel" },
@@ -1443,7 +1850,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
     const Settings = {
         FetchAllSettings: () => {
             return new Promise(async (resolve, _reject) => {
-                const settingsStore = JSON.parse(await wrappedCallServerMethod("get_load_config").catch((_) => pluginSelf.connectionFailed = true));
+                const settingsStore = JSON.parse(await wrappedCallServerMethod("get_load_config").catch((_) => {
+                    console.error("Failed to fetch settings");
+                    pluginSelf.connectionFailed = true;
+                }));
                 SettingsStore = settingsStore;
                 resolve(settingsStore);
             });
@@ -1511,7 +1921,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 setUpdates(updates.updates);
                 setNotifications(updates.notifications ?? false);
             })
-                .catch((_) => pluginSelf.connectionFailed = true);
+                .catch((_) => {
+                console.error("Failed to fetch updates");
+                pluginSelf.connectionFailed = true;
+            });
         }, []);
         const checkForUpdates = async () => {
             if (checkingForUpdates)
@@ -1522,7 +1935,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 setUpdates(JSON.parse(result).updates);
                 setCheckingForUpdates(false);
             })
-                .catch((_) => pluginSelf.connectionFailed = true);
+                .catch((_) => {
+                console.error("Failed to fetch updates");
+                pluginSelf.connectionFailed = true;
+            });
         };
         const DialogHeaderStyles = {
             display: "flex", alignItems: "center", gap: "15px"
@@ -1818,7 +2234,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
         wrappedCallServerMethod("updater.get_update_list")
             .then((result) => JSON.parse(result).updates)
             .then((updates) => ProcessUpdates(updates))
-            .catch((_) => pluginSelf.connectionFailed = true);
+            .catch((_) => {
+            console.error("Failed to fetch updates");
+            pluginSelf.connectionFailed = true;
+        });
         Millennium.AddWindowCreateHook(windowCreated);
     }
 

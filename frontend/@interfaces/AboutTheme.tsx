@@ -1,4 +1,4 @@
-import { Millennium, pluginSelf } from "millennium-lib"
+import { Millennium, pluginSelf } from "@millennium/ui"
 import { ThemeItem } from "../components/types"
 import { CreatePopup } from "../components/Popups"
 import React from "react"

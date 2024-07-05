@@ -1,4 +1,4 @@
-import { Millennium, pluginSelf } from "millennium-lib"
+import { Millennium, pluginSelf } from "@millennium/ui"
 
 /**
  * @todo use builtin notification components instead of altering 
