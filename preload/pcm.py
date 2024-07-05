@@ -30,9 +30,12 @@ def get_installed_packages():
 
 def uninstall_unneeded_packages(installed_packages, needed_packages):
 
+    unneeded_packages = []
     white_listed_packages = ["pip", "setuptools", "wheel", "pkg-resources", "importlib-metadata", "zipp", "pipenv", "pip-tools", "pipdeptree", "pipreqs", "pipreqs", "pipenv-to-requirements", "pip-upgrader", "pip-upgrader"]
 
-    unneeded_packages = [package for package in installed_packages if package not in needed_packages and package not in white_listed_packages]
+    for package in installed_packages:
+        if package not in white_listed_packages and package not in needed_packages:
+            unneeded_packages.append(package)
 
     if unneeded_packages:
         print("removing unused packages: ", unneeded_packages)
@@ -64,7 +67,7 @@ def main():
     else:
         print("All packages are installed")
 
-    uninstall_unneeded_packages(installed_packages, needed_packages)
+    # uninstall_unneeded_packages(installed_packages, needed_packages)
 
     elapsed_time_ms = (time.perf_counter()  - start_time) * 1000 
     print(f"Elapsed time: {elapsed_time_ms:.2f} milliseconds")
