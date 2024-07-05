@@ -6,40 +6,57 @@ import time
 import Millennium
 import importlib.metadata
 
+print("starting pacman watchdog...")
+
 # add the root directory to the python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# path to the python executable bundled with steam
+PYTHON_BIN = os.path.join(Millennium.steam_path(), "ext", "data", "cache", "python.exe")
+PACMAN_LOGS = os.path.join(Millennium.steam_path(), "ext", "data", "logs", "pacman.log")
+PIP_INSTALL_LOGS = os.path.join(Millennium.steam_path(), "ext", "data", "logs", "pacman.log")
 
-from pip._internal import main as pipmain
+def bootstrap_pip():
+    print("bootstrapping pip...")
+
+    import urllib.request
+    pip_temp_path = os.path.join(Millennium.steam_path(), "ext", "data", "cache", "get-pip.py")
+
+    # download get-pip.py
+    urllib.request.urlretrieve("https://bootstrap.pypa.io/get-pip.py", pip_temp_path)
+    result = subprocess.run([PYTHON_BIN, pip_temp_path, "--no-warn-script-location"], capture_output=True, text=True)
+
+    with open(PIP_INSTALL_LOGS, 'a') as file:
+        file.write(result.stdout)
+
+    os.remove(pip_temp_path)
+
+try:
+    from pip._internal import main
+
+except ImportError:
+    bootstrap_pip()
+
 from backend.api.plugins_store import find_all_plugins
 
-# path to the python executable bundled with steam
-python_path = os.path.join(Millennium.steam_path(), "ext", "data", "cache", "python.exe")
+config = ["--no-warn-script-location"]
 
 def install_packages(package_names):
-    subprocess.run([python_path, '-m', 'pip', 'install'] + package_names)
+    result = subprocess.run([PYTHON_BIN, '-m', 'pip', 'install'] + package_names + config, capture_output=True, text=True)
 
+    with open(PACMAN_LOGS, 'a') as file:
+        file.write(result.stdout)
 
 def uninstall_packages(package_names):
-    subprocess.run([python_path, '-m', 'pip', 'uninstall', '-y'] + package_names)
+    result = subprocess.run([PYTHON_BIN, '-m', 'pip', 'uninstall', '-y'] + package_names + config, capture_output=True, text=True)
+    
+    with open(PACMAN_LOGS, 'a') as file:
+        file.write(result.stdout)
 
 
 def get_installed_packages():
     package_names = [dist.metadata["Name"] for dist in importlib.metadata.distributions()]
     return package_names
 
-
-def uninstall_unneeded_packages(installed_packages, needed_packages):
-
-    unneeded_packages = []
-    white_listed_packages = ["pip", "setuptools", "wheel", "pkg-resources", "importlib-metadata", "zipp", "pipenv", "pip-tools", "pipdeptree", "pipreqs", "pipreqs", "pipenv-to-requirements", "pip-upgrader", "pip-upgrader"]
-
-    for package in installed_packages:
-        if package not in white_listed_packages and package not in needed_packages:
-            unneeded_packages.append(package)
-
-    if unneeded_packages:
-        print("removing unused packages: ", unneeded_packages)
-        # uninstall_packages(unneeded_packages)
 
 def main():
 
@@ -65,11 +82,11 @@ def main():
         print("installing packages: ", needed_packages)
         install_packages(needed_packages)
     else:
-        print("All packages are installed")
+        print("all packages are installed")
 
     # uninstall_unneeded_packages(installed_packages, needed_packages)
 
     elapsed_time_ms = (time.perf_counter()  - start_time) * 1000 
-    print(f"Elapsed time: {elapsed_time_ms:.2f} milliseconds")
+    print(f"watchdog sniped {len(needed_packages)} packages in {elapsed_time_ms:.2f} ms")
 
 main()
