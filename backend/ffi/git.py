@@ -228,4 +228,5 @@ class Updater:
             if repo_name:
                 self.check_theme(theme, repo_name, repo)       
 
-        print(f"found updates for {[theme['native'] for theme in self.update_list]} in {round((time.time() - start_time) * 1000, 4)} ms")
+        if len(self.update_list) > 0:
+            print(f"found updates for {[theme['native'] for theme in self.update_list]} in {round((time.time() - start_time) * 1000, 4)} ms")
