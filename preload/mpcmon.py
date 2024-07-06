@@ -1,7 +1,7 @@
 import importlib
 import json
 import subprocess
-import urllib.request
+import urllib.request, urllib.error
 
 class mpc:
 
@@ -9,9 +9,14 @@ class mpc:
         self.__python_bin = m_python_bin
 
     def get_live_version(self):
-        url = "https://pypi.org/pypi/millennium/json"
-        response = urllib.request.urlopen(url)
-        return json.load(response)["info"]["version"]
+        try:
+            url = "https://pypi.org/pypi/millennium/json"
+            response = urllib.request.urlopen(url)
+            return json.load(response)["info"]["version"]
+
+        except urllib.error.URLError as e:
+            print(f"could not connect to pypi.org {e.reason}")
+            return None
 
     def update_millennium(self):
         print("updating millennium dev tools...")
