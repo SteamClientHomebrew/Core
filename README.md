@@ -17,5 +17,5 @@ cd __builtins__
 npm i
 npm install @millennium/ui
 
-npm run dev-build
+npm run dev
 ```
