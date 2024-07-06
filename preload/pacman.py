@@ -1,6 +1,6 @@
 import importlib.metadata
 import json
-import os, var
+import os
 import subprocess
 from backend.core.plugins import find_all_plugins
 
@@ -9,17 +9,21 @@ def get_installed_packages():
     return package_names
 
 
-def pip(cmd):
-    with open(var.PACMAN_LOGS, 'a') as file:
-        file.write(subprocess.run([var.PYTHON_BIN, '-m', 'pip'] + cmd + ["--no-warn-script-location"], capture_output=True, text=True).stdout)
+def pip(cmd, config):
+
+    python_bin = config.get('package.manager', 'python')
+    pip_logs = config.get('package.manager', 'pip_logs')
+
+    with open(pip_logs, 'a') as file:
+        file.write(subprocess.run([python_bin, '-m', 'pip'] + cmd + ["--no-warn-script-location"], capture_output=True, text=True).stdout)
 
 
-def install_packages(package_names):
-    pip(["install"] + package_names)
+def install_packages(package_names, config):
+    pip(["install"] + package_names, config)
 
 
-def uninstall_packages(package_names):
-    pip(["uninstall", "-y"] + package_names)
+def uninstall_packages(package_names, config):
+    pip(["uninstall", "-y"] + package_names, config)
 
 
 def needed_packages():
@@ -41,11 +45,11 @@ def needed_packages():
     return needed_packages
 
 
-def audit():
+def audit(config):
     packages = needed_packages()
 
     if packages:
         print(f"installing packages: {packages}")
-        install_packages(packages)
+        install_packages(packages, config)
     else:
         print("all packages are installed")

@@ -1,9 +1,8 @@
 import os
 import subprocess
 import Millennium
-import var
 
-def bootstrap_pip():
+def bootstrap_pip(config):
     print("bootstrapping pip...")
 
     import urllib.request
@@ -11,16 +10,16 @@ def bootstrap_pip():
 
     # download get-pip.py
     urllib.request.urlretrieve("https://bootstrap.pypa.io/get-pip.py", pip_temp_path)
-    result = subprocess.run([var.PYTHON_BIN, pip_temp_path, "--no-warn-script-location"], capture_output=True, text=True)
+    result = subprocess.run([config.get('package.manager', 'python'), pip_temp_path, "--no-warn-script-location"], capture_output=True, text=True)
 
-    with open(var.PIP_INSTALL_LOGS, 'a') as file:
+    with open(config.get('package.manager', 'pip_boot'), 'a') as file:
         file.write(result.stdout)
 
     os.remove(pip_temp_path)
 
 
-def verify_pip():
+def verify_pip(config):
     try:
         from pip._internal import main
     except ImportError:
-        bootstrap_pip()
+        bootstrap_pip(config)
