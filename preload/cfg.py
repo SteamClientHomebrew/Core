@@ -6,7 +6,7 @@ class Config:
 
     def __init__(self):
         self.config = configparser.ConfigParser()
-        self.config_file = os.path.join(Millennium.steam_path(), "ext", "pacman.conf")
+        self.config_file = os.path.join(Millennium.steam_path(), "ext", "millennium.conf")
 
         if os.path.exists(self.config_file):
             try:
