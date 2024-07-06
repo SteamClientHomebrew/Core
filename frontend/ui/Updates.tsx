@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Millennium, DialogBody, DialogBodyText, DialogSubHeader, classMap, DialogHeader, IconsModule, pluginSelf, Toggle } from '@millennium/ui'
-import { locale } from '../@localization';
+import { locale } from '../locales';
 import { ThemeItem } from '../components/types';
 import { Settings } from '../components/Settings';
 import { ConnectionFailed } from './ConnectionFailed';

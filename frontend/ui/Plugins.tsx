@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { DialogBody, DialogHeader, IconsModule, Millennium, Toggle, classMap, findClass, pluginSelf } from '@millennium/ui';
 import { PluginComponent } from '../components/types';
-import { locale } from '../@localization';
+import { locale } from '../locales';
 import { ConnectionFailed } from './ConnectionFailed';
 
 interface EditPluginProps {
@@ -54,7 +54,7 @@ const PluginViewModal: React.FC = () => {
 	const handleCheckboxChange = (index: number) => {
 		
 		/* Prevent users from disabling this plugin, as its vital */
-		const updated: boolean = !checkedItems[index] || plugins[index]?.data?.name === "millennium__internal"
+		const updated: boolean = !checkedItems[index] || plugins[index]?.data?.name === "core"
 		setCheckedItems({ ...checkedItems, [index]: updated});
 
 		Millennium.callServerMethod("update_plugin_status", { plugin_name: plugins[index]?.data?.name, enabled: updated })
@@ -78,7 +78,7 @@ const PluginViewModal: React.FC = () => {
 						<EditPlugin plugin={plugin}/>
 						<div className="_3N47t_-VlHS8JAEptE5rlR">
 							<Toggle 
-								disabled={plugin?.data?.name == "millennium__internal"} 
+								disabled={plugin?.data?.name == "core"} 
 								value={checkedItems[index]} 
 								onChange={(_checked: boolean) => handleCheckboxChange(index)}>
 							</Toggle>

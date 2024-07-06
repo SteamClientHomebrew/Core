@@ -1,4 +1,4 @@
-const pluginName = "millennium__internal";
+const pluginName = "core";
 function InitializePlugins() {
     /**
      * This function is called n times depending on n plugin count,
@@ -1419,7 +1419,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
         }, []);
         const handleCheckboxChange = (index) => {
             /* Prevent users from disabling this plugin, as its vital */
-            const updated = !checkedItems[index] || plugins[index]?.data?.name === "millennium__internal";
+            const updated = !checkedItems[index] || plugins[index]?.data?.name === "core";
             setCheckedItems({ ...checkedItems, [index]: updated });
             wrappedCallServerMethod("update_plugin_status", { plugin_name: plugins[index]?.data?.name, enabled: updated });
         };
@@ -1434,7 +1434,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
                     window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon, style: { display: "flex", alignItems: "center" } },
                         window.SP_REACT.createElement(EditPlugin, { plugin: plugin }),
                         window.SP_REACT.createElement("div", { className: "_3N47t_-VlHS8JAEptE5rlR" },
-                            window.SP_REACT.createElement(Toggle, { disabled: plugin?.data?.name == "millennium__internal", value: checkedItems[index], onChange: (_checked) => handleCheckboxChange(index) })))),
+                            window.SP_REACT.createElement(Toggle, { disabled: plugin?.data?.name == "core", value: checkedItems[index], onChange: (_checked) => handleCheckboxChange(index) })))),
                 window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, plugin?.data?.description ?? locale.itemNoDescription)))))));
     };
 
@@ -1634,7 +1634,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
                     SteamClient.System.OpenInSystemBrowser(`https://github.com/${themeOwner}/${themeRepo}`);
                 };
                 const ShowInFolder = () => {
-                    wrappedCallServerMethod("get_steam_path").then((path) => {
+                    wrappedCallServerMethod("Millennium.steam_path").then((path) => {
                         console.log(path);
                         SteamClient.System.OpenLocalDirectoryInSystemExplorer(`${path}/steamui/skins/${this.activeTheme.native}`);
                     });

@@ -3,8 +3,8 @@ import time
 import Millennium
 from datetime import datetime
 import pygit2, os, json, shutil
-from api.themes_store import find_all_themes
-from api.user_data import cfg
+from core.themes import find_all_themes
+from core.cfg import cfg
 import requests
 import arrow
 
@@ -96,7 +96,6 @@ class Updater:
         try:
             shutil.rmtree(path)
             repo_url = f'https://github.com/{data["owner"]}/{data["repo_name"]}.git'
-            print(repo_url)
             # Clone the repository
             pygit2.clone_repository(repo_url, path)
 
@@ -152,7 +151,7 @@ class Updater:
         # default_branch = repo.active_branch.name
 
         local_commit = repo[repo.head.target].id
-        print(f"local_commit: {local_commit}, remote_commit: {remote_commit}")
+        # print(f"local_commit: {local_commit}, remote_commit: {remote_commit}")
 
         # Get the local and remote commit hashes for the default branch
         # local_commit = getattr(repo.heads[default_branch], "commit", None)
@@ -179,8 +178,6 @@ class Updater:
         name = theme["data"]["name"] if "name" in theme["data"] else theme["native"]
 
         if update_needed:
-            print(f"{theme['native']} has an update available")
-
             self.update_list.append({
                 'message': commit_message, 'date': commit_date, 'commit': commit_url,
                 'native': theme["native"], 'name': name
@@ -217,8 +214,6 @@ class Updater:
 
         self.remote_json = remote_json
 
-        print(json.dumps(remote_json, indent=4))
-
         for theme, repo in self.update_query:
 
             if "data" not in theme:
@@ -231,7 +226,6 @@ class Updater:
             repo_name = github_data.get("repo_name") if github_data else None
 
             if repo_name:
-                self.check_theme(theme, repo_name, repo)
-                
+                self.check_theme(theme, repo_name, repo)       
 
-        print(f"initialize_repositories took: {round((time.time() - start_time) * 1000, 4)} milliseconds")
+        print(f"found updates for {[theme['native'] for theme in self.update_list]} in {round((time.time() - start_time) * 1000, 4)} ms")

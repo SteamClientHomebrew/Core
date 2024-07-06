@@ -1,12 +1,8 @@
-import asyncio
-import os, stat
-import shutil
-import websockets
-import json
 import Millennium
-from api.user_data import cfg
+import os, stat, json, shutil, websockets, asyncio
 
-from api.themes_store import find_all_themes
+from core.cfg import cfg
+from core.themes import find_all_themes
 
 def get_theme_from_gitpair(repo, owner):
     themes = json.loads(find_all_themes())

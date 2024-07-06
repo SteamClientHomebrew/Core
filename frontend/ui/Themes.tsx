@@ -17,7 +17,7 @@ import { RenderThemeEditor } from './ThemeEditor'
 import { ComboItem, ThemeItem } from '../components/types'
 import { PromptReload } from './RestartModal'
 import { SetupAboutRenderer } from './AboutTheme'
-import { locale } from '../@localization'
+import { locale } from '../locales'
 import { ConnectionFailed } from './ConnectionFailed'
 
 const ShowThemeSettings = async (activeTheme: string) => {

@@ -26,8 +26,5 @@
         "react-dom"
       ]
     }
-  },
-  "dependencies": {
-    "@millennium/ui": "^3.4.8"
   }
 }

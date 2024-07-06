@@ -1,11 +1,11 @@
 import { Millennium, pluginSelf } from "@millennium/ui"; 
 import { patchDocumentContext } from "./patcher/index"
-import { RenderSettingsModal } from "./@interfaces/Settings"
+import { RenderSettingsModal } from "./ui/Settings"
 import { ConditionsStore, ThemeItem, SystemAccentColor, UpdateItem, SettingsProps, ThemeItemV1 } from "./components/types";
 import { DispatchSystemColors } from "./patcher/SystemColors";
 import { ParseLocalTheme } from "./patcher/ThemeParser";
 import { Logger } from "./components/Logger";
-import { PatchNotification } from "./@interfaces/Notifications";
+import { PatchNotification } from "./ui/Notifications";
 import { Settings, SettingsStore } from "./components/Settings";
 import { DispatchGlobalColors } from "./patcher/v1/GlobalColors";
 
