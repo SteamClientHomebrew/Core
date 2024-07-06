@@ -12,7 +12,7 @@ Clone this repository place it in your plugins folder and start Steam. You can n
 ### Building 
 
 ```ps1
-git clone https://github.com/SteamClientHomebrew/__builtins__.git --recursive
+git clone https://github.com/SteamClientHomebrew/Core.git --recursive
 cd __builtins__
 npm i
 npm install @millennium/ui
