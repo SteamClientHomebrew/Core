@@ -14,7 +14,7 @@ class mpc:
         return json.load(response)["info"]["version"]
 
     def update_millennium(self):
-        print("updating millennium...")
+        print("updating millennium dev tools...")
         subprocess.run([self.__python_bin, "-m", "pip", "install", "--upgrade", "millennium"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     def start(self):
@@ -22,7 +22,7 @@ class mpc:
             if self.get_live_version() != importlib.metadata.version("millennium"):
                 self.update_millennium()
             else:
-                print("millennium is up to date")
+                print("millennium dev tools are up to date")
         except importlib.metadata.PackageNotFoundError as e:
-            print("millennium is not installed")
+            print("millennium dev tools are not installed")
             self.update_millennium()
