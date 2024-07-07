@@ -1392,7 +1392,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
         }
     };
 
-    let _locale = english;
     const handler = {
         get: function (target, property) {
             if (property in target) {
@@ -1404,12 +1403,12 @@ var millennium_main = (function (exports, React, ReactDOM) {
                     return english?.[property];
                 }
                 catch (exception) {
-                    return "locale was not found.";
+                    return "unknown translation key";
                 }
             }
         }
     };
-    let locale = new Proxy(_locale, handler);
+    let locale = new Proxy(english, handler);
     const localizationFiles = {
         english,
         polish,
@@ -1423,11 +1422,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
         const language = await SteamClient.Settings.GetCurrentLanguage();
         Logger.Log(`loading locales ${language} ${localizationFiles?.[language]}`);
         if (localizationFiles.hasOwnProperty(language)) {
-            locale = localizationFiles[language];
+            locale = new Proxy(localizationFiles[language], handler);
         }
         else {
             Logger.Warn(`Localization for language ${language} not found, defaulting to English.`);
-            locale = localizationFiles['english'];
         }
     };
     // setup locales on startup

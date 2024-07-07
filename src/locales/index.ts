@@ -10,11 +10,8 @@ interface LocalizationData {
     [key: string]: string;
 }
 
-let _locale = english 
-
 const handler: ProxyHandler<any>  = {
     get: function(target, property: keyof any) {
-
         if (property in target) {
             return target[property];
         }
@@ -24,13 +21,13 @@ const handler: ProxyHandler<any>  = {
                 return (english as any)?.[property]
             }
             catch (exception) {
-                return "locale was not found."
+                return "unknown translation key"
             }
         }
     }
 };
 
-export let locale: LocalizationData = new Proxy(_locale, handler);
+export let locale: LocalizationData = new Proxy(english, handler);
 
 const localizationFiles: { [key: string]: LocalizationData } = {
     english,
@@ -48,11 +45,10 @@ const GetLocalization = async () => {
     Logger.Log(`loading locales ${language} ${localizationFiles?.[language]}`)
 
     if (localizationFiles.hasOwnProperty(language)) {
-        locale = localizationFiles[language];
+        locale = new Proxy(localizationFiles[language], handler);
     } 
     else {
         Logger.Warn(`Localization for language ${language} not found, defaulting to English.`)
-        locale = localizationFiles['english'];
     }
 };
 
