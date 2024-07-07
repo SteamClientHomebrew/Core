@@ -1,6 +1,5 @@
-import configparser
-import os, var
 import Millennium
+import configparser, os
 
 class Config:
 
@@ -29,13 +28,18 @@ class Config:
 
     def setup(self):
 
+        LOCALS = os.path.join(Millennium.steam_path(), "ext", "data")
+
+        PYTHON_BIN       = os.path.join(LOCALS, "cache", "python.exe")
+        PACMAN_LOGS      = os.path.join(LOCALS, "logs", "pacman.log")
+        PIP_INSTALL_LOGS = os.path.join(LOCALS, "logs", "pip_boot.log")
+
         self.set_default('package.manager', 'devtools', 'no')
         self.set_default('package.manager', 'auto_update_devtools', 'yes')
-
         self.set_default('package.manager', 'use_pip', 'yes')
-        self.set_default('package.manager', 'python', var.PYTHON_BIN)
-        self.set_default('package.manager', 'pip_logs', var.PACMAN_LOGS)
-        self.set_default('package.manager', 'pip_boot', var.PIP_INSTALL_LOGS)
+        self.set_default('package.manager', 'python', PYTHON_BIN)
+        self.set_default('package.manager', 'pip_logs', PACMAN_LOGS)
+        self.set_default('package.manager', 'pip_boot', PIP_INSTALL_LOGS)
 
         with open(self.config_file, 'w') as configfile:
             self.config.write(configfile)

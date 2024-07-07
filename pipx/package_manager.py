@@ -2,7 +2,7 @@ import importlib.metadata
 import json
 import os
 import subprocess
-from backend.core.plugins import find_all_plugins
+from core.core.plugins import find_all_plugins
 
 def get_installed_packages():
     package_names = [dist.metadata["Name"] for dist in importlib.metadata.distributions()]
