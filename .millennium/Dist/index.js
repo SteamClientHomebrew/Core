@@ -1937,7 +1937,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
                     return;
                 const activeTheme = pluginSelf.activeTheme;
                 // the current theme was just updated, so reload SteamUI
-                if (activeTheme.native === updateObject.native) {
+                if (activeTheme?.native === updateObject?.native) {
                     SteamClient.Browser.RestartJSContext();
                 }
                 wrappedCallServerMethod("updater.get_update_list").then((result) => {

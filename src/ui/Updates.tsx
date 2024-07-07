@@ -52,7 +52,7 @@ const RenderAvailableUpdates: React.FC<UpdateProps> = ({ updates, setUpdates }) 
             const activeTheme: ThemeItem = pluginSelf.activeTheme
 
             // the current theme was just updated, so reload SteamUI
-            if (activeTheme.native === updateObject.native) {
+            if (activeTheme?.native === updateObject?.native) {
                 SteamClient.Browser.RestartJSContext()
             }
 

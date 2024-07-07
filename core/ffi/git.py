@@ -104,35 +104,22 @@ class Updater:
             print(f"An exception occurred: {e}")
 
     def update_theme(self, native: str) -> bool:
-        path = os.path.join(Millennium.steam_path(), "steamui", "skins", native)
-        return False
-    
-        # Initialize the repository
+
+        print(f"updating theme {native}")
         try: 
-            repo = pygit2.Repository(path)
+            repo = pygit2.Repository(os.path.join(Millennium.steam_path(), "steamui", "skins", native))
 
-            # Get active branch
-            active_branch = repo.head.shorthand
-
-            # Get remote and fetch changes
-            remote_name = 'origin'  # or any other remote name
+            # Fetch the latest changes from the remote
+            remote_name = 'origin'
             remote = repo.remotes[remote_name]
             remote.fetch()
 
-            # Construct the remote branch name
-            remote_branch_name = f'refs/remotes/{remote_name}/{active_branch}'
+            # Get the latest commit from the remote
+            latest_commit = repo.revparse_single('origin/HEAD').id 
+            print(f"updating {native} to {latest_commit}")
 
-            # Check if the remote branch exists
-            if remote_branch_name in repo.listall_references():
-                remote_branch = repo.lookup_reference(remote_branch_name)
-                try:
-                    # Attempt to merge the remote branch into the local branch
-                    repo.merge(remote_branch.target)
-                    print(f'Pulled latest changes into branch: {active_branch}')
-                except pygit2.GitError as e:
-                    print(f'Error merging remote branch into local branch: {e}')
-            else:
-                print(f'No remote branch found for {active_branch} on {remote_name}.')
+            # Reset the local branch to the remote commit (force update)
+            repo.reset(latest_commit, pygit2.GIT_RESET_HARD)
 
         except pygit2.GitError as e:
             print(e)
