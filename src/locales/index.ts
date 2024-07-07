@@ -3,6 +3,7 @@ import polish from "./locales/polish.json";
 import spanish from "./locales/spanish.json";
 import indonesian from "./locales/indonesian.json";
 import schinese from "./locales/schinese.json";
+import german from "./locales/german.json";
 import { Logger } from "../components/Logger";
 
 interface LocalizationData {
@@ -36,14 +37,15 @@ const localizationFiles: { [key: string]: LocalizationData } = {
     polish,
     spanish,
     indonesian,
-    schinese
+    schinese,
+    german
     // Add other languages here
 };
 
 const GetLocalization = async () => {
 
     const language = await SteamClient.Settings.GetCurrentLanguage()
-    Logger.Log(`loading locales ${language}`)
+    Logger.Log(`loading locales ${language} ${localizationFiles?.[language]}`)
 
     if (localizationFiles.hasOwnProperty(language)) {
         locale = localizationFiles[language];

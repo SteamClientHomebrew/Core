@@ -3,5 +3,5 @@
     "common_name": "Millennium",
     "description": "A built-in plugin to manage plugins, themes, and updates.",
     "backend": "core",
-    "frontend": "frontend"
+    "frontend": "src"
 }
