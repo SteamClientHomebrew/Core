@@ -6,10 +6,9 @@ import pipx.config as config
 import time
 import importlib.metadata
 import dev_tools, pip_setup, package_manager
-
+from logger import logger
+logger.log("starting package manager daemon...")
 config = config.Config()
-
-print("starting pacman watchdog...")
 
 def get_installed_packages():
     package_names = [dist.metadata["Name"] for dist in importlib.metadata.distributions()]
@@ -29,6 +28,6 @@ def main():
         package_manager.audit(config)
 
     elapsed_time_ms = (time.perf_counter()  - start_time) * 1000 
-    print(f"watchdog finished in {elapsed_time_ms:.2f} ms")
+    logger.log(f"package manager finished in {elapsed_time_ms:.2f} ms")
 
 main()

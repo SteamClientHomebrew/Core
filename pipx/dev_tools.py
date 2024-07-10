@@ -2,6 +2,7 @@ import importlib
 import json
 import subprocess
 import urllib.request, urllib.error
+from logger import logger
 
 class mpc:
 
@@ -15,28 +16,27 @@ class mpc:
             return json.load(response)["info"]["version"]
 
         except urllib.error.URLError as e:
-            print(f"could not connect to pypi.org {e.reason}")
+            logger.warn(f"could not connect to pypi.org {e.reason}")
             return None
 
     def update_millennium(self):
-        print("updating millennium dev tools...")
+        logger.log("updating millennium dev tools...")
         subprocess.run([self.__python_bin, "-m", "pip", "install", "--upgrade", "millennium"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     def start(self, config):
         if (config.get('package.manager', 'devtools') != 'yes'):
-            print("millennium dev tools are disabled")
             return
 
         try:
             if config.get('package.manager', 'auto_update_devtools') == 'no':
-                print("millennium dev tools auto update is disabled")
+                logger.log("millennium dev tools auto update is disabled")
                 return
 
             if self.get_live_version() != importlib.metadata.version("millennium"):
                 self.update_millennium()
             else:
-                print("millennium dev tools are up to date")
+                logger.log("millennium dev tools are up to date")
                 
         except importlib.metadata.PackageNotFoundError as e:
-            print("millennium dev tools are not installed")
+            logger.warn("millennium dev tools are not installed, installing...")
             self.update_millennium()

@@ -1,8 +1,10 @@
 # this file is responsible for updating Millennium core. 
 import argparse
 import os
+import subprocess
 import psutil
 import requests
+from pathlib import Path
 
 updater_version = "1.0.0"
 
@@ -21,7 +23,7 @@ def terminate_steam():
             pass
 
 def get_latest(version: str):
-    response = requests.get("https://api.github.com/repos/SteamClientHomebrew/Millennium/releases")
+    response = requests.get("https://api.github.com/repos/SteamClientHomebrew/Installer/releases")
     data = response.json()
 
     latest_version = None
@@ -44,20 +46,27 @@ def get_latest(version: str):
     return False
 
 
-def update_millennium(update_info, path):
+def download_installer(update_info, path):
 
     succeeded = []
     failed = []
 
     for asset in update_info:
+        file_path = os.path.join(path, asset["name"])
         download_response = requests.get(asset['browser_download_url'])
             
+        if Path(file_path).suffix != ".exe":
+            continue
+
         if download_response.status_code == 200:
             os.makedirs(path, exist_ok=True)
 
             with open(os.path.join(path, asset["name"]), 'wb') as file:
                 file.write(download_response.content)
             
+            print(Path(file_path).suffix)
+
+            subprocess.run([file_path, "--auto-installer"])
             succeeded.append(asset['name'])
         else:
             failed.append(asset['name'])
@@ -79,7 +88,7 @@ def main(version: str, path: str):
     update_info = get_latest(version)
 
     if update_info:
-        update_millennium(update_info, path)
+        download_installer(update_info, path)
 
     print("Millennium updater completed.")
 

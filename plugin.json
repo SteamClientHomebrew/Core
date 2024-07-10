@@ -1,7 +1,7 @@
 {
     "name": "core",
     "common_name": "Millennium",
-    "description": "A built-in plugin to manage plugins, themes, and updates.",
+    "description": "An integrated plugin that provides core platform functionality.",
     "backend": "core",
     "frontend": "src"
 }
