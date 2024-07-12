@@ -38,7 +38,7 @@ def pip(cmd, config):
         output_handler_thread.join()
 
         if proc.returncode != 0:
-            logger.error(f"pipx failed with exit code {proc.returncode}")
+            logger.error(f"PIP failed with exit code {proc.returncode}")
 
 
 def install_packages(package_names, config):
@@ -72,7 +72,7 @@ def audit(config):
     packages = needed_packages()
 
     if packages:
-        logger.log(f"installing packages: {packages}")
+        logger.log(f"Installing packages: {packages}")
         install_packages(packages, config)
     else:
-        logger.log("all packages are installed!")
+        logger.log("All required packages are satisfied.")

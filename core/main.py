@@ -11,7 +11,7 @@ from webkit.stack import WebkitStack, add_browser_css, add_browser_js
 from ipc.socket   import uninstall_theme
 from ffi.git      import Updater
 
-print(f"loading millennium-core v{Millennium.version()}")
+print(f"Loading Millennium-Core@{Millennium.version()}")
 updater = Updater()
 
 def get_load_config():
@@ -31,7 +31,7 @@ def update_plugin_status(plugin_name: str, enabled: bool):
 
 class Plugin:
     def _front_end_loaded(self):
-        print("steam front-end loaded!")
+        print("SteamUI successfully loaded!")
 
     def _load(self):     
         try:
@@ -39,16 +39,16 @@ class Plugin:
             name = cfg.get_active_theme_name()
 
             if "failed" not in theme and "Steam-WebKit" in theme["data"] and isinstance(theme["data"]["Steam-WebKit"], str):
-                print("preloading webkit hooks...")
+                print("Preloading webkit hooks...")
                 add_browser_css(os.path.join(Millennium.steam_path(), "skins", name, theme["data"]["Steam-WebKit"]))
 
         except Exception as exception:
-            print(f"exception thrown @ _load -> {exception}")
+            print(f"Exception thrown while loading core: {exception}")
 
         websocket_thread = threading.Thread(target=start_websocket_server)
         websocket_thread.start()
 
-        print("millennium is ready!")
+        print("Millennium-Core is ready!")
         Millennium.ready()
 
     def _unload(self):

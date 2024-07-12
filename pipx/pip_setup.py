@@ -4,7 +4,7 @@ import Millennium
 from logger import logger
 
 def bootstrap_pip(config):
-    logger.log("bootstrapping pip...")
+    logger.log("Installing Preferred Installer Program...")
 
     import urllib.request
     pip_temp_path = os.path.join(Millennium.steam_path(), "ext", "data", "cache", "get-pip.py")

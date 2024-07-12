@@ -16,11 +16,11 @@ class mpc:
             return json.load(response)["info"]["version"]
 
         except urllib.error.URLError as e:
-            logger.warn(f"could not connect to pypi.org {e.reason}")
+            logger.warn(f"Couldn't check for dev tool updates: {e.reason}")
             return None
 
     def update_millennium(self):
-        logger.log("updating millennium dev tools...")
+        logger.log("Updating Millennium Dev Tools...")
         subprocess.run([self.__python_bin, "-m", "pip", "install", "--upgrade", "millennium"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     def start(self, config):
@@ -29,14 +29,14 @@ class mpc:
 
         try:
             if config.get('package.manager', 'auto_update_devtools') == 'no':
-                logger.log("millennium dev tools auto update is disabled")
+                logger.log("Millennium Dev Tools auto-update is disabled.")
                 return
 
             if self.get_live_version() != importlib.metadata.version("millennium"):
                 self.update_millennium()
             else:
-                logger.log("millennium dev tools are up to date")
+                logger.log("Dev Tools are up to date.")
                 
         except importlib.metadata.PackageNotFoundError as e:
-            logger.warn("millennium dev tools are not installed, installing...")
+            logger.warn("Installing Millennium Dev Tools...")
             self.update_millennium()
