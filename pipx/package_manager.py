@@ -1,6 +1,7 @@
 import importlib.metadata
 import json
 import os
+import platform
 import subprocess
 import threading
 from core.core.plugins import find_all_plugins
@@ -24,12 +25,20 @@ def process_output_handler(proc, outfile, terminate_flag):
 
 def pip(cmd, config):
 
-    python_bin = config.get('package.manager', 'python')
-    pip_logs = config.get('package.manager', 'pip_logs')
+    python_bin = config.get('PackageManager', 'python')
+    pip_logs = config.get('PackageManager', 'pip_logs')
     terminate_flag = [False]
 
     with open(pip_logs, 'w') as f:
-        proc = subprocess.Popen([python_bin, '-m', 'pip'] + cmd + ["--no-warn-script-location"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1, universal_newlines=True)
+        if platform.system() == 'Windows':
+            proc = subprocess.Popen([python_bin, '-m', 'pip'] + cmd + ["--no-warn-script-location"],
+                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                    bufsize=1, universal_newlines=True, creationflags=subprocess.CREATE_NO_WINDOW)
+        else:
+            proc = subprocess.Popen([python_bin, '-m', 'pip'] + cmd + ["--no-warn-script-location"],
+                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                    bufsize=1, universal_newlines=True)
+
         output_handler_thread = threading.Thread(target=process_output_handler, args=(proc, pip_logs, terminate_flag))
         output_handler_thread.start()
 

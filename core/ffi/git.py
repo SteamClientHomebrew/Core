@@ -13,12 +13,12 @@ class Updater:
     def get_update_list(self):
         return json.dumps({
             "updates": self.update_list, 
-            "notifications": cfg.get_config()["updateNotifications"]
+            "notifications": cfg.get_cfg("Themes", "theme_update_notifications")
         })
     
     def set_update_notifs_status(self, status: bool):
 
-        cfg.set_config_keypair("updateNotifications", status)
+        cfg.cfg("Themes", "theme_update_notifications", status)
         return True
 
     def query_themes(self):

@@ -1,61 +1,76 @@
 import os
 import json
+import re
 import Millennium
 from core.themes import is_valid
 from webkit.stack import WebkitStack, add_browser_css
+import configparser
 
 class Config:
 
-    def set_config_keypair(self, key: str, value) -> None:
-        config = self.get_config()
-        config[key] = value
-        self.set_config(json.dumps(config, indent=4))
+    def get_config(self):
+        return self.config
+    
+    def get_config_str(self):
+        config_dict = {section: dict(self.config.items(section)) for section in self.config.sections()}
+        
+        for section, items in config_dict.items():
+            for key, value in items.items():
+                if value.lower() == 'yes':
+                    config_dict[section][key] = True
+                elif value.lower() == 'no':
+                    config_dict[section][key] = False
+        
+        return json.dumps(config_dict)
+    
+    def write_config(self) -> None:
 
-    def get_config(self) -> json:
+        with open(self.config_path, 'w') as configFile:
+            self.config.write(configFile)
 
-        if not os.path.exists(self.config_path):
+    def cfg(self, section, key, value) -> str:
 
-            os.makedirs(os.path.dirname(self.config_path), exist_ok=True)
-            with open(self.config_path, 'w') as out:
-                out.write("{}")
-                pass
+        if not self.config.has_section(section):
+            self.config.add_section(section)
 
-        with open(self.config_path, 'r') as config:
-            try:
-                return json.loads(config.read())
-            except json.JSONDecodeError: 
-                return json.loads("{}")
-            
+        if isinstance(value, bool):
+            value = "yes" if value else "no"
 
-    def get_config_str(self) -> json:
-        return json.dumps(self.get_config())
+        self.config[section][key] = value
+        self.write_config()
 
+    def get_cfg(self, section, key) -> str:
 
-    def set_config(self, dumps: str) -> None:
-        with open(self.config_path, 'w') as config:
-            config.write(dumps)
+        if not self.config.has_section(section):
+            return None
+
+        if key not in self.config[section]:
+            return None
+
+        return self.config[section][key]
 
 
     def change_theme(self, theme_name: str) -> None:
 
-        config = self.get_config()
-        config["active"] = theme_name
-
-        self.set_config(json.dumps(config, indent=4))
+        self.cfg("Themes", "active_theme", theme_name)
 
         stack = WebkitStack()
         stack.unregister_all() 
 
         self.set_theme_cb()
 
-    def create_default(self, key: str, value, type):
 
-        if key not in self.config or not isinstance(self.config[key], type):
-            self.config[key] = value
+    def create_default(self, section, key, value):
 
+        if not self.config.has_section(section):
+            self.config.add_section(section)
+
+        if not self.config.has_option(section, key):
+            self.cfg(section, key, value)
     
+
     def get_active_theme_name(self) -> str:
-        return self.get_config()["active"]
+        return self.get_cfg("Themes", "active_theme")
     
     def get_active_theme(self) -> str:
 
@@ -76,7 +91,7 @@ class Config:
     def start_webkit_hook(self, theme, name):
 
         if "failed" not in theme and "Steam-WebKit" in theme["data"] and isinstance(theme["data"]["Steam-WebKit"], str):
-            print("preloading webkit hooks...")
+            print("pre-initiliazing browser css module")
             add_browser_css(os.path.join(Millennium.steam_path(), "skins", name, theme["data"]["Steam-WebKit"]))
 
     def set_theme_cb(self):
@@ -86,44 +101,67 @@ class Config:
         name = self.get_active_theme_name()
 
         self.start_webkit_hook(theme, name)
-        self.setup_conditionals(theme, name, config)
+        self.setup_conditionals(theme, name, json.loads(self.get_config_str()))
 
 
     def __init__(self):
 
-        self.config_path = os.path.join(Millennium.steam_path(), "ext", "themes.json")
-        self.config = self.get_config()
+        self.config = configparser.ConfigParser()
+        self.config.optionxform = str  # Preserve case of keys
 
-        self.create_default("active", "default", str)
-        self.create_default("scripts", True, bool)
-        self.create_default("styles", True, bool)        
-        self.create_default("updateNotifications", True, bool)        
+        self.config_path = os.path.join(Millennium.steam_path(), "ext", "millennium.ini")
+        self.config.read(self.config_path)
 
-        active = self.config["active"]
+        self.create_default("Themes", "active_theme", "default")
+        self.create_default("Themes", "insert_javascript", True)
+        self.create_default("Themes", "insert_stylesheets", True)     
+
+        self.create_default("Themes", "theme_update_notifications", True)        
+
+        active = self.get_cfg("Themes", "active_theme")
         # the active skin is not valid [doesn't exist, or doesnt have skin.json/it isn't valid]
         if active != "default" and not is_valid(active):
-            self.config["active"] = "default"
+            self.cfg("Themes", "active_theme", "default")
 
-        self.set_config(json.dumps(self.config, indent=4))   
 
         # pre-initialize webkit data for selected theme
         self.set_theme_cb()
 
-    """
-    BEGIN CONDITIONAL SETUP
-    """
+
     def get_conditionals(self):
 
-        if not os.path.exists(self.config_path):
-            with open(self.config_path, 'w') as file:
-                json.dump({}, file)
+        # if not os.path.exists(self.config_path):
+        #     with open(self.config_path, 'w') as file:
+        #         json.dump({}, file)
 
-        with open(self.config_path, 'r') as conditionals:
-            # Read the content of the file
+        # with open(self.config_path, 'r') as conditionals:
+        #     # Read the content of the file
 
-            conditions = json.load(conditionals)["conditions"]
-            return json.dumps(conditions)
+        #     conditions = json.load(conditionals)["conditions"]
+        #     return json.dumps(conditions)
         
+        # Initialize a dictionary to store conditions
+        conditions = {}
+
+        # Iterate over sections in the parsed INI
+        for section in self.config.sections():
+            # Check if the section starts with "Theme|"
+            if section.startswith("Theme|"):
+                theme_name = section[len("Theme|"):]  # Extract theme name
+                theme_settings = {}  # Dictionary to store settings for this theme
+                
+                # Iterate over options in the section
+                for option in self.config.options(section):
+                    theme_settings[option] = self.config.get(section, option)
+                
+                # Add settings under the theme name
+                conditions[theme_name] = theme_settings
+
+        # Convert conditions dictionary to JSON
+        json_data = json.dumps(conditions, indent=4)
+        print(json_data)
+        return json_data
+
 
     # Checks if a given condition doesn't exist, or is a value outside of whats allowed. 
     def is_invalid_condition(self, conditions: dict, name: str, condition_name: str, condition_value):
@@ -154,7 +192,26 @@ class Config:
             return json.dumps({"success": False, "message": str(ex)})
 
 
+    def json_to_ini(self, config) -> str:
+
+        def clean_variable_name(input_string):
+            cleaned_str = input_string.replace(' ', '_')
+            cleaned_str = re.sub(r'\W|^(?=\d)', '', cleaned_str)
+            cleaned_str = cleaned_str.lower()
+
+            return cleaned_str
+
+        for category, options in config["conditions"].items():
+            section_name = f"Theme|{category}"
+
+            for option, value in options.items():
+                self.cfg(section_name, clean_variable_name(option), value)
+
+            self.write_config()
+
     def setup_conditionals(self, theme, name, config):
+        print("setting up conditionals")
+
 
         if "conditions" not in config:
             config["conditions"] = {}
@@ -163,14 +220,16 @@ class Config:
             return # failed to parse the skin, invalid or default
 
         if "Conditions" not in theme["data"]:
-            # print("no conditions to evaluate")
+            print("no conditions to evaluate")
             return 
         
         for condition_name, condition_value in theme["data"]["Conditions"].items():
 
             self.is_invalid_condition(config["conditions"], name, condition_name, condition_value)
 
-        self.set_config(json.dumps(config, indent=4))
+        # self.set_config(json.dumps(config, indent=4))
+        # print(json.dumps(config, indent=4))
+        self.json_to_ini(config)
 
 
 cfg = Config()

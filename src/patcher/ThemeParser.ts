@@ -1,5 +1,5 @@
 import { pluginSelf } from "@millennium/ui"
-import { Patch, Theme, ThemeItem } from "../components/types";
+import { Conditions, Patch, Theme, ThemeItem } from "../components/types";
 
 /**
  * Interpolates and overrides default patches on a theme. 
@@ -33,6 +33,26 @@ export function parseTheme(incomingPatches: Patch[]) {
     return filteredPatches.concat(incomingPatches) as Patch[];
 }
 
+export const SanitizeCondition = (inputString: string): string => {
+    /** Convert string to a compliant variable name */
+    return inputString.replace(/ /g, '_').replace(/\W|^(?=\d)/g, '').toLowerCase();
+}
+
+export const SanitizeConditions = (conditions: Conditions) => { 
+    // return Object.keys(conditions).reduce((acc: Conditions, key: string) => {
+    //     acc[key] = conditions[SanitizeCondition(key)];
+    //     return acc;
+    // }, {});
+    console.log(conditions)
+
+    for (let key in conditions) {
+        conditions[SanitizeCondition(key)] = conditions[key];
+        delete conditions[key];
+    } 
+
+    return conditions;
+}
+
 /**
  * parses a theme after it has been received from the backend.
  * - checks for failure in theme parse
@@ -48,5 +68,6 @@ export const ParseLocalTheme = (theme: ThemeItem) => {
     }
 
     theme?.data?.UseDefaultPatches && (theme.data.Patches = parseTheme(theme?.data?.Patches ?? []))
+    theme?.data?.Conditions && (theme.data.Conditions = SanitizeConditions(theme.data.Conditions))
     pluginSelf.activeTheme = theme as ThemeItem
 }

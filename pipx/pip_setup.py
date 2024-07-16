@@ -11,9 +11,9 @@ def bootstrap_pip(config):
 
     # download get-pip.py
     urllib.request.urlretrieve("https://bootstrap.pypa.io/get-pip.py", pip_temp_path)
-    result = subprocess.run([config.get('package.manager', 'python'), pip_temp_path, "--no-warn-script-location"], capture_output=True, text=True)
+    result = subprocess.run([config.get('PackageManager', 'python'), pip_temp_path, "--no-warn-script-location"], capture_output=True, text=True)
 
-    with open(config.get('package.manager', 'pip_boot'), 'a') as file:
+    with open(config.get('PackageManager', 'pip_boot'), 'a') as file:
         file.write(result.stdout)
 
     os.remove(pip_temp_path)

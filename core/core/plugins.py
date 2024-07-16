@@ -1,12 +1,19 @@
+import configparser
 import os
 import json
 import Millennium
 
 def is_enabled(plugin_name: str) -> json:
-    with open(Millennium.steam_path() + "/ext/plugins.json", 'r') as enabled:
-        obj = json.load(enabled)
 
-        if plugin_name in obj["enabled"]:
+    config = configparser.ConfigParser()
+
+    with open(Millennium.steam_path() + "/ext/millennium.ini", 'r') as enabled:
+        config.read_file(enabled)
+    
+    if config.has_section('Settings') and config.has_option('Settings', 'enabled_plugins'):
+        enabled_plugins = config['Settings']['enabled_plugins'].split('|')
+
+        if plugin_name in enabled_plugins:
             return True
     
     return False

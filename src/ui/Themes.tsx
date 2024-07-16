@@ -138,16 +138,8 @@ const ThemeViewModal: React.FC = () => {
 
         findAllThemes().then((result: ComboItem[]) => setThemes(result))
 
-        Millennium.callServerMethod("cfg.get_config_str").then((value: string) => {
-            const json = JSON.parse(value)
-
-            setJsState(json.scripts)
-            setCssState(json.styles)
-        })
-        .catch((_: any) => {
-            console.error("Failed to fetch theme settings")
-            pluginSelf.connectionFailed = true
-        })
+        setJsState(pluginSelf.scriptsAllowed)
+        setCssState(pluginSelf.stylesAllowed)
     }, [])
 
     const onScriptToggle = (enabled: boolean) => {
@@ -155,7 +147,7 @@ const ThemeViewModal: React.FC = () => {
 
         PromptReload().then((selection: MessageBoxResult) => {
             if (selection == MessageBoxResult.okay) {
-                Millennium.callServerMethod("cfg.set_config_keypair", {key: "scripts", value: enabled})
+                Millennium.callServerMethod("cfg.cfg", {section: "Themes", key: "insert_javascript", value: enabled})
                 window.location.reload()
             }
         })
@@ -166,7 +158,7 @@ const ThemeViewModal: React.FC = () => {
 
         PromptReload().then((selection: MessageBoxResult) => {
             if (selection == MessageBoxResult.okay) {
-                Millennium.callServerMethod("cfg.set_config_keypair", {key: "styles", value: enabled})
+                Millennium.callServerMethod("cfg.cfg", {section: "Themes", key: "insert_stylesheets", value: enabled})
                 .catch((_: any) => {
                     console.error("Failed to update settings")
                     pluginSelf.connectionFailed = true

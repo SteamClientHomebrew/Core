@@ -16,12 +16,22 @@ updater = Updater()
 
 def get_load_config():
     config = cfg.get_config()
+    
+    active = config.get("Themes", "active_theme")
+    styles = config.get("Themes", "insert_stylesheets")
+    scripts = config.get("Themes", "insert_javascript")
+    updateNotifications = config.get("Themes", "theme_update_notifications")
 
     return json.dumps({
         "accent_color": json.loads(Colors.get_accent_color()), 
-        "conditions": config["conditions"] if "conditions" in config else None, 
+        "conditions": json.loads(cfg.get_conditionals()), 
         "active_theme": json.loads(cfg.get_active_theme()),
-        "settings": config
+        "settings": {
+            "styles": True if styles == "yes" else False,
+            "scripts": True if scripts == "yes" else False,
+            "updateNotifications": True if updateNotifications == "yes" else False,
+            "active": True if active == "yes" else False
+        }
     })
 
 

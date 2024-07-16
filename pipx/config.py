@@ -5,7 +5,7 @@ class Config:
 
     def __init__(self):
         self.config = configparser.ConfigParser()
-        self.config_file = os.path.join(Millennium.steam_path(), "ext", "millennium.conf")
+        self.config_file = os.path.join(Millennium.steam_path(), "ext", "millennium.ini")
 
         if os.path.exists(self.config_file):
             try:
@@ -34,12 +34,12 @@ class Config:
         PACMAN_LOGS      = os.path.join(LOCALS, "logs", "pacman.log")
         PIP_INSTALL_LOGS = os.path.join(LOCALS, "logs", "pip_boot.log")
 
-        self.set_default('package.manager', 'devtools', 'no')
-        self.set_default('package.manager', 'auto_update_devtools', 'yes')
-        self.set_default('package.manager', 'use_pip', 'yes')
-        self.set_default('package.manager', 'python', PYTHON_BIN)
-        self.set_default('package.manager', 'pip_logs', PACMAN_LOGS)
-        self.set_default('package.manager', 'pip_boot', PIP_INSTALL_LOGS)
+        self.set_default('PackageManager', 'devtools', 'no')
+        self.set_default('PackageManager', 'auto_update_devtools', 'yes')
+        self.set_default('PackageManager', 'use_pip', 'yes')
+        self.set_default('PackageManager', 'python', PYTHON_BIN)
+        self.set_default('PackageManager', 'pip_logs', PACMAN_LOGS)
+        self.set_default('PackageManager', 'pip_boot', PIP_INSTALL_LOGS)
 
         with open(self.config_file, 'w') as configfile:
             self.config.write(configfile)

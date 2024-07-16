@@ -21,10 +21,10 @@ def main():
     pip_setup.verify_pip(config)
 
     # keep millennium module up to date
-    watchdog = dev_tools.mpc(config.get('package.manager', 'python'))
+    watchdog = dev_tools.mpc(config.get('PackageManager', 'python'))
     watchdog.start(config)
 
-    if config.get('package.manager', 'use_pip') == 'yes':
+    if config.get('PackageManager', 'use_pip') == 'yes':
         # install missing packages
         package_manager.audit(config)
 

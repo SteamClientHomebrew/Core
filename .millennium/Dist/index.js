@@ -1821,21 +1821,14 @@ var millennium_main = (function (exports, React, ReactDOM) {
             const activeTheme = pluginSelf.activeTheme;
             pluginSelf.isDefaultTheme ? setActive("Default") : setActive(activeTheme?.data?.name ?? activeTheme?.native);
             findAllThemes().then((result) => setThemes(result));
-            wrappedCallServerMethod("cfg.get_config_str").then((value) => {
-                const json = JSON.parse(value);
-                setJsState(json.scripts);
-                setCssState(json.styles);
-            })
-                .catch((_) => {
-                console.error("Failed to fetch theme settings");
-                pluginSelf.connectionFailed = true;
-            });
+            setJsState(pluginSelf.scriptsAllowed);
+            setCssState(pluginSelf.stylesAllowed);
         }, []);
         const onScriptToggle = (enabled) => {
             setJsState(enabled);
             PromptReload().then((selection) => {
                 if (selection == MessageBoxResult.okay) {
-                    wrappedCallServerMethod("cfg.set_config_keypair", { key: "scripts", value: enabled });
+                    wrappedCallServerMethod("cfg.cfg", { section: "Themes", key: "insert_javascript", value: enabled });
                     window.location.reload();
                 }
             });
@@ -1844,7 +1837,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
             setCssState(enabled);
             PromptReload().then((selection) => {
                 if (selection == MessageBoxResult.okay) {
-                    wrappedCallServerMethod("cfg.set_config_keypair", { key: "styles", value: enabled })
+                    wrappedCallServerMethod("cfg.cfg", { section: "Themes", key: "insert_stylesheets", value: enabled })
                         .catch((_) => {
                         console.error("Failed to update settings");
                         pluginSelf.connectionFailed = true;
@@ -2172,6 +2165,22 @@ var millennium_main = (function (exports, React, ReactDOM) {
         let filteredPatches = patches.Patches.filter((patch) => !newMatchRegexStrings.has(patch.MatchRegexString));
         return filteredPatches.concat(incomingPatches);
     }
+    const SanitizeCondition = (inputString) => {
+        /** Convert string to a compliant variable name */
+        return inputString.replace(/ /g, '_').replace(/\W|^(?=\d)/g, '').toLowerCase();
+    };
+    const SanitizeConditions = (conditions) => {
+        // return Object.keys(conditions).reduce((acc: Conditions, key: string) => {
+        //     acc[key] = conditions[SanitizeCondition(key)];
+        //     return acc;
+        // }, {});
+        console.log(conditions);
+        for (let key in conditions) {
+            conditions[SanitizeCondition(key)] = conditions[key];
+            delete conditions[key];
+        }
+        return conditions;
+    };
     /**
      * parses a theme after it has been received from the backend.
      * - checks for failure in theme parse
@@ -2185,6 +2194,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
             return;
         }
         theme?.data?.UseDefaultPatches && (theme.data.Patches = parseTheme(theme?.data?.Patches ?? []));
+        theme?.data?.Conditions && (theme.data.Conditions = SanitizeConditions(theme.data.Conditions));
         pluginSelf.activeTheme = theme;
     };
 
