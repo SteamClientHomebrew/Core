@@ -1018,38 +1018,101 @@ var millennium_main = (function (exports, React, ReactDOM) {
         activeTheme?.data?.hasOwnProperty("Conditions") && evaluateConditions(activeTheme, documentTitle, classList, document);
     }
 
-    var settingsPanelPlugins$4 = "Plugins";
-    var settingsPanelThemes$4 = "Themes";
-    var settingsPanelUpdates$4 = "Updates";
-    var itemNoDescription$5 = "No description yet.";
-    var themePanelClientTheme$4 = "Client Theme";
-    var themePanelThemeTooltip$5 = "Select the theme you want Steam to use (requires reload)";
-    var themePanelGetMoreThemes$5 = "Get more themes";
-    var themePanelInjectJavascript$5 = "Inject Javascript";
-    var themePanelInjectJavascriptToolTip$5 = "Decide whether themes are allowed to insert javascript into Steam. Disabling javascript may break Steam interface as a byproduct (requires reload)";
-    var themePanelInjectCSS$5 = "Inject StyleSheets";
-    var themePanelInjectCSSToolTip$5 = "Decide whether themes are allowed to insert stylesheets into Steam. (requires reload)";
-    var updatePanelHasUpdates$5 = "Updates Available!";
-    var updatePanelHasUpdatesSub$5 = "Millennium found the following updates for your themes.";
-    var updatePanelReleasedTag$5 = "Released:";
-    var updatePanelReleasePatchNotes$5 = "Patch Notes:";
-    var updatePanelIsUpdating$4 = "Updating...";
-    var updatePanelUpdate$4 = "Update";
-    var updatePanelNoUpdatesFound$5 = "No updates found. You're good to go!";
-    var ViewMore$5 = "View More";
-    var aboutThemeAnonymous$5 = "Anonymous";
-    var aboutThemeTitle$5 = "About";
-    var aboutThemeVerifiedDev$5 = "Verified Developer";
-    var viewSourceCode$5 = "View Source Code";
-    var showInFolder$5 = "Show in Folder";
-    var uninstall$5 = "Uninstall";
-    var reloadRequired$5 = "Reload Required";
-    var reloadRequiredBody$5 = "Selected changes need a reload in order to take affect. Should we reload right now?";
-    var optionReloadNow$5 = "Reload Now";
-    var optionReloadLater$5 = "Reload Later";
-    var updatePanelUpdateNotifications$1 = "Push Notifications";
-    var updatePanelUpdateNotificationsTooltip$1 = "Get Millennium to give you a reminder when a item in your library has an update!";
+    var settingsPanelPlugins$5 = "Plugins";
+    var settingsPanelThemes$5 = "Themes";
+    var settingsPanelUpdates$5 = "Updates";
+    var itemNoDescription$6 = "No description yet.";
+    var themePanelClientTheme$5 = "Client Theme";
+    var themePanelThemeTooltip$6 = "Select the theme you want Steam to use (requires reload)";
+    var themePanelGetMoreThemes$6 = "Get more themes";
+    var themePanelInjectJavascript$6 = "Inject JavaScript";
+    var themePanelInjectJavascriptToolTip$6 = "Decide whether themes are allowed to insert JavaScript into Steam. Disabling JavaScript may break Steam interface as a byproduct (requires reload)";
+    var themePanelInjectCSS$6 = "Inject StyleSheets";
+    var themePanelInjectCSSToolTip$6 = "Decide whether themes are allowed to insert stylesheets into Steam. (requires reload)";
+    var updatePanelHasUpdates$6 = "Updates Available!";
+    var updatePanelHasUpdatesSub$6 = "Millennium found the following updates for your themes.";
+    var updatePanelReleasedTag$6 = "Released:";
+    var updatePanelReleasePatchNotes$6 = "Patch Notes:";
+    var updatePanelIsUpdating$5 = "Updating...";
+    var updatePanelUpdate$5 = "Update";
+    var updatePanelNoUpdatesFound$6 = "No updates found. You're good to go!";
+    var ViewMore$6 = "View More";
+    var aboutThemeAnonymous$6 = "Anonymous";
+    var aboutThemeTitle$6 = "About";
+    var aboutThemeVerifiedDev$6 = "Verified Developer";
+    var viewSourceCode$6 = "View Source Code";
+    var showInFolder$6 = "Show in Folder";
+    var uninstall$6 = "Uninstall";
+    var reloadRequired$6 = "Reload Required";
+    var reloadRequiredBody$6 = "Selected changes need a reload in order to take affect. Should we reload right now?";
+    var optionReloadNow$6 = "Reload Now";
+    var optionReloadLater$6 = "Reload Later";
+    var updatePanelUpdateNotifications$2 = "Push Notifications";
+    var updatePanelUpdateNotificationsTooltip$2 = "Get Millennium to give you a reminder when a item in your library has an update!";
     var english = {
+    	settingsPanelPlugins: settingsPanelPlugins$5,
+    	settingsPanelThemes: settingsPanelThemes$5,
+    	settingsPanelUpdates: settingsPanelUpdates$5,
+    	itemNoDescription: itemNoDescription$6,
+    	themePanelClientTheme: themePanelClientTheme$5,
+    	themePanelThemeTooltip: themePanelThemeTooltip$6,
+    	themePanelGetMoreThemes: themePanelGetMoreThemes$6,
+    	themePanelInjectJavascript: themePanelInjectJavascript$6,
+    	themePanelInjectJavascriptToolTip: themePanelInjectJavascriptToolTip$6,
+    	themePanelInjectCSS: themePanelInjectCSS$6,
+    	themePanelInjectCSSToolTip: themePanelInjectCSSToolTip$6,
+    	updatePanelHasUpdates: updatePanelHasUpdates$6,
+    	updatePanelHasUpdatesSub: updatePanelHasUpdatesSub$6,
+    	updatePanelReleasedTag: updatePanelReleasedTag$6,
+    	updatePanelReleasePatchNotes: updatePanelReleasePatchNotes$6,
+    	updatePanelIsUpdating: updatePanelIsUpdating$5,
+    	updatePanelUpdate: updatePanelUpdate$5,
+    	updatePanelNoUpdatesFound: updatePanelNoUpdatesFound$6,
+    	ViewMore: ViewMore$6,
+    	aboutThemeAnonymous: aboutThemeAnonymous$6,
+    	aboutThemeTitle: aboutThemeTitle$6,
+    	aboutThemeVerifiedDev: aboutThemeVerifiedDev$6,
+    	viewSourceCode: viewSourceCode$6,
+    	showInFolder: showInFolder$6,
+    	uninstall: uninstall$6,
+    	reloadRequired: reloadRequired$6,
+    	reloadRequiredBody: reloadRequiredBody$6,
+    	optionReloadNow: optionReloadNow$6,
+    	optionReloadLater: optionReloadLater$6,
+    	updatePanelUpdateNotifications: updatePanelUpdateNotifications$2,
+    	updatePanelUpdateNotificationsTooltip: updatePanelUpdateNotificationsTooltip$2
+    };
+
+    var settingsPanelPlugins$4 = "Wtyczki";
+    var settingsPanelThemes$4 = "Motywy";
+    var settingsPanelUpdates$4 = "Aktualizacje";
+    var itemNoDescription$5 = "Brak opisu.";
+    var themePanelClientTheme$4 = "Motyw klienta";
+    var themePanelThemeTooltip$5 = "Wybierz motyw, którego ma używać Steam (wymaga ponownego załadowania)";
+    var themePanelGetMoreThemes$5 = "Pobierz więcej motywów";
+    var themePanelInjectJavascript$5 = "Wstrzyknij JavaScript";
+    var themePanelInjectJavascriptToolTip$5 = "Zdecyduj, czy motywy mogą wstrzykiwać JavaScript do Steam. Wyłączenie JavaScriptu może spowodować problemy z interfejsem Steam (wymaga ponownego załadowania)";
+    var themePanelInjectCSS$5 = "Wstrzyknij arkusze stylów";
+    var themePanelInjectCSSToolTip$5 = "Zdecyduj, czy motywy mogą wstrzykiwać arkusze stylów do Steam. (wymaga ponownego załadowania)";
+    var updatePanelHasUpdates$5 = "Dostępne aktualizacje!";
+    var updatePanelHasUpdatesSub$5 = "Millennium znalazł następujące aktualizacje dla Twoich motywów.";
+    var updatePanelReleasedTag$5 = "Wydano:";
+    var updatePanelReleasePatchNotes$5 = "Uwagi do wydania:";
+    var updatePanelIsUpdating$4 = "Aktualizowanie...";
+    var updatePanelUpdate$4 = "Aktualizuj";
+    var updatePanelNoUpdatesFound$5 = "Brak dostępnych aktualizacji. Wszystko jest aktualne!";
+    var ViewMore$5 = "Zobacz więcej";
+    var aboutThemeAnonymous$5 = "Anonimowy";
+    var aboutThemeTitle$5 = "O motywie";
+    var aboutThemeVerifiedDev$5 = "Zweryfikowany deweloper";
+    var viewSourceCode$5 = "Zobacz kod źródłowy";
+    var showInFolder$5 = "Pokaż w folderze";
+    var uninstall$5 = "Odinstaluj";
+    var reloadRequired$5 = "Wymagane ponowne załadowanie";
+    var reloadRequiredBody$5 = "Wybrane zmiany wymagają ponownego załadowania, aby mogły zostać zastosowane. Czy chcesz ponownie załadować teraz?";
+    var optionReloadNow$5 = "Załaduj ponownie teraz";
+    var optionReloadLater$5 = "Załaduj ponownie później";
+    var polish = {
     	settingsPanelPlugins: settingsPanelPlugins$4,
     	settingsPanelThemes: settingsPanelThemes$4,
     	settingsPanelUpdates: settingsPanelUpdates$4,
@@ -1078,41 +1141,39 @@ var millennium_main = (function (exports, React, ReactDOM) {
     	reloadRequired: reloadRequired$5,
     	reloadRequiredBody: reloadRequiredBody$5,
     	optionReloadNow: optionReloadNow$5,
-    	optionReloadLater: optionReloadLater$5,
-    	updatePanelUpdateNotifications: updatePanelUpdateNotifications$1,
-    	updatePanelUpdateNotificationsTooltip: updatePanelUpdateNotificationsTooltip$1
+    	optionReloadLater: optionReloadLater$5
     };
 
-    var settingsPanelPlugins$3 = "Wtyczki";
-    var settingsPanelThemes$3 = "Motywy";
-    var settingsPanelUpdates$3 = "Aktualizacje";
-    var itemNoDescription$4 = "Brak opisu.";
-    var themePanelClientTheme$3 = "Motyw klienta";
-    var themePanelThemeTooltip$4 = "Wybierz motyw, którego ma używać Steam (wymaga ponownego załadowania)";
-    var themePanelGetMoreThemes$4 = "Pobierz więcej motywów";
-    var themePanelInjectJavascript$4 = "Wstrzyknij Javascript";
-    var themePanelInjectJavascriptToolTip$4 = "Zdecyduj, czy motywy mogą wstrzykiwać javascript do Steam. Wyłączenie javascriptu może spowodować problemy z interfejsem Steam (wymaga ponownego załadowania)";
-    var themePanelInjectCSS$4 = "Wstrzyknij arkusze stylów";
-    var themePanelInjectCSSToolTip$4 = "Zdecyduj, czy motywy mogą wstrzykiwać arkusze stylów do Steam. (wymaga ponownego załadowania)";
-    var updatePanelHasUpdates$4 = "Dostępne aktualizacje!";
-    var updatePanelHasUpdatesSub$4 = "Millennium znalazł następujące aktualizacje dla Twoich motywów.";
-    var updatePanelReleasedTag$4 = "Wydano:";
-    var updatePanelReleasePatchNotes$4 = "Uwagi do wydania:";
-    var updatePanelIsUpdating$3 = "Aktualizowanie...";
-    var updatePanelUpdate$3 = "Aktualizuj";
-    var updatePanelNoUpdatesFound$4 = "Brak dostępnych aktualizacji. Wszystko jest aktualne!";
-    var ViewMore$4 = "Zobacz więcej";
-    var aboutThemeAnonymous$4 = "Anonimowy";
-    var aboutThemeTitle$4 = "O motywie";
-    var aboutThemeVerifiedDev$4 = "Zweryfikowany deweloper";
-    var viewSourceCode$4 = "Zobacz kod źródłowy";
-    var showInFolder$4 = "Pokaż w folderze";
-    var uninstall$4 = "Odinstaluj";
-    var reloadRequired$4 = "Wymagane ponowne załadowanie";
-    var reloadRequiredBody$4 = "Wybrane zmiany wymagają ponownego załadowania, aby mogły zostać zastosowane. Czy chcesz ponownie załadować teraz?";
-    var optionReloadNow$4 = "Załaduj ponownie teraz";
-    var optionReloadLater$4 = "Załaduj ponownie później";
-    var polish = {
+    var settingsPanelPlugins$3 = "Complementos";
+    var settingsPanelThemes$3 = "Temas";
+    var settingsPanelUpdates$3 = "Actualizaciones";
+    var itemNoDescription$4 = "Sin Descripción.";
+    var themePanelClientTheme$3 = "Tema del Cliente";
+    var themePanelThemeTooltip$4 = "Selecciona el tema que quieres que Steam use (requiere reiniciar)";
+    var themePanelGetMoreThemes$4 = "Conseguir más temas";
+    var themePanelInjectJavascript$4 = "Inyectar JavaScript";
+    var themePanelInjectJavascriptToolTip$4 = "Decidir que temas tienen permiso para insertar JavaScript en Steam. Deshabilitar JavaScript puede romper la interfaz de Steam como consecuencia (requiere reiniciar)";
+    var themePanelInjectCSS$4 = "Inyectar StyleSheets";
+    var themePanelInjectCSSToolTip$4 = "Decidir que temas tienen permiso para insertar stylesheets en Steam. (requiere recargar)";
+    var updatePanelHasUpdates$4 = "¡Actualizaciones Disponibles!";
+    var updatePanelHasUpdatesSub$4 = "Millennium ha encontrado las siguientes actualizaciones para tus temas.";
+    var updatePanelReleasedTag$4 = "Publicado:";
+    var updatePanelReleasePatchNotes$4 = "Notas de Parche:";
+    var updatePanelIsUpdating$3 = "Actualizando...";
+    var updatePanelUpdate$3 = "Actualizar";
+    var updatePanelNoUpdatesFound$4 = "No se han encontrado actualizaciones. ¡Todo listo!";
+    var ViewMore$4 = "Ver más";
+    var aboutThemeAnonymous$4 = "Anónimo";
+    var aboutThemeTitle$4 = "Sobre";
+    var aboutThemeVerifiedDev$4 = "Desarrollador Verificado";
+    var viewSourceCode$4 = "Ver Código Fuente";
+    var showInFolder$4 = "Mostrar en Carpeta";
+    var uninstall$4 = "Desinstalar";
+    var reloadRequired$4 = "Requiere Reiniciar";
+    var reloadRequiredBody$4 = "Los cambios seleccionados necesitan reiniciar Steam para tener efecto. ¿Reiniciar ahora?";
+    var optionReloadNow$4 = "Reiniciar Ahora";
+    var optionReloadLater$4 = "Reiniciar Después";
+    var spanish = {
     	settingsPanelPlugins: settingsPanelPlugins$3,
     	settingsPanelThemes: settingsPanelThemes$3,
     	settingsPanelUpdates: settingsPanelUpdates$3,
@@ -1144,36 +1205,36 @@ var millennium_main = (function (exports, React, ReactDOM) {
     	optionReloadLater: optionReloadLater$4
     };
 
-    var settingsPanelPlugins$2 = "Complementos";
-    var settingsPanelThemes$2 = "Temas";
-    var settingsPanelUpdates$2 = "Actualizaciones";
-    var itemNoDescription$3 = "Sin Descripción.";
-    var themePanelClientTheme$2 = "Tema del Cliente";
-    var themePanelThemeTooltip$3 = "Selecciona el tema que quieres que Steam use (requiere reiniciar)";
-    var themePanelGetMoreThemes$3 = "Conseguir más temas";
-    var themePanelInjectJavascript$3 = "Inyectar Javascript";
-    var themePanelInjectJavascriptToolTip$3 = "Decidir que temas tienen permiso para insertar javascript en Steam. Deshabilitar javascript puede romper la interfaz de Steam como consecuencia (requiere reiniciar)";
-    var themePanelInjectCSS$3 = "Inyectar StyleSheets";
-    var themePanelInjectCSSToolTip$3 = "Decidir que temas tienen permiso para insertar stylesheets en Steam. (requiere recargar)";
-    var updatePanelHasUpdates$3 = "¡Actualizaciones Disponibles!";
-    var updatePanelHasUpdatesSub$3 = "Millennium ha encontrado las siguientes actualizaciones para tus temas.";
-    var updatePanelReleasedTag$3 = "Publicado:";
-    var updatePanelReleasePatchNotes$3 = "Notas de Parche:";
-    var updatePanelIsUpdating$2 = "Actualizando...";
-    var updatePanelUpdate$2 = "Actualizar";
-    var updatePanelNoUpdatesFound$3 = "No se han encontrado actualizaciones. ¡Todo listo!";
-    var ViewMore$3 = "Ver más";
-    var aboutThemeAnonymous$3 = "Anónimo";
-    var aboutThemeTitle$3 = "Sobre";
-    var aboutThemeVerifiedDev$3 = "Desarrollador Verificado";
-    var viewSourceCode$3 = "Ver Código Fuente";
-    var showInFolder$3 = "Mostrar en Carpeta";
-    var uninstall$3 = "Desinstalar";
-    var reloadRequired$3 = "Requiere Reiniciar";
-    var reloadRequiredBody$3 = "Los cambios seleccionados necesitan reiniciar Steam para tener efecto. ¿Reiniciar ahora?";
-    var optionReloadNow$3 = "Reiniciar Ahora";
-    var optionReloadLater$3 = "Reiniciar Después";
-    var spanish = {
+    var settingsPanelPlugins$2 = "Plugins";
+    var settingsPanelThemes$2 = "Tema";
+    var settingsPanelUpdates$2 = "Pembaruan";
+    var itemNoDescription$3 = "Tidak ada deskripsi.";
+    var themePanelClientTheme$2 = "Tema Klien";
+    var themePanelThemeTooltip$3 = "Pilih tema yang akan digunakan Steam (diperlukan muat ulang)";
+    var themePanelGetMoreThemes$3 = "Lebih banyak tema";
+    var themePanelInjectJavascript$3 = "Gunakan JavaScript";
+    var themePanelInjectJavascriptToolTip$3 = "Mengizinkan tema untuk memasukkan JavaScript ke Steam. Menonaktifkan JavaScript dapat merusak antarmuka Steam (diperlukan muat ulang)";
+    var themePanelInjectCSS$3 = "Gunakan StyleSheets";
+    var themePanelInjectCSSToolTip$3 = "Mengizinkan tema untuk memasukkan stylesheets ke Steam.";
+    var updatePanelHasUpdates$3 = "Pembaruan tersedia!";
+    var updatePanelHasUpdatesSub$3 = "Millenium menemukan pembaruan berikut ini untuk tema Anda.";
+    var updatePanelReleasedTag$3 = "Dirilis:";
+    var updatePanelReleasePatchNotes$3 = "Catatan Pembaruan:";
+    var updatePanelIsUpdating$2 = "Melakukan Pembaruan...";
+    var updatePanelUpdate$2 = "Pembaruan";
+    var updatePanelNoUpdatesFound$3 = "Tidak ada pembaruan tersedia. Anda sudah siap!";
+    var ViewMore$3 = "Lihat Lebih Banyak";
+    var aboutThemeAnonymous$3 = "Anonim";
+    var aboutThemeTitle$3 = "Tentang";
+    var aboutThemeVerifiedDev$3 = "Pengembang Terverifikasi";
+    var viewSourceCode$3 = "Lihat Source Code";
+    var showInFolder$3 = "Tampilkan di Folder";
+    var uninstall$3 = "Hapus Instalasi";
+    var reloadRequired$3 = "Membutuhkan Muat Ulang";
+    var reloadRequiredBody$3 = "Perubahan yang dipilih perlu dimuat ulang agar dapat diterapkan. Muat ulang sekarang?";
+    var optionReloadNow$3 = "Muat Ulang Sekarang";
+    var optionReloadLater$3 = "Muat Ulang Nanti";
+    var indonesian = {
     	settingsPanelPlugins: settingsPanelPlugins$2,
     	settingsPanelThemes: settingsPanelThemes$2,
     	settingsPanelUpdates: settingsPanelUpdates$2,
@@ -1205,36 +1266,36 @@ var millennium_main = (function (exports, React, ReactDOM) {
     	optionReloadLater: optionReloadLater$3
     };
 
-    var settingsPanelPlugins$1 = "Plugins";
-    var settingsPanelThemes$1 = "Tema";
-    var settingsPanelUpdates$1 = "Pembaruan";
-    var itemNoDescription$2 = "Tidak ada deskripsi.";
-    var themePanelClientTheme$1 = "Tema Klien";
-    var themePanelThemeTooltip$2 = "Pilih tema yang akan digunakan Steam (diperlukan muat ulang)";
-    var themePanelGetMoreThemes$2 = "Lebih banyak tema";
-    var themePanelInjectJavascript$2 = "Gunakan Javascript";
-    var themePanelInjectJavascriptToolTip$2 = "Mengizinkan tema untuk memasukkan javascript ke Steam. Menonaktifkan javascript dapat merusak antarmuka Steam (diperlukan muat ulang)";
-    var themePanelInjectCSS$2 = "Gunakan StyleSheets";
-    var themePanelInjectCSSToolTip$2 = "Mengizinkan tema untuk memasukkan stylesheets ke Steam.";
-    var updatePanelHasUpdates$2 = "Pembaruan tersedia!";
-    var updatePanelHasUpdatesSub$2 = "Millenium menemukan pembaruan berikut ini untuk tema Anda.";
-    var updatePanelReleasedTag$2 = "Dirilis:";
-    var updatePanelReleasePatchNotes$2 = "Catatan Pembaruan:";
-    var updatePanelIsUpdating$1 = "Melakukan Pembaruan...";
-    var updatePanelUpdate$1 = "Pembaruan";
-    var updatePanelNoUpdatesFound$2 = "Tidak ada pembaruan tersedia. Anda sudah siap!";
-    var ViewMore$2 = "Lihat Lebih Banyak";
-    var aboutThemeAnonymous$2 = "Anonim";
-    var aboutThemeTitle$2 = "Tentang";
-    var aboutThemeVerifiedDev$2 = "Pengembang Terverifikasi";
-    var viewSourceCode$2 = "Lihat Source Code";
-    var showInFolder$2 = "Tampilkan di Folder";
-    var uninstall$2 = "Hapus Instalasi";
-    var reloadRequired$2 = "Membutuhkan Muat Ulang";
-    var reloadRequiredBody$2 = "Perubahan yang dipilih perlu dimuat ulang agar dapat diterapkan. Muat ulang sekarang?";
-    var optionReloadNow$2 = "Muat Ulang Sekarang";
-    var optionReloadLater$2 = "Muat Ulang Nanti";
-    var indonesian = {
+    var settingsPanelPlugins$1 = "插件";
+    var settingsPanelThemes$1 = "主题";
+    var settingsPanelUpdates$1 = "更新";
+    var itemNoDescription$2 = "暂无描述";
+    var themePanelClientTheme$1 = "客户端主题";
+    var themePanelThemeTooltip$2 = "选择 Steam 主题（需要重新加载）";
+    var themePanelGetMoreThemes$2 = "获取更多主题";
+    var themePanelInjectJavascript$2 = "注入 JavaScript";
+    var themePanelInjectJavascriptToolTip$2 = "是否允许主题在 Steam 中插入 JavaScript。禁用 JavaScript 可能会导致 Steam 界面出现问题。（需要重新加载）";
+    var themePanelInjectCSS$2 = "注入 CSS";
+    var themePanelInjectCSSToolTip$2 = "是否允许主题在 Steam 中插入 CSS。(需要重新加载）";
+    var updatePanelHasUpdates$2 = "发现新版本！";
+    var updatePanelHasUpdatesSub$2 = "Millennium 找到了以下主题的更新。";
+    var updatePanelReleasedTag$2 = "发布：";
+    var updatePanelReleasePatchNotes$2 = "补丁说明：";
+    var updatePanelIsUpdating$1 = "更新中...";
+    var updatePanelUpdate$1 = "更新";
+    var updatePanelNoUpdatesFound$2 = "已经是最新版本！";
+    var ViewMore$2 = "查看更多";
+    var aboutThemeAnonymous$2 = "匿名";
+    var aboutThemeTitle$2 = "关于";
+    var aboutThemeVerifiedDev$2 = "经过验证的开发者";
+    var viewSourceCode$2 = "查看源码";
+    var showInFolder$2 = "打开文件位置";
+    var uninstall$2 = "卸载";
+    var reloadRequired$2 = "需要重新加载";
+    var reloadRequiredBody$2 = "所选更改需要重新加载才能生效。立即重新加载？";
+    var optionReloadNow$2 = "立即重新加载";
+    var optionReloadLater$2 = "稍后重新加载";
+    var schinese = {
     	settingsPanelPlugins: settingsPanelPlugins$1,
     	settingsPanelThemes: settingsPanelThemes$1,
     	settingsPanelUpdates: settingsPanelUpdates$1,
@@ -1266,41 +1327,33 @@ var millennium_main = (function (exports, React, ReactDOM) {
     	optionReloadLater: optionReloadLater$2
     };
 
-    var settingsPanelPlugins = "插件";
-    var settingsPanelThemes = "主题";
-    var settingsPanelUpdates = "更新";
-    var itemNoDescription$1 = "暂无描述";
-    var themePanelClientTheme = "客户端主题";
-    var themePanelThemeTooltip$1 = "选择 Steam 主题（需要重新加载）";
-    var themePanelGetMoreThemes$1 = "获取更多主题";
-    var themePanelInjectJavascript$1 = "注入 JavaScript";
-    var themePanelInjectJavascriptToolTip$1 = "是否允许主题在 Steam 中插入 JavaScript。禁用 JavaScript 可能会导致 Steam 界面出现问题。（需要重新加载）";
-    var themePanelInjectCSS$1 = "注入 CSS";
-    var themePanelInjectCSSToolTip$1 = "是否允许主题在 Steam 中插入 CSS。(需要重新加载）";
-    var updatePanelHasUpdates$1 = "发现新版本！";
-    var updatePanelHasUpdatesSub$1 = "Millennium 找到了以下主题的更新。";
-    var updatePanelReleasedTag$1 = "发布：";
-    var updatePanelReleasePatchNotes$1 = "补丁说明：";
-    var updatePanelIsUpdating = "更新中...";
-    var updatePanelUpdate = "更新";
-    var updatePanelNoUpdatesFound$1 = "已经是最新版本！";
-    var ViewMore$1 = "查看更多";
-    var aboutThemeAnonymous$1 = "匿名";
-    var aboutThemeTitle$1 = "关于";
-    var aboutThemeVerifiedDev$1 = "经过验证的开发者";
-    var viewSourceCode$1 = "查看源码";
-    var showInFolder$1 = "打开文件位置";
-    var uninstall$1 = "卸载";
-    var reloadRequired$1 = "需要重新加载";
-    var reloadRequiredBody$1 = "所选更改需要重新加载才能生效。立即重新加载？";
-    var optionReloadNow$1 = "立即重新加载";
-    var optionReloadLater$1 = "稍后重新加载";
-    var schinese = {
-    	settingsPanelPlugins: settingsPanelPlugins,
-    	settingsPanelThemes: settingsPanelThemes,
-    	settingsPanelUpdates: settingsPanelUpdates,
+    var itemNoDescription$1 = "Noch keine Beschreibung.";
+    var themePanelThemeTooltip$1 = "Wählen Sie das Theme aus, das Steam benutzen soll (muss neu geladen werden)";
+    var themePanelGetMoreThemes$1 = "Weitere Themes";
+    var themePanelInjectJavascript$1 = "JavaScript Injizieren";
+    var themePanelInjectJavascriptToolTip$1 = "Entscheiden Sie, ob Themes JavaScript in Steam einbinden dürfen. Das Deaktivieren von JavaScript kann die Steam-Schnittstelle als Nebenprodukt zerstören (erfordert einen Neustart).";
+    var themePanelInjectCSS$1 = "StyleSheets Injizieren";
+    var themePanelInjectCSSToolTip$1 = "Entscheiden Sie, ob Themes StyleSheets in Steam einbinden dürfen. (erfordert einen Neustart)";
+    var updatePanelHasUpdates$1 = "Updates verfügbar!";
+    var updatePanelHasUpdatesSub$1 = "Millennium hat die folgenden Updates für Ihre Themes gefunden.";
+    var updatePanelReleasedTag$1 = "Veröffentlicht:";
+    var updatePanelReleasePatchNotes$1 = "Patch Notes:";
+    var updatePanelNoUpdatesFound$1 = "Keine Updates gefunden. Sie sind startklar!";
+    var ViewMore$1 = "Mehr anzeigen";
+    var aboutThemeAnonymous$1 = "Anonym";
+    var aboutThemeTitle$1 = "Über";
+    var aboutThemeVerifiedDev$1 = "Verifizierter Entwickler";
+    var viewSourceCode$1 = "Quellcode anzeigen";
+    var showInFolder$1 = "Im Ordner anzeigen";
+    var uninstall$1 = "Deinstallieren";
+    var reloadRequired$1 = "Neustart erforderlich";
+    var reloadRequiredBody$1 = "Ausgewählte Änderungen benötigen einen Neustart, um wirksam zu werden. Sollen wir jetzt Neustarten?";
+    var optionReloadNow$1 = "Jetzt Neustarten";
+    var optionReloadLater$1 = "Später Neustarten";
+    var updatePanelUpdateNotifications$1 = "Push-Benachrichtigungen";
+    var updatePanelUpdateNotificationsTooltip$1 = "Lassen Sie sich von Millennium daran erinnern, wenn ein Element in Ihrer Bibliothek ein Update erhalten hat!";
+    var german = {
     	itemNoDescription: itemNoDescription$1,
-    	themePanelClientTheme: themePanelClientTheme,
     	themePanelThemeTooltip: themePanelThemeTooltip$1,
     	themePanelGetMoreThemes: themePanelGetMoreThemes$1,
     	themePanelInjectJavascript: themePanelInjectJavascript$1,
@@ -1311,8 +1364,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
     	updatePanelHasUpdatesSub: updatePanelHasUpdatesSub$1,
     	updatePanelReleasedTag: updatePanelReleasedTag$1,
     	updatePanelReleasePatchNotes: updatePanelReleasePatchNotes$1,
-    	updatePanelIsUpdating: updatePanelIsUpdating,
-    	updatePanelUpdate: updatePanelUpdate,
     	updatePanelNoUpdatesFound: updatePanelNoUpdatesFound$1,
     	ViewMore: ViewMore$1,
     	aboutThemeAnonymous: aboutThemeAnonymous$1,
@@ -1324,36 +1375,48 @@ var millennium_main = (function (exports, React, ReactDOM) {
     	reloadRequired: reloadRequired$1,
     	reloadRequiredBody: reloadRequiredBody$1,
     	optionReloadNow: optionReloadNow$1,
-    	optionReloadLater: optionReloadLater$1
+    	optionReloadLater: optionReloadLater$1,
+    	updatePanelUpdateNotifications: updatePanelUpdateNotifications$1,
+    	updatePanelUpdateNotificationsTooltip: updatePanelUpdateNotificationsTooltip$1
     };
 
-    var itemNoDescription = "Noch keine Beschreibung.";
-    var themePanelThemeTooltip = "Wählen Sie das Theme aus, das Steam benutzen soll (muss neu geladen werden)";
-    var themePanelGetMoreThemes = "Weitere Themes";
-    var themePanelInjectJavascript = "Javascript Injizieren";
-    var themePanelInjectJavascriptToolTip = "Entscheiden Sie, ob Themes Javascript in Steam einbinden dürfen. Das Deaktivieren von Javascript kann die Steam-Schnittstelle als Nebenprodukt zerstören (erfordert einen Neustart).";
-    var themePanelInjectCSS = "StyleSheets Injizieren";
-    var themePanelInjectCSSToolTip = "Entscheiden Sie, ob Themes StyleSheets in Steam einbinden dürfen. (erfordert einen Neustart)";
-    var updatePanelHasUpdates = "Updates verfügbar!";
-    var updatePanelHasUpdatesSub = "Millennium hat die folgenden Updates für Ihre Themes gefunden.";
-    var updatePanelReleasedTag = "Veröffentlicht:";
-    var updatePanelReleasePatchNotes = "Patch Notes:";
-    var updatePanelNoUpdatesFound = "Keine Updates gefunden. Sie sind startklar!";
-    var ViewMore = "Mehr anzeigen";
-    var aboutThemeAnonymous = "Anonym";
-    var aboutThemeTitle = "Über";
-    var aboutThemeVerifiedDev = "Verifizierter Entwickler";
-    var viewSourceCode = "Quellcode anzeigen";
-    var showInFolder = "Im Ordner anzeigen";
-    var uninstall = "Deinstallieren";
-    var reloadRequired = "Neustart erforderlich";
-    var reloadRequiredBody = "Ausgewählte Änderungen benötigen einen Neustart, um wirksam zu werden. Sollen wir jetzt Neustarten?";
-    var optionReloadNow = "Jetzt Neustarten";
-    var optionReloadLater = "Später Neustarten";
-    var updatePanelUpdateNotifications = "Push-Benachrichtigungen";
-    var updatePanelUpdateNotificationsTooltip = "Lassen Sie sich von Millennium daran erinnern, wenn ein Element in Ihrer Bibliothek ein Update erhalten hat!";
-    var german = {
+    var settingsPanelPlugins = "Плагины";
+    var settingsPanelThemes = "Темы";
+    var settingsPanelUpdates = "Обновления";
+    var itemNoDescription = "Без описания.";
+    var themePanelClientTheme = "Client Theme";
+    var themePanelThemeTooltip = "Select the theme you want Steam to use (requires reload)";
+    var themePanelGetMoreThemes = "Загрузить темы";
+    var themePanelInjectJavascript = "Выполнение JavaScript";
+    var themePanelInjectJavascriptToolTip = "Разрешить темам выполнять JavaScript в Steam. Выключение JavaScript может поломать интерфейс Steam (требуется переинициализация интерфейса)";
+    var themePanelInjectCSS = "Встраивание каскадных таблиц стилей (CSS)";
+    var themePanelInjectCSSToolTip = "Разрешить темам встраивание таблиц в Steam (требуется переинициализация интерфейса)";
+    var updatePanelHasUpdates = "Доступны обновления";
+    var updatePanelHasUpdatesSub = "Нашлись обновления для следующих тем:";
+    var updatePanelReleasedTag = "Выпуск:";
+    var updatePanelReleasePatchNotes = "Заметки:";
+    var updatePanelIsUpdating = "Обновление...";
+    var updatePanelUpdate = "Обновление";
+    var updatePanelNoUpdatesFound = "Обновлять нечено. У вас всё самое свежее!";
+    var ViewMore = "View More";
+    var aboutThemeAnonymous = "Анонимус";
+    var aboutThemeTitle = "О теме";
+    var aboutThemeVerifiedDev = "Проверенный разработчик";
+    var viewSourceCode = "Посмотреть исходный код";
+    var showInFolder = "Показать в папке";
+    var uninstall = "Удалить";
+    var reloadRequired = "Требуется переинициализация интерфейса";
+    var reloadRequiredBody = "Для того, чтобы применить выбранные настройки, требуется переинициализация интерфейса Steam. Сделать её прямо сейчас?";
+    var optionReloadNow = "Сейчас";
+    var optionReloadLater = "Потом";
+    var updatePanelUpdateNotifications = "Всплывающие уведомления";
+    var updatePanelUpdateNotificationsTooltip = "Millennium будет уведомлять об обновлениях тем из вашей библиотеки";
+    var russian = {
+    	settingsPanelPlugins: settingsPanelPlugins,
+    	settingsPanelThemes: settingsPanelThemes,
+    	settingsPanelUpdates: settingsPanelUpdates,
     	itemNoDescription: itemNoDescription,
+    	themePanelClientTheme: themePanelClientTheme,
     	themePanelThemeTooltip: themePanelThemeTooltip,
     	themePanelGetMoreThemes: themePanelGetMoreThemes,
     	themePanelInjectJavascript: themePanelInjectJavascript,
@@ -1364,6 +1427,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
     	updatePanelHasUpdatesSub: updatePanelHasUpdatesSub,
     	updatePanelReleasedTag: updatePanelReleasedTag,
     	updatePanelReleasePatchNotes: updatePanelReleasePatchNotes,
+    	updatePanelIsUpdating: updatePanelIsUpdating,
+    	updatePanelUpdate: updatePanelUpdate,
     	updatePanelNoUpdatesFound: updatePanelNoUpdatesFound,
     	ViewMore: ViewMore,
     	aboutThemeAnonymous: aboutThemeAnonymous,
@@ -1415,7 +1480,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
         spanish,
         indonesian,
         schinese,
-        german
+        german,
+        russian
         // Add other languages here
     };
     const GetLocalization = async () => {
