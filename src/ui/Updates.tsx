@@ -1,9 +1,23 @@
 import { useEffect, useState } from 'react'
-import { Millennium, DialogBody, DialogBodyText, DialogSubHeader, classMap, DialogHeader, IconsModule, pluginSelf, Toggle } from '@millennium/ui'
+import { Millennium, DialogBody, DialogBodyText, DialogSubHeader, classMap, DialogHeader, IconsModule, pluginSelf, Toggle, Classes } from '@millennium/ui'
 import { locale } from '../locales';
 import { ThemeItem } from '../components/types';
 import { Settings } from '../components/Settings';
 import { ConnectionFailed } from './ConnectionFailed';
+
+const containerClasses = [
+    Classes.Field, 
+    Classes.WithFirstRow, 
+    Classes.VerticalAlignCenter, 
+    Classes.WithDescription, 
+    Classes.WithBottomSeparatorStandard, 
+    Classes.ChildrenWidthFixed, 
+    Classes.ExtraPaddingOnChildrenBelow, 
+    Classes.StandardPadding, 
+    Classes.HighlightOnFocus,
+    "Panel"
+]
+.join(" ")
 
 interface UpdateProps {
     updates: UpdateItemType[];
@@ -68,12 +82,12 @@ const RenderAvailableUpdates: React.FC<UpdateProps> = ({ updates, setUpdates }) 
         <DialogBodyText className='_3fPiC9QRyT5oJ6xePCVYz8'>{locale.updatePanelHasUpdatesSub}</DialogBodyText>
 
         {updates.map((update: UpdateItemType, index: number) => (
-            <div className="S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel" key={index}>
+            <div className={containerClasses} key={index}>
                 <div className={classMap.FieldLabelRow}>
                     <div className="update-item-type" style={{color: "white", fontSize: "12px", padding: "4px", background: "#007eff", borderRadius: "6px"}}>Theme</div>
-                    <div className="_3b0U-QDD-uhFpw6xM716fw">{update.name}</div>
+                    <div className={Classes.FieldLabel}>{update.name}</div>
                     <div className={classMap.FieldChildrenWithIcon}>
-                        <div className="_3N47t_-VlHS8JAEptE5rlR" style={{gap: "10px", width: "200px"}}>
+                        <div className={Classes.FieldChildrenInner} style={{gap: "10px", width: "200px"}}>
 
                             <button 
                                 onClick={() => viewMoreClick(update)} 
@@ -167,9 +181,9 @@ const UpdatesViewModal: React.FC = () => {
                 }
             </DialogHeader>
             <DialogBody className={classMap.SettingsDialogBodyFade}>
-                <div className="S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _1ugIUbowxDg0qM0pJUbBRM _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel">
-                    <div className="H9WOq6bV_VhQ4QjJS_Bxg">
-                        <div className="_3b0U-QDD-uhFpw6xM716fw">{locale.updatePanelUpdateNotifications}</div>
+                <div className={containerClasses}>
+                    <div className={Classes.FieldLabelRow}>
+                        <div className={Classes.FieldLabel}>{locale.updatePanelUpdateNotifications}</div>
                         <div className={classMap.FieldChildrenWithIcon}>
 
                             { showUpdateNotifications !== undefined && <Toggle value={showUpdateNotifications} onChange={OnNotificationsChange}></Toggle> }

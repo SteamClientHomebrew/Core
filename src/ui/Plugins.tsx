@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DialogBody, DialogHeader, IconsModule, Millennium, Toggle, classMap, findClass, pluginSelf } from '@millennium/ui';
+import { Classes, DialogBody, DialogHeader, IconsModule, Millennium, Toggle, classMap, findClass, pluginSelf } from '@millennium/ui';
 import { PluginComponent } from '../components/types';
 import { locale } from '../locales';
 import { ConnectionFailed } from './ConnectionFailed';
@@ -65,18 +65,32 @@ const PluginViewModal: React.FC = () => {
 		return <ConnectionFailed/>
 	}
 
+    const containerClasses = [
+        Classes.Field, 
+        Classes.WithFirstRow, 
+        Classes.VerticalAlignCenter, 
+        Classes.WithDescription, 
+        Classes.WithBottomSeparatorStandard, 
+        Classes.ChildrenWidthFixed, 
+        Classes.ExtraPaddingOnChildrenBelow, 
+        Classes.StandardPadding, 
+        Classes.HighlightOnFocus,
+        "Panel"
+    ]
+    .join(" ")
+
 	return (
 		<>
 		<DialogHeader>{locale.settingsPanelPlugins}</DialogHeader>
 		<DialogBody className={classMap.SettingsDialogBodyFade}>
 			{plugins.map((plugin: PluginComponent, index: number) => (
 
-				<div className="S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel" key={index}>
+				<div className={containerClasses} key={index}>
 					<div className={classMap.FieldLabelRow}>
-					<div className="_3b0U-QDD-uhFpw6xM716fw">{plugin?.data?.common_name}</div>
+					<div className={Classes.FieldLabel}>{plugin?.data?.common_name}</div>
 					<div className={classMap.FieldChildrenWithIcon} style={{display: "flex", alignItems: "center"}}>
 						<EditPlugin plugin={plugin}/>
-						<div className="_3N47t_-VlHS8JAEptE5rlR">
+						<div className={Classes.FieldChildrenInner}>
 							<Toggle 
 								disabled={plugin?.data?.name == "core"} 
 								value={checkedItems[index]} 

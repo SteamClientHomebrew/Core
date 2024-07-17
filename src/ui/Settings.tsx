@@ -3,8 +3,10 @@ import ReactDOM from 'react-dom';
 import { PluginViewModal } from './Plugins'
 import { ThemeViewModal } from './Themes'
 import { UpdatesViewModal } from './Updates'
-import { IconsModule, Millennium, pluginSelf } from '@millennium/ui';
+import { IconsModule, Millennium, pluginSelf, findClass, findModule, findClassModule, findModuleExport, classMapList, findAllModules, Classes } from '@millennium/ui';
 import { locale } from '../locales';
+
+const activeClassName: any = (findClassModule(m => m.PagedSettingsDialog_PageList) as any).Active
 
 enum Renderer {
 	Plugins,
@@ -33,15 +35,14 @@ const RenderViewComponent = (componentType: Renderer): any => {
 const PluginComponent: React.FC = () => {
 
 	const [selected, setSelected] = useState<Renderer>();
-	const nativeTabs = pluginSelf.settingsDoc.querySelectorAll(".bkfjn0yka2uHNqEvWZaTJ:not(.MillenniumTab)")
-
+	const nativeTabs = pluginSelf.settingsDoc.querySelectorAll(`.${Classes.PagedSettingsDialog_PageListItem}:not(.MillenniumTab)`)
 	nativeTabs.forEach((element: HTMLElement) => element.onclick = () => setSelected(Renderer.Unset));
 
 	const componentUpdate = (type: Renderer) => {
 		RenderViewComponent(type);
 		setSelected(type)
 		nativeTabs.forEach((element: HTMLElement) => {
-			element.classList.remove("Myra7iGjzCdMPzitboVfh");
+			element.classList.remove(activeClassName);
 		});
 	}
 
@@ -57,8 +58,8 @@ const PluginComponent: React.FC = () => {
 
 	return (
 		<>
-		<div className={`MillenniumTab PluginSettingsTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Plugins ? "Myra7iGjzCdMPzitboVfh" : ""}`} onClick={() => componentUpdate(Renderer.Plugins)}>
-			<div className="U6HcKswXzjmWtFxbjxuz4">
+		<div className={`MillenniumTab PluginSettingsTab ${Classes.PagedSettingsDialog_PageListItem} ${selected == Renderer.Plugins ? activeClassName : ""}`} onClick={() => componentUpdate(Renderer.Plugins)}>
+			<div className={Classes.PageListItem_Icon}>
 				<svg version="1.1" id="Icons" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 32 32" xmlSpace="preserve">
 					<g>
 						<path d="M18.3,17.3L15,20.6L11.4,17l3.3-3.3c0.4-0.4,0.4-1,0-1.4s-1-0.4-1.4,0L10,15.6l-1.3-1.3c-0.4-0.4-1-0.4-1.4,0s-0.4,1,0,1.4 L7.6,16l-2.8,2.8C3.6,19.9,3,21.4,3,23c0,1.3,0.4,2.4,1.1,3.5l-2.8,2.8c-0.4,0.4-0.4,1,0,1.4C1.5,30.9,1.7,31,2,31s0.5-0.1,0.7-0.3 l2.8-2.8C6.5,28.6,7.7,29,9,29c1.6,0,3.1-0.6,4.2-1.7l2.8-2.8l0.3,0.3c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3 c0.4-0.4,0.4-1,0-1.4L16.4,22l3.3-3.3c0.4-0.4,0.4-1,0-1.4S18.7,16.9,18.3,17.3z"  fill="currentColor"></path>
@@ -67,10 +68,10 @@ const PluginComponent: React.FC = () => {
 				</svg>
 				{/* <IconsModule.PlugInPS5/> */}
 			</div>
-			<div className="_2X9_IsQsEJDpAd2JGrHdJI">{locale.settingsPanelPlugins}</div>
+			<div className={Classes.PageListItem_Title}>{locale.settingsPanelPlugins}</div>
 		</div>
-		<div className={`MillenniumTab ThemesSettingsTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Themes ? "Myra7iGjzCdMPzitboVfh" : ""}`} onClick={() => componentUpdate(Renderer.Themes)}>
-			<div className="U6HcKswXzjmWtFxbjxuz4">
+		<div className={`MillenniumTab ThemesSettingsTab ${Classes.PagedSettingsDialog_PageListItem} ${selected == Renderer.Themes ? activeClassName : ""}`} onClick={() => componentUpdate(Renderer.Themes)}>
+			<div className={Classes.PageListItem_Icon}>
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
 					<g id="_21_-_30" data-name="21 - 30">
 						<g id="Art">
@@ -82,15 +83,15 @@ const PluginComponent: React.FC = () => {
 				</svg>
 				{/* <IconsModule.CustomizeSteamDeck style={{height: "20px", width: "20px"}}/> */}
 			</div>
-			<div className="_2X9_IsQsEJDpAd2JGrHdJI">{locale.settingsPanelThemes}</div>
+			<div className={Classes.PageListItem_Title}>{locale.settingsPanelThemes}</div>
 		</div>
-		<div className={`MillenniumTab UpdatesSettingsTab bkfjn0yka2uHNqEvWZaTJ ${selected == Renderer.Updates ? "Myra7iGjzCdMPzitboVfh" : ""}`} onClick={() => componentUpdate(Renderer.Updates)}>
-			<div className="U6HcKswXzjmWtFxbjxuz4">
+		<div className={`MillenniumTab UpdatesSettingsTab ${Classes.PagedSettingsDialog_PageListItem} ${selected == Renderer.Updates ? activeClassName : ""}`} onClick={() => componentUpdate(Renderer.Updates)}>
+			<div className={Classes.PageListItem_Icon}>
 				<IconsModule.Update/>
 			</div>
-			<div className="_2X9_IsQsEJDpAd2JGrHdJI">{locale.settingsPanelUpdates}</div>
+			<div className={Classes.PageListItem_Title}>{locale.settingsPanelUpdates}</div>
 		</div>
-		<div className="_1UEEmNDZ7Ta3enwTf5T0O0"></div>
+		<div className={Classes.PageListSeparator}></div>
 		</>
 	);
 }
@@ -100,14 +101,20 @@ const PluginComponent: React.FC = () => {
  * @todo A better, more integrated way of doing this, that doesn't involve runtime patching. 
  */
 const hookSettingsComponent = () => {
-	const elements = pluginSelf.settingsDoc.querySelectorAll('.bkfjn0yka2uHNqEvWZaTJ:not(.MillenniumTab)');
+	const elements = pluginSelf.settingsDoc.querySelectorAll(`.${Classes.PagedSettingsDialog_PageListItem}:not(.MillenniumTab)`);
+
+	console.log(elements)	
+
 	let processingItem = false;
 
 	elements.forEach((element: HTMLElement, index: number) => {
 		element.addEventListener('click', function(_: any) {
 
 			if (processingItem) return
-			pluginSelf.settingsDoc.querySelectorAll('._1UEEmNDZ7Ta3enwTf5T0O0').forEach((element: HTMLElement) => element.classList.remove("SeoUZ6M01FoetLA2uCUtT"))
+
+			console.log(pluginSelf.settingsDoc.querySelectorAll('.' + Classes.PageListSeparator))
+
+			pluginSelf.settingsDoc.querySelectorAll('.' + Classes.PageListSeparator).forEach((element: HTMLElement) => element.classList.remove(Classes.Transparent))
 			const click = new MouseEvent("click", { view: pluginSelf.settingsWnd, bubbles: true, cancelable: true })
 
 			try {
@@ -127,7 +134,7 @@ function RenderSettingsModal(_context: any)
 	pluginSelf.settingsDoc = _context.m_popup.document
 	pluginSelf.settingsWnd = _context.m_popup.window
 
-	Millennium.findElement(_context.m_popup.document, "._EebF_xe4DGRZ9a0XkyDj.Panel").then(element => {
+	Millennium.findElement(_context.m_popup.document, "." + Classes.PagedSettingsDialog_PageList).then(element => {
 		hookSettingsComponent()
 		// Create a new div element
 		var bufferDiv = document.createElement("div");

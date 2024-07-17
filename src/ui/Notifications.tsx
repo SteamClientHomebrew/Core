@@ -1,4 +1,8 @@
-import { Millennium, pluginSelf } from "@millennium/ui"
+import { findClassModule, Millennium, pluginSelf } from "@millennium/ui"
+
+const notificationClasses = (findClassModule(m => 
+    m.GroupMessageTitle && !m.ShortTemplate && !m.TwoLine && !m.FriendIndicator && !m.AchievementIcon
+) as any)
 
 /**
  * @todo use builtin notification components instead of altering 
@@ -7,7 +11,7 @@ import { Millennium, pluginSelf } from "@millennium/ui"
  */
 
 const RemoveAllListeners = (doc: Document) => {
-    var bodyClass = [...doc.getElementsByClassName("_3CGHgMXRIoyrljmStDoKuf")];
+    var bodyClass = [...doc.getElementsByClassName(notificationClasses.DesktopToastTemplate)];
         
     Array.from(bodyClass).forEach(function(element) {
         var newElement = element.cloneNode(true);
@@ -16,7 +20,7 @@ const RemoveAllListeners = (doc: Document) => {
 }
 
 const SetClickListener = (doc: Document) => {
-    var bodyClass = [...doc.getElementsByClassName("_3CGHgMXRIoyrljmStDoKuf")][0];
+    var bodyClass = [...doc.getElementsByClassName(notificationClasses.DesktopToastTemplate)][0];
 
     bodyClass.addEventListener("click", () => {
         console.log("clicked notif!")
@@ -29,19 +33,23 @@ const SetClickListener = (doc: Document) => {
 
 const PatchNotification = (doc: Document) => {
 
-    Millennium.findElement(doc, "._3dAcRIhxsyAgEam4dywJvj").then(async (elements) => {
-
-        const header = elements[0].textContent
-
-        if (header == "Updates Available") {
-            (await Millennium.findElement(doc, "._28AhGOLtOo3TwshpQm2-wk"))?.[0]?.remove();
-            (await Millennium.findElement(doc, "._2yhOCNV9s2fKohW8wqWRTY"))?.[0]?.remove();
-            (await Millennium.findElement(doc, "._19g_L-qkP3q7SDkgXAgoli"))?.[0]?.remove();
-        }
-
-        RemoveAllListeners(doc)
-        SetClickListener(doc)
-    })
+    try {
+        Millennium.findElement(doc, "." + notificationClasses.GroupMessageTitle).then(async (elements) => {
+            const header = (elements[0] as any).innerText
+     
+            if (header == "Updates Available") {
+                (await Millennium.findElement(doc, "." + notificationClasses.StandardLogoDimensions))?.[0]?.remove();
+                (await Millennium.findElement(doc, "." + notificationClasses.AvatarStatus))?.[0]?.remove();
+                (await Millennium.findElement(doc, "." + notificationClasses.Icon))?.[0]?.remove();
+            }
+    
+            RemoveAllListeners(doc)
+            SetClickListener(doc)
+        })
+    }
+    catch (error) {
+        console.error(error)
+    }
 }
 
 export { PatchNotification }

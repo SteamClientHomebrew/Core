@@ -1,8 +1,10 @@
-import { Millennium, pluginSelf } from "@millennium/ui"
+import { Classes, findClassModule, Millennium, pluginSelf } from "@millennium/ui"
 import { ThemeItem } from "../components/types"
 import { CreatePopup } from "../components/Popups"
 import React from "react"
 import { locale } from "../locales";
+
+const settingsClasses = findClassModule(m => m.SettingsDialogFatButton) as any
 
 class AboutThemeRenderer extends React.Component<any> {
     
@@ -21,37 +23,39 @@ class AboutThemeRenderer extends React.Component<any> {
             && SteamClient.System.OpenInSystemBrowser(`https://github.com/${this.activeTheme?.data?.github?.owner}/`)
         }
 
+        const devClasses = findClassModule(m => m.richPresenceLabel && m.blocked) as any
+
         return (
             <>
             <style>
                 {`
-                ._3oeHwxQTKDkPcxDhz8jbhM.online:hover {
+                .${Classes.FakeFriend}.online:hover {
                     cursor: pointer !important;
                 }
                 
-                ._1YGAHSfGavQI6MODJq-pJB.avatarHolder.no-drag.Medium.online,
-                .online._2317WeOq8zJVeOi6ILQbF8._27M2GicEvwcoEI5R0FSKi9 {
+                .${Classes.avatarHolder}.avatarHolder.no-drag.Medium.online,
+                .online.${devClasses.noContextMenu}.${devClasses.twoLine} {
                     pointer-events: none;
                 }`}
             </style>
 
-            <div className="_3oeHwxQTKDkPcxDhz8jbhM online" onClick={OpenDeveloperProfile}>
-                <div className="_1YGAHSfGavQI6MODJq-pJB avatarHolder no-drag Medium online">
-                    <div className="_1yIzy56YfJIliF6ykwhP2r avatarStatus right" />
+            <div className={`${Classes.FakeFriend} online`} onClick={OpenDeveloperProfile}>
+                <div className={`${Classes.avatarHolder} avatarHolder no-drag Medium online`}>
+                    <div className={`${Classes.avatarStatus} avatarStatus right`} />
                     <img src={
                         this.activeTheme?.data?.github?.owner ? 
                         `https://github.com/${this.activeTheme?.data?.github?.owner}.png`: 
                         'https://i.pinimg.com/736x/98/1d/6b/981d6b2e0ccb5e968a0618c8d47671da.jpg'       
-                    } className="_1p_QrI3ixF-RAwnxad9pEm avatar" draggable="false" />
+                    } className={`${Classes.avatar} avatar`} draggable="false" />
                 </div>
-                <div className="online _2317WeOq8zJVeOi6ILQbF8 _27M2GicEvwcoEI5R0FSKi9">
-                    <div className="_3n8q82Bm3oNKRPFbrZOlo8">
-                        <div className="r62qzcdJQ0qezZglOtiUX">{this.activeTheme?.data?.github?.owner ?? this.activeTheme?.data?.author ?? locale.aboutThemeAnonymous}
+                <div className={`online ${Classes.noContextMenu} ${Classes.twoLine}`}>
+                    <div className={Classes.statusAndName}>
+                        <div className={Classes.playerName}>{this.activeTheme?.data?.github?.owner ?? this.activeTheme?.data?.author ?? locale.aboutThemeAnonymous}
                             {/* <span className="_3T-9PkwXmTHyFu3b1pAn2O">(Author)</span> */}
                         </div>
                     </div>
-                    <div className="_2nrSdZqzl3e01VZleoVaWp" style={{ width: "100%" }}>
-                        <div className="_2wpaptjZY-3Gn1HOPlL85O _1k82NiWym4STegDGxRBHz2 no-drag">✅ {locale.aboutThemeVerifiedDev}</div>
+                    <div className={Classes.richPresenceContainer} style={{ width: "100%" }}>
+                        <div className={`${Classes.gameName} ${Classes.richPresenceLabel} no-drag`}>✅ {locale.aboutThemeVerifiedDev}</div>
                     </div>
                 </div>
             </div>
@@ -62,8 +66,8 @@ class AboutThemeRenderer extends React.Component<any> {
     RenderDescription = () => {
         return (
             <>
-                <div className="DialogSubHeader _2rK4YqGvSzXLj1bPZL8xMJ">{locale.aboutThemeTitle}</div>
-                <div className="DialogBodyText _3fPiC9QRyT5oJ6xePCVYz8">{this.activeTheme?.data?.description ?? locale.itemNoDescription}</div>
+                <div className={`DialogSubHeader ${settingsClasses.SettingsDialogSubHeader}`}>{locale.aboutThemeTitle}</div>
+                <div className={`DialogBodyText ${Classes.FriendsDescription}`}>{this.activeTheme?.data?.description ?? locale.itemNoDescription}</div>
             </>
         )
     }
@@ -105,12 +109,12 @@ class AboutThemeRenderer extends React.Component<any> {
 
         return (
             <>
-                {themeOwner && themeRepo && <button type="button" style={{width: "unset"}} className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" onClick={ShowSource}>{locale.viewSourceCode}</button>}
-                {/* {kofiDonate && <button type="button" style={{width: "unset"}} className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" onClick={OpenDonateDefault}>Donate</button>} */}
+                {themeOwner && themeRepo && <button type="button" style={{width: "unset"}} className={`${settingsClasses.SettingsDialogButton} DialogButton _DialogLayout Secondary Focusable`} onClick={ShowSource}>{locale.viewSourceCode}</button>}
+                {/* {kofiDonate && <button type="button" style={{width: "unset"}} className={`${settingsClasses.SettingsDialogButton} DialogButton _DialogLayout Secondary Focusable`} onClick={OpenDonateDefault}>Donate</button>} */}
 
                 <div className=".flex-btn-container" style={{display: "flex", gap: "5px"}}>
-                    <button type="button" style={{width: "50%", }} className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" onClick={ShowInFolder}>{locale.showInFolder}</button>
-                    <button type="button" style={{width: "50%"}} className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" onClick={UninstallTheme}>{locale.uninstall}</button> 
+                    <button type="button" style={{width: "50%", }} className={`${settingsClasses.SettingsDialogButton} DialogButton _DialogLayout Secondary Focusable`} onClick={ShowInFolder}>{locale.showInFolder}</button>
+                    <button type="button" style={{width: "50%"}} className={`${settingsClasses.SettingsDialogButton} DialogButton _DialogLayout Secondary Focusable`} onClick={UninstallTheme}>{locale.uninstall}</button> 
                 </div>
             </>
         )

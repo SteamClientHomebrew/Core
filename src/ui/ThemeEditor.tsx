@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Dropdown, Millennium, SingleDropdownOption, Toggle, classMap, pluginSelf } from "@millennium/ui"
+import { Classes, Dropdown, Millennium, SingleDropdownOption, Toggle, classMap, pluginSelf } from "@millennium/ui"
 import { Conditions, ConditionsStore, ICondition, ThemeItem } from "../components/types"
 
 interface ConditionalComponent {
@@ -83,10 +83,24 @@ export class RenderThemeEditor extends React.Component {
     
         const conditionType: ConditionType = this.GetConditionType(value.values)
     
+        const containerClasses = [
+            Classes.Field, 
+            Classes.WithFirstRow, 
+            Classes.VerticalAlignCenter, 
+            Classes.WithDescription, 
+            Classes.WithBottomSeparatorStandard, 
+            Classes.ChildrenWidthFixed, 
+            Classes.ExtraPaddingOnChildrenBelow, 
+            Classes.StandardPadding, 
+            Classes.HighlightOnFocus,
+            "Panel"
+        ]
+        .join(" ")
+
         return (
-            <div key={condition} className="S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _1ugIUbowxDg0qM0pJUbBRM _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel">
-                <div className="H9WOq6bV_VhQ4QjJS_Bxg">
-                    <div className="_3b0U-QDD-uhFpw6xM716fw">{condition}</div>
+            <div key={condition} className={containerClasses}>
+                <div className={Classes.FieldLabelRow}>
+                    <div className={Classes.FieldLabel}>{condition}</div>
                     <div className={classMap.FieldChildrenWithIcon}>
                         <this.RenderComponentInterface conditionType={conditionType} store={store} conditionName={condition} values={Object.keys(value?.values)} />
                     </div>
@@ -104,19 +118,17 @@ export class RenderThemeEditor extends React.Component {
         const savedConditions = pluginSelf?.conditionals?.[activeTheme.native] as ConditionsStore
     
         return (
-
-
             <div className="ModalPosition" tabIndex={0}>
 
-                <style>{`.DialogBody.aFxOaYcllWYkCfVYQJFs0:last-child { padding-bottom: 65px; }`}</style>
+                <style>{`.DialogBody.${Classes.SettingsDialogBodyFade}:last-child { padding-bottom: 65px; }`}</style>
 
                 <div className="ModalPosition_Content" style={{width: "100vw", height: "100vh"}}>
-                    <div className="_3I6h_oySuLmmLY9TjIKT9s _3few7361SOf4k_YuKCmM62 MzjwfxXSiSauz8kyEuhYO Panel">
+                    <div className={`${Classes.PagedSettingsDialog} ${Classes.SettingsModal} ${Classes.DesktopPopup} Panel`}>
                         <div className="DialogContentTransition Panel" style={{minWidth: "100vw"}}>
-                            <div className="DialogContent _DialogLayout _1I3NifxqTHCkE-2DeritAs ">
+                            <div className={`DialogContent _DialogLayout ${Classes.PagedSettingsDialog_PageContent} `}>
                                 <div className="DialogContent_InnerWidth">
                                     <div className="DialogHeader">Editing {activeTheme?.data?.name ?? activeTheme.native}</div>
-                                    <div className="DialogBody aFxOaYcllWYkCfVYQJFs0">
+                                    <div className={`DialogBody ${Classes.SettingsDialogBodyFade}`}>
                                         {Object.entries(themeConditions).map(([key, value]) => <this.RenderComponent condition={key} store={savedConditions} value={value}/>)}
                                     </div>
                                 </div>
@@ -125,7 +137,6 @@ export class RenderThemeEditor extends React.Component {
                     </div>
                 </div>
             </div>
-            
         )
     }
 }

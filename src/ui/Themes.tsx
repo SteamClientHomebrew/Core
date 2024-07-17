@@ -9,7 +9,8 @@ import {
     ShowModalProps, 
     Toggle, 
     MessageBoxResult, 
-    showModal 
+    showModal, 
+    Classes
 } from '@millennium/ui'
 
 import { FC, useEffect, useState } from 'react'
@@ -147,8 +148,13 @@ const ThemeViewModal: React.FC = () => {
 
         PromptReload().then((selection: MessageBoxResult) => {
             if (selection == MessageBoxResult.okay) {
-                Millennium.callServerMethod("cfg.cfg", {section: "Themes", key: "insert_javascript", value: enabled})
-                window.location.reload()
+                Millennium.callServerMethod("cfg.set_config_keypair", {key: "scripts", value: enabled})
+                .catch((_: any) => {
+                    console.error("Failed to update settings")
+                    pluginSelf.connectionFailed = true
+                })
+
+                SteamClient.Browser.RestartJSContext()
             }
         })
     }
@@ -158,7 +164,7 @@ const ThemeViewModal: React.FC = () => {
 
         PromptReload().then((selection: MessageBoxResult) => {
             if (selection == MessageBoxResult.okay) {
-                Millennium.callServerMethod("cfg.cfg", {section: "Themes", key: "insert_stylesheets", value: enabled})
+                Millennium.callServerMethod("cfg.set_config_keypair", {key: "styles", value: enabled})
                 .catch((_: any) => {
                     console.error("Failed to update settings")
                     pluginSelf.connectionFailed = true
@@ -190,6 +196,20 @@ const ThemeViewModal: React.FC = () => {
 		return <ConnectionFailed/>
 	}
 
+    const containerClasses = [
+        Classes.Field, 
+        Classes.WithFirstRow, 
+        Classes.VerticalAlignCenter, 
+        Classes.WithDescription, 
+        Classes.WithBottomSeparatorStandard, 
+        Classes.ChildrenWidthFixed, 
+        Classes.ExtraPaddingOnChildrenBelow, 
+        Classes.StandardPadding, 
+        Classes.HighlightOnFocus,
+        "Panel"
+    ]
+    .join(" ")
+
     return (
         <>
 
@@ -203,9 +223,9 @@ const ThemeViewModal: React.FC = () => {
 
             <DialogHeader>{locale.settingsPanelThemes}</DialogHeader>
             <DialogBody className={classMap.SettingsDialogBodyFade}>
-                <div className="S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _1ugIUbowxDg0qM0pJUbBRM _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel">
-                    <div className="H9WOq6bV_VhQ4QjJS_Bxg">
-                        <div className="_3b0U-QDD-uhFpw6xM716fw">{locale.themePanelClientTheme}</div>
+                <div className={containerClasses}>
+                    <div className={Classes.FieldLabelRow}>
+                        <div className={Classes.FieldLabel}>{locale.themePanelClientTheme}</div>
                         <div className={classMap.FieldChildrenWithIcon}>
 
                             <RenderEditTheme active={active}/>
@@ -231,9 +251,9 @@ const ThemeViewModal: React.FC = () => {
                         </a>
                     </div>
                 </div> 
-                <div className="S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _1ugIUbowxDg0qM0pJUbBRM _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel">
-                    <div className="H9WOq6bV_VhQ4QjJS_Bxg">
-                        <div className="_3b0U-QDD-uhFpw6xM716fw">{locale.themePanelInjectJavascript}</div>
+                <div className={containerClasses}>
+                    <div className={Classes.FieldLabelRow}>
+                        <div className={Classes.FieldLabel}>{locale.themePanelInjectJavascript}</div>
                         <div className={classMap.FieldChildrenWithIcon}>
 
                             { jsState !== undefined && <Toggle value={jsState} onChange={onScriptToggle}></Toggle> }
@@ -241,9 +261,9 @@ const ThemeViewModal: React.FC = () => {
                     </div>
                     <div className={classMap.FieldDescription}>{locale.themePanelInjectJavascriptToolTip}</div>
                 </div> 
-                <div className="S-_LaQG5eEOM2HWZ-geJI qFXi6I-Cs0mJjTjqGXWZA _3XNvAmJ9bv_xuKx5YUkP-5 _3bMISJvxiSHPx1ol-0Aswn _3s1Rkl6cFOze_SdV2g-AFo _1ugIUbowxDg0qM0pJUbBRM _5UO-_VhgFhDWlkDIOZcn_ XRBFu6jAfd5kH9a3V8q_x wE4V6Ei2Sy2qWDo_XNcwn Panel">
-                    <div className="H9WOq6bV_VhQ4QjJS_Bxg">
-                        <div className="_3b0U-QDD-uhFpw6xM716fw">{locale.themePanelInjectCSS}</div>
+                <div className={containerClasses}>
+                    <div className={Classes.FieldLabelRow}>
+                        <div className={Classes.FieldLabel}>{locale.themePanelInjectCSS}</div>
                         <div className={classMap.FieldChildrenWithIcon}>
                             { cssState !== undefined && <Toggle value={cssState} onChange={onStyleToggle}></Toggle> }
                         </div>
