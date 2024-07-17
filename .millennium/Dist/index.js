@@ -1491,6 +1491,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
             window.SP_REACT.createElement(Button, { onClick: () => SteamClient.System.OpenLocalDirectoryInSystemExplorer("ext\\data\\logs\\"), style: { marginTop: "20px" } }, "Open Logs Folder")));
     };
 
+    const FieldClasses = findClassModule(m => m.FieldLabel && !m.GyroButtonPickerDialog && !m.ControllerOutline && !m.AwaitingEmailConfIcon);
+
     const isEditablePlugin = (plugin_name) => {
         return window.PLUGIN_LIST && window.PLUGIN_LIST[plugin_name]
             && typeof window.PLUGIN_LIST[plugin_name].renderPluginSettings === 'function' ? true : false;
@@ -1513,13 +1515,21 @@ var millennium_main = (function (exports, React, ReactDOM) {
                     .reduce((acc, { index }) => ({ ...acc, [index]: true }), {}));
                 setPlugins(json);
             })
+                .then((result) => {
+                pluginSelf.connectionFailed = false;
+                return result;
+            })
                 .catch((_) => pluginSelf.connectionFailed = true);
         }, []);
         const handleCheckboxChange = (index) => {
             /* Prevent users from disabling this plugin, as its vital */
             const updated = !checkedItems[index] || plugins[index]?.data?.name === "core";
             setCheckedItems({ ...checkedItems, [index]: updated });
-            wrappedCallServerMethod("update_plugin_status", { plugin_name: plugins[index]?.data?.name, enabled: updated });
+            wrappedCallServerMethod("update_plugin_status", { plugin_name: plugins[index]?.data?.name, enabled: updated })
+                .then((result) => {
+                pluginSelf.connectionFailed = false;
+                return result;
+            });
         };
         if (pluginSelf.connectionFailed) {
             return window.SP_REACT.createElement(ConnectionFailed, null);
@@ -1541,7 +1551,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
             window.SP_REACT.createElement(DialogHeader, null, locale.settingsPanelPlugins),
             window.SP_REACT.createElement(DialogBody, { className: classMap.SettingsDialogBodyFade }, plugins.map((plugin, index) => (window.SP_REACT.createElement("div", { className: containerClasses, key: index },
                 window.SP_REACT.createElement("div", { className: classMap.FieldLabelRow },
-                    window.SP_REACT.createElement("div", { className: Classes.FieldLabel }, plugin?.data?.common_name),
+                    window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabel }, plugin?.data?.common_name),
                     window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon, style: { display: "flex", alignItems: "center" } },
                         window.SP_REACT.createElement(EditPlugin, { plugin: plugin }),
                         window.SP_REACT.createElement("div", { className: Classes.FieldChildrenInner },
@@ -1570,6 +1580,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 return new Promise((resolve) => {
                     wrappedCallServerMethod("cfg.change_condition", {
                         theme: activeTheme.native, newData: newData, condition: conditionName
+                    })
+                        .then((result) => {
+                        pluginSelf.connectionFailed = false;
+                        return result;
                     })
                         .then((response) => {
                         const success = JSON.parse(response)?.success ?? false;
@@ -1616,8 +1630,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 ]
                     .join(" ");
                 return (window.SP_REACT.createElement("div", { key: condition, className: containerClasses },
-                    window.SP_REACT.createElement("div", { className: Classes.FieldLabelRow },
-                        window.SP_REACT.createElement("div", { className: Classes.FieldLabel }, condition),
+                    window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabelRow },
+                        window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabel }, condition),
                         window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon },
                             window.SP_REACT.createElement(this.RenderComponentInterface, { conditionType: conditionType, store: store, conditionName: condition, values: Object.keys(value?.values) }))),
                     window.SP_REACT.createElement("div", { className: classMap.FieldDescription, dangerouslySetInnerHTML: { __html: value?.description ?? "No description yet." } })));
@@ -1760,7 +1774,12 @@ var millennium_main = (function (exports, React, ReactDOM) {
                     SteamClient.System.OpenInSystemBrowser(`https://github.com/${themeOwner}/${themeRepo}`);
                 };
                 const ShowInFolder = () => {
-                    wrappedCallServerMethod("Millennium.steam_path").then((path) => {
+                    wrappedCallServerMethod("Millennium.steam_path")
+                        .then((result) => {
+                        pluginSelf.connectionFailed = false;
+                        return result;
+                    })
+                        .then((path) => {
                         console.log(path);
                         SteamClient.System.OpenLocalDirectoryInSystemExplorer(`${path}/steamui/skins/${this.activeTheme.native}`);
                     });
@@ -1769,6 +1788,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
                     wrappedCallServerMethod("uninstall_theme", {
                         owner: this.activeTheme?.data?.github?.owner,
                         repo: this.activeTheme?.data?.github?.repo_name
+                    })
+                        .then((result) => {
+                        pluginSelf.connectionFailed = false;
+                        return result;
                     })
                         .then((raw) => {
                         const message = JSON.parse(raw);
@@ -1873,9 +1896,17 @@ var millennium_main = (function (exports, React, ReactDOM) {
             window.SP_REACT.createElement(IconsModule.Edit, { style: { height: "16px" } })));
     };
     const findAllThemes = async () => {
-        const activeTheme = await wrappedCallServerMethod("cfg.get_active_theme");
+        const activeTheme = await wrappedCallServerMethod("cfg.get_active_theme")
+            .then((result) => {
+            pluginSelf.connectionFailed = false;
+            return result;
+        });
         return new Promise(async (resolve) => {
-            let buffer = JSON.parse(await wrappedCallServerMethod("find_all_themes"))
+            let buffer = JSON.parse(await wrappedCallServerMethod("find_all_themes")
+                .then((result) => {
+                pluginSelf.connectionFailed = false;
+                return result;
+            }))
                 /** Prevent the selected theme from appearing in combo box */
                 .filter((theme) => !pluginSelf.isDefaultTheme ? theme.native !== activeTheme.native : true)
                 .map((theme, index) => ({
@@ -1903,6 +1934,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
             PromptReload().then((selection) => {
                 if (selection == MessageBoxResult.okay) {
                     wrappedCallServerMethod("cfg.set_config_keypair", { key: "scripts", value: enabled })
+                        .then((result) => {
+                        pluginSelf.connectionFailed = false;
+                        return result;
+                    })
                         .catch((_) => {
                         console.error("Failed to update settings");
                         pluginSelf.connectionFailed = true;
@@ -1916,6 +1951,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
             PromptReload().then((selection) => {
                 if (selection == MessageBoxResult.okay) {
                     wrappedCallServerMethod("cfg.set_config_keypair", { key: "styles", value: enabled })
+                        .then((result) => {
+                        pluginSelf.connectionFailed = false;
+                        return result;
+                    })
                         .catch((_) => {
                         console.error("Failed to update settings");
                         pluginSelf.connectionFailed = true;
@@ -1926,7 +1965,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
         };
         const updateThemeCallback = (item) => {
             const themeName = item.data === "default" ? "__default__" : item.theme.native;
-            wrappedCallServerMethod("cfg.change_theme", { theme_name: themeName });
+            wrappedCallServerMethod("cfg.change_theme", { theme_name: themeName }).then((result) => {
+                pluginSelf.connectionFailed = false;
+                return result;
+            });
             findAllThemes().then((result) => setThemes(result));
             PromptReload().then((selection) => {
                 if (selection == MessageBoxResult.okay) {
@@ -1960,8 +2002,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
             window.SP_REACT.createElement(DialogHeader, null, locale.settingsPanelThemes),
             window.SP_REACT.createElement(DialogBody, { className: classMap.SettingsDialogBodyFade },
                 window.SP_REACT.createElement("div", { className: containerClasses },
-                    window.SP_REACT.createElement("div", { className: Classes.FieldLabelRow },
-                        window.SP_REACT.createElement("div", { className: Classes.FieldLabel }, locale.themePanelClientTheme),
+                    window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabelRow },
+                        window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabel }, locale.themePanelClientTheme),
                         window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon },
                             window.SP_REACT.createElement(RenderEditTheme, { active: active }),
                             !pluginSelf.isDefaultTheme &&
@@ -1974,13 +2016,13 @@ var millennium_main = (function (exports, React, ReactDOM) {
                             window.SP_REACT.createElement(IconsModule.Hyperlink, { style: { width: "14px" } }),
                             locale.themePanelGetMoreThemes))),
                 window.SP_REACT.createElement("div", { className: containerClasses },
-                    window.SP_REACT.createElement("div", { className: Classes.FieldLabelRow },
-                        window.SP_REACT.createElement("div", { className: Classes.FieldLabel }, locale.themePanelInjectJavascript),
+                    window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabelRow },
+                        window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabel }, locale.themePanelInjectJavascript),
                         window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon }, jsState !== undefined && window.SP_REACT.createElement(Toggle, { value: jsState, onChange: onScriptToggle }))),
                     window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, locale.themePanelInjectJavascriptToolTip)),
                 window.SP_REACT.createElement("div", { className: containerClasses },
-                    window.SP_REACT.createElement("div", { className: Classes.FieldLabelRow },
-                        window.SP_REACT.createElement("div", { className: Classes.FieldLabel }, locale.themePanelInjectCSS),
+                    window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabelRow },
+                        window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabel }, locale.themePanelInjectCSS),
                         window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon }, cssState !== undefined && window.SP_REACT.createElement(Toggle, { value: cssState, onChange: onStyleToggle }))),
                     window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, locale.themePanelInjectCSSToolTip)))));
     };
@@ -1989,7 +2031,12 @@ var millennium_main = (function (exports, React, ReactDOM) {
     const Settings = {
         FetchAllSettings: () => {
             return new Promise(async (resolve, _reject) => {
-                const settingsStore = JSON.parse(await wrappedCallServerMethod("get_load_config").catch((_) => {
+                const settingsStore = JSON.parse(await wrappedCallServerMethod("get_load_config")
+                    .then((result) => {
+                    pluginSelf.connectionFailed = false;
+                    return result;
+                })
+                    .catch((_) => {
                     console.error("Failed to fetch settings");
                     pluginSelf.connectionFailed = true;
                 }));
@@ -2028,7 +2075,12 @@ var millennium_main = (function (exports, React, ReactDOM) {
         const viewMoreClick = (props) => SteamClient.System.OpenInSystemBrowser(props?.commit);
         const updateItemMessage = (updateObject, index) => {
             setUpdating({ ...updating, [index]: true });
-            wrappedCallServerMethod("updater.update_theme", { native: updateObject.native }).then((success) => {
+            wrappedCallServerMethod("updater.update_theme", { native: updateObject.native })
+                .then((result) => {
+                pluginSelf.connectionFailed = false;
+                return result;
+            })
+                .then((success) => {
                 /** @todo: prompt user an error occured. */
                 if (!success)
                     return;
@@ -2037,7 +2089,12 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 if (activeTheme?.native === updateObject?.native) {
                     SteamClient.Browser.RestartJSContext();
                 }
-                wrappedCallServerMethod("updater.get_update_list").then((result) => {
+                wrappedCallServerMethod("updater.get_update_list")
+                    .then((result) => {
+                    pluginSelf.connectionFailed = false;
+                    return result;
+                })
+                    .then((result) => {
                     setUpdates(JSON.parse(result).updates);
                 });
             });
@@ -2048,7 +2105,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
             updates.map((update, index) => (window.SP_REACT.createElement("div", { className: containerClasses, key: index },
                 window.SP_REACT.createElement("div", { className: classMap.FieldLabelRow },
                     window.SP_REACT.createElement("div", { className: "update-item-type", style: { color: "white", fontSize: "12px", padding: "4px", background: "#007eff", borderRadius: "6px" } }, "Theme"),
-                    window.SP_REACT.createElement("div", { className: Classes.FieldLabel }, update.name),
+                    window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabel }, update.name),
                     window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon },
                         window.SP_REACT.createElement("div", { className: Classes.FieldChildrenInner, style: { gap: "10px", width: "200px" } },
                             window.SP_REACT.createElement("button", { onClick: () => viewMoreClick(update), className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" }, locale.ViewMore),
@@ -2067,7 +2124,12 @@ var millennium_main = (function (exports, React, ReactDOM) {
         const [checkingForUpdates, setCheckingForUpdates] = React.useState(false);
         const [showUpdateNotifications, setNotifications] = React.useState(undefined);
         React.useEffect(() => {
-            wrappedCallServerMethod("updater.get_update_list").then((result) => {
+            wrappedCallServerMethod("updater.get_update_list")
+                .then((result) => {
+                pluginSelf.connectionFailed = false;
+                return result;
+            })
+                .then((result) => {
                 const updates = JSON.parse(result);
                 console.log(updates);
                 setUpdates(updates.updates);
@@ -2083,7 +2145,12 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 return;
             setCheckingForUpdates(true);
             await wrappedCallServerMethod("updater.re_initialize");
-            wrappedCallServerMethod("updater.get_update_list").then((result) => {
+            wrappedCallServerMethod("updater.get_update_list")
+                .then((result) => {
+                pluginSelf.connectionFailed = false;
+                return result;
+            })
+                .then((result) => {
                 setUpdates(JSON.parse(result).updates);
                 setCheckingForUpdates(false);
             })
@@ -2097,6 +2164,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
         };
         const OnNotificationsChange = (enabled) => {
             wrappedCallServerMethod("updater.set_update_notifs_status", { status: enabled })
+                .then((result) => {
+                pluginSelf.connectionFailed = false;
+                return result;
+            })
                 .then((success) => {
                 if (success) {
                     setNotifications(enabled);
@@ -2115,8 +2186,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
                         window.SP_REACT.createElement(IconsModule.Update, null))),
             window.SP_REACT.createElement(DialogBody, { className: classMap.SettingsDialogBodyFade },
                 window.SP_REACT.createElement("div", { className: containerClasses },
-                    window.SP_REACT.createElement("div", { className: Classes.FieldLabelRow },
-                        window.SP_REACT.createElement("div", { className: Classes.FieldLabel }, locale.updatePanelUpdateNotifications),
+                    window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabelRow },
+                        window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabel }, locale.updatePanelUpdateNotifications),
                         window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon }, showUpdateNotifications !== undefined && window.SP_REACT.createElement(Toggle, { value: showUpdateNotifications, onChange: OnNotificationsChange }))),
                     window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, locale.updatePanelUpdateNotificationsTooltip)),
                 updates && (!updates.length ? window.SP_REACT.createElement(UpToDateModal, null) : window.SP_REACT.createElement(RenderAvailableUpdates, { updates: updates, setUpdates: setUpdates })))));
@@ -2393,6 +2464,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
         const startTime = performance.now();
         Settings.FetchAllSettings().then((result) => InitializePatcher(startTime, result));
         wrappedCallServerMethod("updater.get_update_list")
+            .then((result) => {
+            pluginSelf.connectionFailed = false;
+            return result;
+        })
             .then((result) => JSON.parse(result).updates)
             .then((updates) => ProcessUpdates(updates))
             .catch((_) => {
