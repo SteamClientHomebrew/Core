@@ -9,7 +9,12 @@ export const Settings = {
         return new Promise<SettingsProps>(async (resolve: any, _reject: any) => {
 
             const settingsStore: SettingsProps = JSON.parse(
-                await Millennium.callServerMethod("get_load_config").catch((_: any) => {
+                await Millennium.callServerMethod("get_load_config")
+                .then((result: any) => {
+                    pluginSelf.connectionFailed = false
+                    return result
+                })
+                .catch((_: any) => {
                     console.error("Failed to fetch settings")
                     pluginSelf.connectionFailed = true
                 })

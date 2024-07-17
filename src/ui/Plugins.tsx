@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Classes, DialogBody, DialogHeader, IconsModule, Millennium, Toggle, classMap, findClass, pluginSelf } from '@millennium/ui';
+import { Classes, DialogBody, DialogHeader, IconsModule, Millennium, Toggle, classMap, findClass, findClassModule, pluginSelf } from '@millennium/ui';
 import { PluginComponent } from '../components/types';
 import { locale } from '../locales';
 import { ConnectionFailed } from './ConnectionFailed';
+import { FieldClasses } from '../components/Classes';
 
 interface EditPluginProps {
 	plugin: PluginComponent
@@ -43,6 +44,10 @@ const PluginViewModal: React.FC = () => {
 			)
 			setPlugins(json)
 		})
+		.then((result: any) => {
+            pluginSelf.connectionFailed = false
+            return result
+        })
 		.catch((_: any) => pluginSelf.connectionFailed = true)
 	}, [])
 
@@ -58,6 +63,10 @@ const PluginViewModal: React.FC = () => {
 		setCheckedItems({ ...checkedItems, [index]: updated});
 
 		Millennium.callServerMethod("update_plugin_status", { plugin_name: plugins[index]?.data?.name, enabled: updated })
+		.then((result: any) => {
+            pluginSelf.connectionFailed = false
+            return result
+        })
 	};
 
 
@@ -87,7 +96,7 @@ const PluginViewModal: React.FC = () => {
 
 				<div className={containerClasses} key={index}>
 					<div className={classMap.FieldLabelRow}>
-					<div className={Classes.FieldLabel}>{plugin?.data?.common_name}</div>
+					<div className={FieldClasses.FieldLabel}>{plugin?.data?.common_name}</div>
 					<div className={classMap.FieldChildrenWithIcon} style={{display: "flex", alignItems: "center"}}>
 						<EditPlugin plugin={plugin}/>
 						<div className={Classes.FieldChildrenInner}>

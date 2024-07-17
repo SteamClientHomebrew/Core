@@ -20,6 +20,7 @@ import { PromptReload } from './RestartModal'
 import { SetupAboutRenderer } from './AboutTheme'
 import { locale } from '../locales'
 import { ConnectionFailed } from './ConnectionFailed'
+import { FieldClasses } from '../components/Classes'
 
 const ShowThemeSettings = async (activeTheme: string) => {
 
@@ -108,9 +109,18 @@ const RenderEditTheme: React.FC<EditThemeProps> = ({ active }) => {
 const findAllThemes = async (): Promise<ComboItem[]> => {
     
     const activeTheme: ThemeItem = await Millennium.callServerMethod("cfg.get_active_theme")
+    .then((result: any) => {
+        pluginSelf.connectionFailed = false
+        return result
+    })
 
     return new Promise<ComboItem[]>(async (resolve) => {
-        let buffer: ComboItem[] = (JSON.parse(await Millennium.callServerMethod("find_all_themes")) as ThemeItem[])
+        let buffer: ComboItem[] = (JSON.parse(await Millennium.callServerMethod("find_all_themes")
+            .then((result: any) => {
+                pluginSelf.connectionFailed = false
+                return result
+            })) as ThemeItem[])
+
             /** Prevent the selected theme from appearing in combo box */
             .filter((theme: ThemeItem) => !pluginSelf.isDefaultTheme ? theme.native !== activeTheme.native : true)
             .map((theme: ThemeItem, index: number) => ({ 
@@ -149,6 +159,10 @@ const ThemeViewModal: React.FC = () => {
         PromptReload().then((selection: MessageBoxResult) => {
             if (selection == MessageBoxResult.okay) {
                 Millennium.callServerMethod("cfg.set_config_keypair", {key: "scripts", value: enabled})
+                .then((result: any) => {
+                    pluginSelf.connectionFailed = false
+                    return result
+                })
                 .catch((_: any) => {
                     console.error("Failed to update settings")
                     pluginSelf.connectionFailed = true
@@ -165,6 +179,10 @@ const ThemeViewModal: React.FC = () => {
         PromptReload().then((selection: MessageBoxResult) => {
             if (selection == MessageBoxResult.okay) {
                 Millennium.callServerMethod("cfg.set_config_keypair", {key: "styles", value: enabled})
+                .then((result: any) => {
+                    pluginSelf.connectionFailed = false
+                    return result
+                })
                 .catch((_: any) => {
                     console.error("Failed to update settings")
                     pluginSelf.connectionFailed = true
@@ -178,7 +196,10 @@ const ThemeViewModal: React.FC = () => {
     const updateThemeCallback = (item: ComboItem) => {
         const themeName = item.data === "default" ? "__default__" : item.theme.native;
 
-        Millennium.callServerMethod("cfg.change_theme", {theme_name: themeName});
+        Millennium.callServerMethod("cfg.change_theme", {theme_name: themeName}).then((result: any) => {
+            pluginSelf.connectionFailed = false
+            return result
+        });
         findAllThemes().then((result: ComboItem[]) => setThemes(result))
 
         PromptReload().then((selection: MessageBoxResult) => {
@@ -224,8 +245,8 @@ const ThemeViewModal: React.FC = () => {
             <DialogHeader>{locale.settingsPanelThemes}</DialogHeader>
             <DialogBody className={classMap.SettingsDialogBodyFade}>
                 <div className={containerClasses}>
-                    <div className={Classes.FieldLabelRow}>
-                        <div className={Classes.FieldLabel}>{locale.themePanelClientTheme}</div>
+                    <div className={FieldClasses.FieldLabelRow}>
+                        <div className={FieldClasses.FieldLabel}>{locale.themePanelClientTheme}</div>
                         <div className={classMap.FieldChildrenWithIcon}>
 
                             <RenderEditTheme active={active}/>
@@ -252,8 +273,8 @@ const ThemeViewModal: React.FC = () => {
                     </div>
                 </div> 
                 <div className={containerClasses}>
-                    <div className={Classes.FieldLabelRow}>
-                        <div className={Classes.FieldLabel}>{locale.themePanelInjectJavascript}</div>
+                    <div className={FieldClasses.FieldLabelRow}>
+                        <div className={FieldClasses.FieldLabel}>{locale.themePanelInjectJavascript}</div>
                         <div className={classMap.FieldChildrenWithIcon}>
 
                             { jsState !== undefined && <Toggle value={jsState} onChange={onScriptToggle}></Toggle> }
@@ -262,8 +283,8 @@ const ThemeViewModal: React.FC = () => {
                     <div className={classMap.FieldDescription}>{locale.themePanelInjectJavascriptToolTip}</div>
                 </div> 
                 <div className={containerClasses}>
-                    <div className={Classes.FieldLabelRow}>
-                        <div className={Classes.FieldLabel}>{locale.themePanelInjectCSS}</div>
+                    <div className={FieldClasses.FieldLabelRow}>
+                        <div className={FieldClasses.FieldLabel}>{locale.themePanelInjectCSS}</div>
                         <div className={classMap.FieldChildrenWithIcon}>
                             { cssState !== undefined && <Toggle value={cssState} onChange={onStyleToggle}></Toggle> }
                         </div>

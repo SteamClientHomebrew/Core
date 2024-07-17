@@ -4,6 +4,7 @@ import { locale } from '../locales';
 import { ThemeItem } from '../components/types';
 import { Settings } from '../components/Settings';
 import { ConnectionFailed } from './ConnectionFailed';
+import { FieldClasses } from '../components/Classes';
 
 const containerClasses = [
     Classes.Field, 
@@ -58,7 +59,12 @@ const RenderAvailableUpdates: React.FC<UpdateProps> = ({ updates, setUpdates }) 
     const updateItemMessage = (updateObject: UpdateItemType, index: number) => 
     {
         setUpdating({ ...updating, [index]: true });
-        Millennium.callServerMethod("updater.update_theme", {native: updateObject.native}).then((success: boolean) => 
+        Millennium.callServerMethod("updater.update_theme", {native: updateObject.native})
+        .then((result: any) => {
+            pluginSelf.connectionFailed = false
+            return result
+        })
+        .then((success: boolean) => 
         {
             /** @todo: prompt user an error occured. */
             if (!success) return 
@@ -70,7 +76,12 @@ const RenderAvailableUpdates: React.FC<UpdateProps> = ({ updates, setUpdates }) 
                 SteamClient.Browser.RestartJSContext()
             }
 
-            Millennium.callServerMethod("updater.get_update_list").then((result: any) => {
+            Millennium.callServerMethod("updater.get_update_list")
+            .then((result: any) => {
+                pluginSelf.connectionFailed = false
+                return result
+            })
+            .then((result: any) => {
                 setUpdates(JSON.parse(result).updates)
             })
         })
@@ -85,7 +96,7 @@ const RenderAvailableUpdates: React.FC<UpdateProps> = ({ updates, setUpdates }) 
             <div className={containerClasses} key={index}>
                 <div className={classMap.FieldLabelRow}>
                     <div className="update-item-type" style={{color: "white", fontSize: "12px", padding: "4px", background: "#007eff", borderRadius: "6px"}}>Theme</div>
-                    <div className={Classes.FieldLabel}>{update.name}</div>
+                    <div className={FieldClasses.FieldLabel}>{update.name}</div>
                     <div className={classMap.FieldChildrenWithIcon}>
                         <div className={Classes.FieldChildrenInner} style={{gap: "10px", width: "200px"}}>
 
@@ -117,7 +128,12 @@ const UpdatesViewModal: React.FC = () => {
     const [showUpdateNotifications, setNotifications] = useState<boolean>(undefined)
     
     useEffect(() => {
-        Millennium.callServerMethod("updater.get_update_list").then((result: any) => {
+        Millennium.callServerMethod("updater.get_update_list")
+        .then((result: any) => {
+            pluginSelf.connectionFailed = false
+            return result
+        })
+        .then((result: any) => {
             
             const updates = JSON.parse(result)
             console.log(updates)
@@ -137,7 +153,12 @@ const UpdatesViewModal: React.FC = () => {
         setCheckingForUpdates(true)
         await Millennium.callServerMethod("updater.re_initialize")
 
-        Millennium.callServerMethod("updater.get_update_list").then((result: any) => {
+        Millennium.callServerMethod("updater.get_update_list")
+        .then((result: any) => {
+            pluginSelf.connectionFailed = false
+            return result
+        })
+        .then((result: any) => {
             setUpdates(JSON.parse(result).updates)
             setCheckingForUpdates(false)
         })
@@ -154,6 +175,10 @@ const UpdatesViewModal: React.FC = () => {
     const OnNotificationsChange = (enabled: boolean) => {
 
         Millennium.callServerMethod("updater.set_update_notifs_status", { status: enabled})
+        .then((result: any) => {
+            pluginSelf.connectionFailed = false
+            return result
+        })
         .then((success: boolean) => {
             if (success) {
                 setNotifications(enabled)
@@ -182,8 +207,8 @@ const UpdatesViewModal: React.FC = () => {
             </DialogHeader>
             <DialogBody className={classMap.SettingsDialogBodyFade}>
                 <div className={containerClasses}>
-                    <div className={Classes.FieldLabelRow}>
-                        <div className={Classes.FieldLabel}>{locale.updatePanelUpdateNotifications}</div>
+                    <div className={FieldClasses.FieldLabelRow}>
+                        <div className={FieldClasses.FieldLabel}>{locale.updatePanelUpdateNotifications}</div>
                         <div className={classMap.FieldChildrenWithIcon}>
 
                             { showUpdateNotifications !== undefined && <Toggle value={showUpdateNotifications} onChange={OnNotificationsChange}></Toggle> }

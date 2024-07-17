@@ -87,7 +87,12 @@ class AboutThemeRenderer extends React.Component<any> {
         }
 
         const ShowInFolder = () => {
-            Millennium.callServerMethod("Millennium.steam_path").then((path: string) => {
+            Millennium.callServerMethod("Millennium.steam_path")
+            .then((result: any) => {
+                pluginSelf.connectionFailed = false
+                return result
+            })
+            .then((path: string) => {
                 console.log(path)
                 SteamClient.System.OpenLocalDirectoryInSystemExplorer(`${path}/steamui/skins/${this.activeTheme.native}`)
             })
@@ -97,6 +102,10 @@ class AboutThemeRenderer extends React.Component<any> {
             Millennium.callServerMethod("uninstall_theme", {
                 owner: this.activeTheme?.data?.github?.owner,
                 repo: this.activeTheme?.data?.github?.repo_name
+            })
+            .then((result: any) => {
+                pluginSelf.connectionFailed = false
+                return result
             })
             .then((raw: string) => {
 

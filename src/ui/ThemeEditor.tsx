@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { Classes, Dropdown, Millennium, SingleDropdownOption, Toggle, classMap, pluginSelf } from "@millennium/ui"
 import { Conditions, ConditionsStore, ICondition, ThemeItem } from "../components/types"
+import { FieldClasses } from "../components/Classes"
 
 interface ConditionalComponent {
     condition: string,
@@ -38,6 +39,10 @@ export class RenderThemeEditor extends React.Component {
         return new Promise<boolean>((resolve) => {
             Millennium.callServerMethod("cfg.change_condition", {
                 theme: activeTheme.native, newData: newData, condition: conditionName
+            })
+            .then((result: any) => {
+                pluginSelf.connectionFailed = false
+                return result
             })
             .then((response: any) => {
 
@@ -99,8 +104,8 @@ export class RenderThemeEditor extends React.Component {
 
         return (
             <div key={condition} className={containerClasses}>
-                <div className={Classes.FieldLabelRow}>
-                    <div className={Classes.FieldLabel}>{condition}</div>
+                <div className={FieldClasses.FieldLabelRow}>
+                    <div className={FieldClasses.FieldLabel}>{condition}</div>
                     <div className={classMap.FieldChildrenWithIcon}>
                         <this.RenderComponentInterface conditionType={conditionType} store={store} conditionName={condition} values={Object.keys(value?.values)} />
                     </div>
