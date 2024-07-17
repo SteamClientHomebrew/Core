@@ -4,6 +4,7 @@ import spanish from "./locales/spanish.json";
 import indonesian from "./locales/indonesian.json";
 import schinese from "./locales/schinese.json";
 import german from "./locales/german.json";
+import russian from "./locales/russian.json";
 import { Logger } from "../components/Logger";
 
 interface LocalizationData {
@@ -35,7 +36,8 @@ const localizationFiles: { [key: string]: LocalizationData } = {
     spanish,
     indonesian,
     schinese,
-    german
+    german,
+    russian
     // Add other languages here
 };
 
