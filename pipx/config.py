@@ -1,4 +1,5 @@
 import Millennium
+import platform
 import configparser, os
 
 class Config:
@@ -30,7 +31,13 @@ class Config:
 
         LOCALS = os.path.join(Millennium.steam_path(), "ext", "data")
 
-        PYTHON_BIN       = os.path.join(LOCALS, "cache", "python.exe")
+        _platform = platform.system()
+
+        if _platform == "Windows":
+            PYTHON_BIN = os.path.join(LOCALS, "cache", "python.exe")  
+        elif _platform == "Linux":
+            PYTHON_BIN = os.path.join(os.environ.get("HOME"), ".pyenv", "versions", "3.11.8", "bin", "python")
+
         PACMAN_LOGS      = os.path.join(LOCALS, "logs", "pacman.log")
         PIP_INSTALL_LOGS = os.path.join(LOCALS, "logs", "pip_boot.log")
 
