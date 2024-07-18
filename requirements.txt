@@ -1,8 +1,8 @@
 arrow
 psutil
-pywin32
+pywin32 | Windows
 requests
-winrt-Windows.UI.ViewManagement
-winrt-Windows.UI
+winrt-Windows.UI.ViewManagement | Windows
+winrt-Windows.UI | Windows
 pygit2
 websockets

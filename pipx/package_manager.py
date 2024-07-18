@@ -6,6 +6,7 @@ import subprocess
 import threading
 from core.core.plugins import find_all_plugins
 from logger import logger
+import platform
 
 def get_installed_packages():
     package_names = [dist.metadata["Name"] for dist in importlib.metadata.distributions()]
@@ -58,6 +59,8 @@ def uninstall_packages(package_names, config):
     pip(["uninstall", "-y"] + package_names, config)
 
 
+_platform = platform.system()
+
 def needed_packages():
 
     needed_packages = []
@@ -72,7 +75,16 @@ def needed_packages():
         with open(requirements_path, "r") as f:
             for package in f.readlines():
                 if package.strip() not in installed_packages:
-                    needed_packages.append(package.strip())
+
+                    str_package = package.strip() 
+
+                    if "|" in str_package:
+                        items = str_package.split("|")
+
+                        if items[1] == _platform:
+                            needed_packages.append(str_package)
+                    else:
+                        needed_packages.append(str_package)
 
     return needed_packages
 
