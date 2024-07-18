@@ -63,6 +63,8 @@ _platform = platform.system()
 
 def needed_packages():
 
+    print(f"checking for packages on {_platform}")
+
     needed_packages = []
     installed_packages = get_installed_packages()
 
@@ -74,17 +76,20 @@ def needed_packages():
 
         with open(requirements_path, "r") as f:
             for package in f.readlines():
-                if package.strip() not in installed_packages:
 
-                    str_package = package.strip() 
+                package_name = package.strip() 
+                package_platform = _platform
 
-                    if "|" in str_package:
-                        items = str_package.split("|")
+                if "|" in package_name:
+                    split = package_name.split(" | ")
 
-                        if items[1] == _platform:
-                            needed_packages.append(str_package)
-                    else:
-                        needed_packages.append(str_package)
+                    package_name = split[0]
+                    package_platform = split[1]
+
+                if package_name not in installed_packages:
+
+                    if package_platform == _platform:
+                        needed_packages.append(package_name)
 
     return needed_packages
 
