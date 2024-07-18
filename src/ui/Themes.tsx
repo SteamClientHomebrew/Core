@@ -231,6 +231,10 @@ const ThemeViewModal: React.FC = () => {
     ]
     .join(" ")
 
+    const OpenThemesFolder = () => {
+        Millennium.callServerMethod("open_themes_folder")
+    }
+
     return (
         <>
 
@@ -260,6 +264,14 @@ const ThemeViewModal: React.FC = () => {
                                     <IconsModule.Information style={{height: "16px"}}/>
                                 </button>
                             }
+
+                            <button 
+                                onClick={OpenThemesFolder} 
+                                style={{margin: "0", padding: "0px 10px", marginRight: "10px"}} 
+                                className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable millenniumIconButton" 
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="16px" height="16px"><path fill="currentColor" d="M 8.5 8 C 6.019 8 4 10.019 4 12.5 L 4 18 L 16.052734 18 C 16.636734 18 17.202344 17.793922 17.652344 17.419922 L 23.5 12.546875 L 19.572266 9.2734375 C 18.586266 8.4524375 17.336734 8 16.052734 8 L 8.5 8 z M 27.644531 13 L 19.572266 19.724609 C 18.585266 20.546609 17.336734 21 16.052734 21 L 4 21 L 4 35.5 C 4 37.981 6.019 40 8.5 40 L 39.5 40 C 41.981 40 44 37.981 44 35.5 L 44 17.5 C 44 15.019 41.981 13 39.5 13 L 27.644531 13 z" /></svg>
+                            </button>
 
                             <Dropdown contextMenuPositionOptions={{bMatchWidth: false}} rgOptions={themes as any} selectedOption={1} strDefaultLabel={active} onChange={updateThemeCallback as any}></Dropdown>        
                         </div>

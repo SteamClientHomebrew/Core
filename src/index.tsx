@@ -105,9 +105,11 @@ const ProcessUpdates = (updates: UpdateItem[]) => {
 
     const message = `Millennium found ${updateCount} available update${updateCount > 1 ? "s" : ""}`
 
-    SteamClient.ClientNotifications.DisplayClientNotification(
-        1, JSON.stringify({ title: 'Updates Available', body: message, state: 'online', steamid: 0 }), (_: any) => {}
-    )
+    setTimeout(() => {
+        SteamClient.ClientNotifications.DisplayClientNotification(
+            1, JSON.stringify({ title: 'Updates Available', body: message, state: 'online', steamid: 0 }), (_: any) => {}
+        )
+    }, 5000)
 }
 
 // Entry point on the front end of your plugin

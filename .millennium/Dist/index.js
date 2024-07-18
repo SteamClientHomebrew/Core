@@ -1995,6 +1995,9 @@ var millennium_main = (function (exports, React, ReactDOM) {
             "Panel"
         ]
             .join(" ");
+        const OpenThemesFolder = () => {
+            wrappedCallServerMethod("open_themes_folder");
+        };
         return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
             window.SP_REACT.createElement("style", null, `.DialogDropDown._DialogInputContainer.Panel.Focusable {
                         min-width: max-content !important;
@@ -2009,6 +2012,9 @@ var millennium_main = (function (exports, React, ReactDOM) {
                             !pluginSelf.isDefaultTheme &&
                                 window.SP_REACT.createElement("button", { onClick: () => SetupAboutRenderer(active), style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable millenniumIconButton" },
                                     window.SP_REACT.createElement(IconsModule.Information, { style: { height: "16px" } })),
+                            window.SP_REACT.createElement("button", { onClick: OpenThemesFolder, style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable millenniumIconButton" },
+                                window.SP_REACT.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 48 48", width: "16px", height: "16px" },
+                                    window.SP_REACT.createElement("path", { fill: "currentColor", d: "M 8.5 8 C 6.019 8 4 10.019 4 12.5 L 4 18 L 16.052734 18 C 16.636734 18 17.202344 17.793922 17.652344 17.419922 L 23.5 12.546875 L 19.572266 9.2734375 C 18.586266 8.4524375 17.336734 8 16.052734 8 L 8.5 8 z M 27.644531 13 L 19.572266 19.724609 C 18.585266 20.546609 17.336734 21 16.052734 21 L 4 21 L 4 35.5 C 4 37.981 6.019 40 8.5 40 L 39.5 40 C 41.981 40 44 37.981 44 35.5 L 44 17.5 C 44 15.019 41.981 13 39.5 13 L 27.644531 13 z" }))),
                             window.SP_REACT.createElement(Dropdown, { contextMenuPositionOptions: { bMatchWidth: false }, rgOptions: themes, selectedOption: 1, strDefaultLabel: active, onChange: updateThemeCallback }))),
                     window.SP_REACT.createElement("div", { className: classMap.FieldDescription },
                         window.SP_REACT.createElement("div", null, locale.themePanelThemeTooltip),
@@ -2457,7 +2463,9 @@ var millennium_main = (function (exports, React, ReactDOM) {
             return;
         }
         const message = `Millennium found ${updateCount} available update${updateCount > 1 ? "s" : ""}`;
-        SteamClient.ClientNotifications.DisplayClientNotification(1, JSON.stringify({ title: 'Updates Available', body: message, state: 'online', steamid: 0 }), (_) => { });
+        setTimeout(() => {
+            SteamClient.ClientNotifications.DisplayClientNotification(1, JSON.stringify({ title: 'Updates Available', body: message, state: 'online', steamid: 0 }), (_) => { });
+        }, 5000);
     };
     // Entry point on the front end of your plugin
     async function PluginMain() {
