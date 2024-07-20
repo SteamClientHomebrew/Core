@@ -1308,12 +1308,12 @@ var millennium_main = (function (exports, React, ReactDOM) {
     };
 
     var itemNoDescription$1 = "Noch keine Beschreibung.";
-    var themePanelThemeTooltip$1 = "Wählen Sie das Theme aus, das Steam benutzen soll (muss neu geladen werden)";
+    var themePanelThemeTooltip$1 = "Wählen Sie das Theme aus, das Steam benutzen soll. (Neustart erforderlich)";
     var themePanelGetMoreThemes$1 = "Weitere Themes";
     var themePanelInjectJavascript$1 = "JavaScript Injizieren";
-    var themePanelInjectJavascriptToolTip$1 = "Entscheiden Sie, ob Themes JavaScript in Steam einbinden dürfen. Das Deaktivieren von JavaScript kann die Steam-Schnittstelle als Nebenprodukt zerstören (erfordert einen Neustart).";
+    var themePanelInjectJavascriptToolTip$1 = "Entscheiden Sie, ob Themes JavaScript in Steam einbinden dürfen. Das Deaktivieren von JavaScript kann die Steam-Schnittstelle als Nebenprodukt zerstören. (Neustart erforderlich)";
     var themePanelInjectCSS$1 = "StyleSheets Injizieren";
-    var themePanelInjectCSSToolTip$1 = "Entscheiden Sie, ob Themes StyleSheets in Steam einbinden dürfen. (erfordert einen Neustart)";
+    var themePanelInjectCSSToolTip$1 = "Entscheiden Sie, ob Themes StyleSheets in Steam einbinden dürfen. (Neustart erforderlich)";
     var updatePanelHasUpdates$1 = "Updates verfügbar!";
     var updatePanelHasUpdatesSub$1 = "Millennium hat die folgenden Updates für Ihre Themes gefunden.";
     var updatePanelReleasedTag$1 = "Veröffentlicht:";
