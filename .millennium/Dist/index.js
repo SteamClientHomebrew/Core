@@ -1996,7 +1996,15 @@ var millennium_main = (function (exports, React, ReactDOM) {
         ]
             .join(" ");
         const OpenThemesFolder = () => {
-            wrappedCallServerMethod("open_themes_folder");
+            wrappedCallServerMethod("Millennium.steam_path")
+                .then((result) => {
+                pluginSelf.connectionFailed = false;
+                return result;
+            })
+                .then((path) => {
+                console.log(path);
+                SteamClient.System.OpenLocalDirectoryInSystemExplorer(`${path}/steamui/skins`);
+            });
         };
         return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
             window.SP_REACT.createElement("style", null, `.DialogDropDown._DialogInputContainer.Panel.Focusable {

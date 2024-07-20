@@ -232,7 +232,15 @@ const ThemeViewModal: React.FC = () => {
     .join(" ")
 
     const OpenThemesFolder = () => {
-        Millennium.callServerMethod("open_themes_folder")
+        Millennium.callServerMethod("Millennium.steam_path")
+        .then((result: any) => {
+            pluginSelf.connectionFailed = false
+            return result
+        })
+        .then((path: string) => {
+            console.log(path)
+            SteamClient.System.OpenLocalDirectoryInSystemExplorer(`${path}/steamui/skins`)
+        })
     }
 
     return (

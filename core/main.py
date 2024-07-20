@@ -28,19 +28,6 @@ def get_load_config():
 def update_plugin_status(plugin_name: str, enabled: bool):
     Millennium.change_plugin_status(plugin_name, enabled)
 
-def open_file_explorer(path: str = '.'):
-    if platform.system() == "Windows":
-        subprocess.Popen(["explorer", path])
-    elif platform.system() == "Darwin":
-        subprocess.run(["open", path])
-    elif platform.system() == "Linux":
-        subprocess.run(["xdg-open", path])
-    else:
-        raise OSError("Unsupported operating system")
-
-def open_themes_folder():
-    open_file_explorer(os.path.join(Millennium.steam_path(), 'steamui', 'skins'))
-    
 class Plugin:
     def _front_end_loaded(self):
         print("SteamUI successfully loaded!")
