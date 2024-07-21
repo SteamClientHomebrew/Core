@@ -821,7 +821,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
         return false;
     };
     const EvaluatePatch = (type, modulePatch, documentTitle, classList, document) => {
-        if (modulePatch[CommonPatchTypes[type]] === undefined) {
+        if (modulePatch?.[CommonPatchTypes?.[type]] === undefined) {
             return;
         }
         modulePatch[CommonPatchTypes[type]].affects.forEach((affectee) => {

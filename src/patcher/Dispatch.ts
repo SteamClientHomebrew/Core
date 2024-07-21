@@ -58,7 +58,7 @@ export const classListMatch = (classList: string[], affectee: string) => {
 
 export const EvaluatePatch = (type: ModuleType, modulePatch: ConditionalControlFlow, documentTitle: string, classList: string[], document: Document) => {
 
-    if ((modulePatch as any)[CommonPatchTypes[type]] === undefined) {
+    if ((modulePatch as any)?.[CommonPatchTypes?.[type]] === undefined) {
         return 
     }
 
