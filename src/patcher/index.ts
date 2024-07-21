@@ -1,7 +1,7 @@
 import { pluginSelf } from "@millennium/ui";
 import { ConditionalControlFlowType as ModuleType, Patch, ThemeItem } from "../components/types";
 import { DOMModifier, classListMatch, constructThemePath } from "./Dispatch";
-import { evaluateConditions } from "./v2/Conditions";
+import { EvaluateConditions } from "./v2/Conditions";
 import { PatchV1, EvaluateStatements } from "./v1/Conditions"
 
 const EvaluateModule = (module: string, type: ModuleType, document: Document) => {
@@ -38,7 +38,7 @@ const SanitizeTargetModule = (module: string | Array<string>, type: ModuleType, 
     }
 }
 
-const evaluatePatches = (activeTheme: ThemeItem, documentTitle: string, classList: string[], document: Document, context: any) => {
+const EvaluatePatches = (activeTheme: ThemeItem, documentTitle: string, classList: string[], document: Document, context: any) => {
     
     activeTheme.data.Patches.forEach((patch: Patch) => {
 
@@ -55,7 +55,7 @@ const evaluatePatches = (activeTheme: ThemeItem, documentTitle: string, classLis
         // backwards compatability with old millennium versions. 
         const PatchV1 = (patch as PatchV1)
 
-        if (PatchV1?.Statement !== undefined) {
+        if (pluginSelf.conditionVersion == 1 && PatchV1?.Statement !== undefined) {
             EvaluateStatements(PatchV1, document)
         }
     });
@@ -90,8 +90,14 @@ function patchDocumentContext(windowContext: any)
     // Append old global colors struct to DOM
     pluginSelf?.GlobalsColors && DOMModifier.AddStyleSheetFromText(document, pluginSelf.GlobalsColors, "GlobalColors")
 
-    activeTheme?.data?.hasOwnProperty("Patches") && evaluatePatches(activeTheme, documentTitle, classList, document, windowContext)
-    activeTheme?.data?.hasOwnProperty("Conditions") && evaluateConditions(activeTheme, documentTitle, classList, document)
+    if (activeTheme?.data?.Conditions) {
+        pluginSelf.conditionVersion = 2
+        EvaluateConditions(activeTheme, documentTitle, classList, document)
+    }
+    else {
+        pluginSelf.conditionVersion = 1
+    }
+    activeTheme?.data?.hasOwnProperty("Patches") && EvaluatePatches(activeTheme, documentTitle, classList, document, windowContext)
 }
 
 export { patchDocumentContext }

@@ -820,7 +820,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
         }
         return false;
     };
-    const evaluatePatch = (type, modulePatch, documentTitle, classList, document) => {
+    const EvaluatePatch = (type, modulePatch, documentTitle, classList, document) => {
         if (modulePatch[CommonPatchTypes[type]] === undefined) {
             return;
         }
@@ -839,7 +839,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
         });
     };
 
-    const evaluateConditions = (theme, title, classes, document) => {
+    const EvaluateConditions = (theme, title, classes, document) => {
         const themeConditions = theme.data.Conditions;
         const savedConditions = pluginSelf.conditionals[theme.native];
         for (const condition in themeConditions) {
@@ -848,8 +848,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
             }
             if (condition in savedConditions) {
                 const patch = themeConditions[condition].values[savedConditions[condition]];
-                evaluatePatch(ConditionalControlFlowType.TargetCss, patch, title, classes, document);
-                evaluatePatch(ConditionalControlFlowType.TargetJs, patch, title, classes, document);
+                EvaluatePatch(ConditionalControlFlowType.TargetCss, patch, title, classes, document);
+                EvaluatePatch(ConditionalControlFlowType.TargetJs, patch, title, classes, document);
             }
         }
     };
@@ -956,7 +956,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
             module.forEach((node) => EvaluateModule(node, type, document));
         }
     };
-    const evaluatePatches = (activeTheme, documentTitle, classList, document, context) => {
+    const EvaluatePatches = (activeTheme, documentTitle, classList, document, context) => {
         activeTheme.data.Patches.forEach((patch) => {
             const match = patch.MatchRegexString;
             context.m_popup.window.HAS_INJECTED_THEME = true;
@@ -967,7 +967,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
             SanitizeTargetModule(patch?.TargetJs, ConditionalControlFlowType.TargetJs, document);
             // backwards compatability with old millennium versions. 
             const PatchV1 = patch;
-            if (PatchV1?.Statement !== undefined) {
+            if (pluginSelf.conditionVersion == 1 && PatchV1?.Statement !== undefined) {
                 EvaluateStatements(PatchV1, document);
             }
         });
@@ -994,8 +994,14 @@ var millennium_main = (function (exports, React, ReactDOM) {
         DOMModifier.AddStyleSheetFromText(document, pluginSelf.systemColor, "SystemAccentColorInject");
         // Append old global colors struct to DOM
         pluginSelf?.GlobalsColors && DOMModifier.AddStyleSheetFromText(document, pluginSelf.GlobalsColors, "GlobalColors");
-        activeTheme?.data?.hasOwnProperty("Patches") && evaluatePatches(activeTheme, documentTitle, classList, document, windowContext);
-        activeTheme?.data?.hasOwnProperty("Conditions") && evaluateConditions(activeTheme, documentTitle, classList, document);
+        if (activeTheme?.data?.Conditions) {
+            pluginSelf.conditionVersion = 2;
+            EvaluateConditions(activeTheme, documentTitle, classList, document);
+        }
+        else {
+            pluginSelf.conditionVersion = 1;
+        }
+        activeTheme?.data?.hasOwnProperty("Patches") && EvaluatePatches(activeTheme, documentTitle, classList, document, windowContext);
     }
 
     var settingsPanelPlugins$5 = "Plugins";

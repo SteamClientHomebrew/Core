@@ -1,8 +1,8 @@
 import { pluginSelf } from "@millennium/ui"
 import { Conditions, ConditionsStore, ThemeItem, ConditionalControlFlowType as ModuleType } from "../../components/types"
-import { evaluatePatch } from "../Dispatch"
+import { EvaluatePatch } from "../Dispatch"
 
-export const evaluateConditions = (theme: ThemeItem, title: string, classes: string[], document: Document): void => {
+export const EvaluateConditions = (theme: ThemeItem, title: string, classes: string[], document: Document): void => {
 
     const themeConditions: Conditions = theme.data.Conditions
     const savedConditions: ConditionsStore = pluginSelf.conditionals[theme.native]
@@ -16,8 +16,8 @@ export const evaluateConditions = (theme: ThemeItem, title: string, classes: str
         if (condition in savedConditions) {
             const patch = themeConditions[condition].values[savedConditions[condition]]
 
-            evaluatePatch(ModuleType.TargetCss, patch, title, classes, document)
-            evaluatePatch(ModuleType.TargetJs, patch, title, classes, document)
+            EvaluatePatch(ModuleType.TargetCss, patch, title, classes, document)
+            EvaluatePatch(ModuleType.TargetJs, patch, title, classes, document)
         }
     }
 }
