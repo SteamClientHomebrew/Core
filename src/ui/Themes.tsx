@@ -90,8 +90,10 @@ interface EditThemeProps {
  */
 const RenderEditTheme: React.FC<EditThemeProps> = ({ active }) => {
 
+    const Theme = (pluginSelf.activeTheme as ThemeItem)
+
     /** Current theme is not editable */
-    if (pluginSelf?.isDefaultTheme || (pluginSelf.activeTheme as ThemeItem)?.data?.Conditions === undefined) {
+    if (pluginSelf?.isDefaultTheme || (Theme?.data?.Conditions === undefined && Theme?.data?.RootColors === undefined)) {
         return (<></>)
     }
 

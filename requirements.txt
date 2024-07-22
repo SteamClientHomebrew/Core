@@ -5,4 +5,5 @@ requests
 winrt-Windows.UI.ViewManagement | Windows
 winrt-Windows.UI | Windows
 pygit2
+cssutils
 websockets

@@ -1,6 +1,7 @@
 import os
 import json
 import Millennium
+from core.color_parser import ColorTypes, convert_from_hex, convert_to_hex, parse_root
 from core.themes import is_valid
 from webkit.stack import WebkitStack, add_browser_css
 
@@ -34,6 +35,8 @@ class Config:
     def set_config(self, dumps: str) -> None:
         with open(self.config_path, 'w') as config:
             config.write(dumps)
+
+        self.config = self.get_config()
 
 
     def change_theme(self, theme_name: str) -> None:
@@ -75,18 +78,98 @@ class Config:
     
     def start_webkit_hook(self, theme, name):
 
-        if "failed" not in theme and "Steam-WebKit" in theme["data"] and isinstance(theme["data"]["Steam-WebKit"], str):
-            print("preloading webkit hooks...")
-            add_browser_css(os.path.join(Millennium.steam_path(), "skins", name, theme["data"]["Steam-WebKit"]))
+        if "failed" not in theme:
+            if "Steam-WebKit" in theme["data"] and isinstance(theme["data"]["Steam-WebKit"], str):
+                print("Preloading webkit hooks...")
+                add_browser_css(os.path.join(Millennium.steam_path(), "skins", name, theme["data"]["Steam-WebKit"]))
+
+            if "RootColors" in theme["data"] and isinstance(theme["data"]["RootColors"], str):
+                root_colors = os.path.join(Millennium.steam_path(), "skins", name, theme["data"]["RootColors"])
+                print("Inserting root colors...")
+                add_browser_css(root_colors)
+ 
+    def setup_colors(self, file_path):
+    
+        self.colors = json.loads(parse_root(file_path))
+    
+        if "colors" not in self.config:
+            self.config["colors"] = {}
+
+        if self.name not in self.config["colors"]:
+            self.config["colors"][self.name] = {}
+
+        print(f"Setting up colors for {self.name}...")
+
+        for color in self.colors:
+            color_name = color["color"]
+            color_value = color["defaultColor"]
+
+            if color_name not in self.config["colors"][self.name]:
+                self.config["colors"][self.name][color_name] = color_value
+
+        self.set_config(json.dumps(self.config, indent=4))
+
+    def get_colors(self):
+        
+        def create_root(data: str):
+            return f":root {{{data}}}"
+
+        if "colors" not in self.config:
+            return create_root("")
+
+        if self.name not in self.config["colors"]:
+            return create_root("")
+        
+        root: str = ""
+        for color in self.config["colors"][self.name]:
+            root += f"{color}: {self.config['colors'][self.name][color]};"
+
+        return create_root(root)
+    
+    def get_color_opts(self):
+
+        root_colors = self.colors
+
+        for saved_color in self.config["colors"][self.name]:
+            for color in root_colors:
+                if color["color"] == saved_color:
+                    print(self.config["colors"][self.name][saved_color], color["type"], convert_to_hex(self.config["colors"][self.name][saved_color], color["type"]))
+                    color["hex"] = convert_to_hex(self.config["colors"][self.name][saved_color], ColorTypes(color["type"]))
+
+        # print(json.dumps(root_colors, indent=4))
+
+        return json.dumps(root_colors, indent=4)
+    
+
+    def change_color(self, color_name: str, new_color: str, type: int) -> None:
+        type = ColorTypes(type)
+
+        for color in self.config["colors"][self.name]:
+            if color != color_name:
+                continue
+
+            parsed_color = convert_from_hex(new_color, type)
+            self.config["colors"][self.name][color] = parsed_color
+
+            self.set_config(json.dumps(self.config, indent=4))
+            return parsed_color
+
+
 
     def set_theme_cb(self):
 
         config = self.get_config()
-        theme = json.loads(self.get_active_theme())
-        name = self.get_active_theme_name()
+        self.theme = json.loads(self.get_active_theme())
+        self.name = self.get_active_theme_name()
 
-        self.start_webkit_hook(theme, name)
-        self.setup_conditionals(theme, name, config)
+        self.start_webkit_hook(self.theme, self.name)
+        self.setup_conditionals(self.theme, self.name, config)
+
+        if "data" in self.theme and "RootColors" in self.theme["data"]:
+            root_colors = os.path.join(Millennium.steam_path(), "steamui", "skins", self.name, self.theme["data"]["RootColors"])
+
+            print("Setting up root colors...")
+            self.setup_colors(root_colors)
 
 
     def __init__(self):

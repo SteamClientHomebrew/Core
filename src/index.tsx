@@ -87,6 +87,7 @@ const InitializePatcher = (startTime: number, result: SettingsProps) => {
     pluginSelf.conditionals   = result.conditions as ConditionsStore
     pluginSelf.scriptsAllowed = result?.settings?.scripts as boolean ?? true
     pluginSelf.stylesAllowed  = result?.settings?.styles as boolean ?? true
+    pluginSelf.steamPath      = result.steamPath
 
     // @ts-ignore
     if (g_PopupManager.m_mapPopups.size > 0) {

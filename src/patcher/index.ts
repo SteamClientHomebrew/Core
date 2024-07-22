@@ -1,4 +1,4 @@
-import { pluginSelf } from "@millennium/ui";
+import { Millennium, pluginSelf } from "@millennium/ui";
 import { ConditionalControlFlowType as ModuleType, Patch, ThemeItem } from "../components/types";
 import { DOMModifier, classListMatch, constructThemePath } from "./Dispatch";
 import { EvaluateConditions } from "./v2/Conditions";
@@ -98,6 +98,11 @@ function patchDocumentContext(windowContext: any)
         pluginSelf.conditionVersion = 1
     }
     activeTheme?.data?.hasOwnProperty("Patches") && EvaluatePatches(activeTheme, documentTitle, classList, document, windowContext)
+    if (activeTheme?.data?.hasOwnProperty("RootColors")) {
+        Millennium.callServerMethod("cfg.get_colors").then((colors: any) => {      
+            DOMModifier.AddStyleSheetFromText(document, colors, "RootColors")
+        })
+    }
 }
 
 export { patchDocumentContext }

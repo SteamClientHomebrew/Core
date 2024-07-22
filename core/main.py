@@ -2,6 +2,7 @@ import subprocess, platform
 import Millennium
 import os, threading, json
 
+from core.color_parser import parse_root
 from core.themes import Colors
 from ipc.socket import serve_websocket, start_websocket_server
 
@@ -22,7 +23,8 @@ def get_load_config():
         "accent_color": json.loads(Colors.get_accent_color()), 
         "conditions": config["conditions"] if "conditions" in config else None, 
         "active_theme": json.loads(cfg.get_active_theme()),
-        "settings": config
+        "settings": config,
+        "steamPath": Millennium.steam_path()
     })
 
 def update_plugin_status(plugin_name: str, enabled: bool):
@@ -33,16 +35,7 @@ class Plugin:
         print("SteamUI successfully loaded!")
 
     def _load(self):     
-        try:
-            theme = json.loads(cfg.get_active_theme())
-            name = cfg.get_active_theme_name()
-
-            if "failed" not in theme and "Steam-WebKit" in theme["data"] and isinstance(theme["data"]["Steam-WebKit"], str):
-                print("Preloading webkit hooks...")
-                add_browser_css(os.path.join(Millennium.steam_path(), "skins", name, theme["data"]["Steam-WebKit"]))
-
-        except Exception as exception:
-            print(f"Exception thrown while loading core: {exception}")
+        cfg.set_theme_cb()
 
         websocket_thread = threading.Thread(target=start_websocket_server)
         websocket_thread.start()

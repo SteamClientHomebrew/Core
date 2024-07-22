@@ -59,6 +59,7 @@ export interface ConditionsStore {
  * There is no garuntee a given Theme contains any elements
  */
 export interface Theme {
+    RootColors?: string, // path to root colors
     Patches?: Patch[],
     UseDefaultPatches?: boolean,
     Conditions?: Conditions,
@@ -135,7 +136,8 @@ export interface SettingsProps {
     accent_color: SystemAccentColor,
     active_theme: ThemeItem,
     conditions: ConditionsStore,
-    settings: Settings
+    settings: Settings,
+    steamPath: string,
 }
 
 export interface ColorProp {

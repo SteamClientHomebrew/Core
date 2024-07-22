@@ -1,7 +1,8 @@
-import React, { useState } from "react"
-import { Classes, Dropdown, Millennium, SingleDropdownOption, Toggle, classMap, pluginSelf } from "@millennium/ui"
+import React, { useEffect, useState } from "react"
+import { Button, Classes, DialogBodyText, DialogSubHeader, Dropdown, Millennium, SingleDropdownOption, Toggle, classMap, findClassModule, pluginSelf } from "@millennium/ui"
 import { Conditions, ConditionsStore, ICondition, ThemeItem } from "../components/types"
 import { FieldClasses } from "../components/Classes"
+import { locale } from "../locales"
 
 interface ConditionalComponent {
     condition: string,
@@ -16,9 +17,41 @@ interface ComponentInterface {
     store: ConditionsStore
 }
 
+const containerClasses = [
+    Classes.Field, 
+    Classes.WithFirstRow, 
+    Classes.VerticalAlignCenter, 
+    Classes.WithDescription, 
+    Classes.WithBottomSeparatorStandard, 
+    Classes.ChildrenWidthFixed, 
+    Classes.ExtraPaddingOnChildrenBelow, 
+    Classes.StandardPadding, 
+    Classes.HighlightOnFocus,
+    "Panel"
+]
+.join(" ")
+
 enum ConditionType {
     Dropdown,
     Toggle
+}
+
+enum ColorTypes {
+    RawRGB = 1,
+    RGB = 2,
+    RawRGBA = 3,
+    RGBA = 4,
+    Hex = 5,
+    Unknown = 6
+}
+
+interface ColorProps {
+    name?: string,
+    description?: string,
+    color: string,
+    type: ColorTypes,
+    hex: string,
+    defaultColor: string
 }
 
 export class RenderThemeEditor extends React.Component {
@@ -87,20 +120,6 @@ export class RenderThemeEditor extends React.Component {
     RenderComponent: React.FC<ConditionalComponent> = ({condition, value, store}) => {
     
         const conditionType: ConditionType = this.GetConditionType(value.values)
-    
-        const containerClasses = [
-            Classes.Field, 
-            Classes.WithFirstRow, 
-            Classes.VerticalAlignCenter, 
-            Classes.WithDescription, 
-            Classes.WithBottomSeparatorStandard, 
-            Classes.ChildrenWidthFixed, 
-            Classes.ExtraPaddingOnChildrenBelow, 
-            Classes.StandardPadding, 
-            Classes.HighlightOnFocus,
-            "Panel"
-        ]
-        .join(" ")
 
         return (
             <div key={condition} className={containerClasses}>
@@ -116,16 +135,86 @@ export class RenderThemeEditor extends React.Component {
         )
     }
     
+    RenderColorComponent: React.FC<{color: ColorProps, index: number}> = ({color, index}) => {
+
+        const [colorState, setColorState] = useState(color?.hex ?? "#000000")
+        const settingsClasses = findClassModule(m => m.SettingsTitleBar && m.SettingsDialogButton) as any
+
+        (window as any).lastColorChangeTime = performance.now();
+
+        const UpdateColor = (hexColor: string) => {
+            if (performance.now() - (window as any).lastColorChangeTime < 5) { 
+                return;
+            }
+
+            setColorState(hexColor)
+
+            Millennium.callServerMethod("cfg.change_color", { color_name: color.color, new_color: hexColor, type: color.type })
+            .then((result: any) => {
+                // @ts-ignore
+                g_PopupManager.m_mapPopups.data_.forEach((element: any) => {
+                    var rootColors = element.value_.m_popup.window.document.getElementById("RootColors");
+                    rootColors.innerHTML = rootColors.innerHTML.replace(new RegExp(`${color.color}:.*?;`, 'g'), `${color.color}: ${result};`)
+                })
+            })
+        }
+
+        const ResetColor = () => {
+            UpdateColor(color.defaultColor)
+        }
+
+        return (
+            <div key={index} className={containerClasses}>
+                <div className={FieldClasses.FieldLabelRow}>
+                    <div className={FieldClasses.FieldLabel}>{color?.name ?? color?.color}</div>
+                    <div className={classMap.FieldChildrenWithIcon}>
+                        {colorState != color.defaultColor && <Button className={settingsClasses.SettingsDialogButton + " DialogButton _DialogLayout Secondary"} onClick={ResetColor}>Reset</Button>}
+                        <input type="color" className="colorPicker" name="colorPicker" value={colorState} onChange={(event) => UpdateColor(event.target.value)}/>
+                    </div>
+                </div>
+                <div className={classMap.FieldDescription} dangerouslySetInnerHTML={{__html: color?.description ?? "No description yet."}}>
+                </div>
+            </div> 
+        )
+    }
+
+    RenderColorsOpts: React.FC = () => {
+        const activeTheme: ThemeItem = pluginSelf.activeTheme as ThemeItem
+        const [themeColors, setThemeColors] = useState<ColorProps[]>()
+
+        useEffect(() => {
+            if (activeTheme?.data?.RootColors) {
+                Millennium.callServerMethod("cfg.get_color_opts")
+                .then((result: any) => {
+                    console.log(JSON.parse(result) as ColorProps[])
+                    setThemeColors(JSON.parse(result) as ColorProps[])
+                })
+            }
+        }, [])
+
+        return themeColors && <>
+            <DialogSubHeader className='_2rK4YqGvSzXLj1bPZL8xMJ'>{locale.customThemeSettingsColorsHeader}</DialogSubHeader>
+            <DialogBodyText className='_3fPiC9QRyT5oJ6xePCVYz8'>{locale.customThemeSettingsColorsDescription}</DialogBodyText>
+
+            {themeColors?.map((color: any, index: number) => <this.RenderColorComponent color={color} index={index}/>)}
+        </>      
+    }
+
     render() {
         const activeTheme: ThemeItem = pluginSelf.activeTheme as ThemeItem
     
         const themeConditions: Conditions = activeTheme.data.Conditions
         const savedConditions = pluginSelf?.conditionals?.[activeTheme.native] as ConditionsStore
-    
+
         return (
             <div className="ModalPosition" tabIndex={0}>
 
-                <style>{`.DialogBody.${Classes.SettingsDialogBodyFade}:last-child { padding-bottom: 65px; }`}</style>
+                <style>
+                    {
+                        `.DialogBody.${Classes.SettingsDialogBodyFade}:last-child { padding-bottom: 65px; }
+                        input.colorPicker { margin-left: 10px !important; border: unset !important; min-width: 38px; width: 38px !important; height: 38px; !important; background: transparent; padding: unset !important; }`
+                    }
+                </style>
 
                 <div className="ModalPosition_Content" style={{width: "100vw", height: "100vh"}}>
                     <div className={`${Classes.PagedSettingsDialog} ${Classes.SettingsModal} ${Classes.DesktopPopup} Panel`}>
@@ -134,7 +223,13 @@ export class RenderThemeEditor extends React.Component {
                                 <div className="DialogContent_InnerWidth">
                                     <div className="DialogHeader">Editing {activeTheme?.data?.name ?? activeTheme.native}</div>
                                     <div className={`DialogBody ${Classes.SettingsDialogBodyFade}`}>
-                                        {Object.entries(themeConditions).map(([key, value]) => <this.RenderComponent condition={key} store={savedConditions} value={value}/>)}
+                                        {themeConditions && <>
+                                            <DialogSubHeader className='_2rK4YqGvSzXLj1bPZL8xMJ'>{locale.customThemeSettingsConfigHeader}</DialogSubHeader>
+                                            <DialogBodyText className='_3fPiC9QRyT5oJ6xePCVYz8'>{locale.customThemeSettingsConfigDescription}</DialogBodyText>
+                                    
+                                            {Object.entries(themeConditions).map(([key, value]) => <this.RenderComponent condition={key} store={savedConditions} value={value}/>)}
+                                        </>}
+                                        <this.RenderColorsOpts/>
                                     </div>
                                 </div>
                             </div>

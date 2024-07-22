@@ -1002,6 +1002,11 @@ var millennium_main = (function (exports, React, ReactDOM) {
             pluginSelf.conditionVersion = 1;
         }
         activeTheme?.data?.hasOwnProperty("Patches") && EvaluatePatches(activeTheme, documentTitle, classList, document, windowContext);
+        if (activeTheme?.data?.hasOwnProperty("RootColors")) {
+            wrappedCallServerMethod("cfg.get_colors").then((colors) => {
+                DOMModifier.AddStyleSheetFromText(document, colors, "RootColors");
+            });
+        }
     }
 
     var settingsPanelPlugins$5 = "Plugins";
@@ -1035,6 +1040,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
     var optionReloadLater$6 = "Reload Later";
     var updatePanelUpdateNotifications$2 = "Push Notifications";
     var updatePanelUpdateNotificationsTooltip$2 = "Get Millennium to give you a reminder when a item in your library has an update!";
+    var customThemeSettingsColorsHeader = "Color Options";
+    var customThemeSettingsColorsDescription = "Customize the colors of your theme.";
+    var customThemeSettingsConfigHeader = "Custom Settings";
+    var customThemeSettingsConfigDescription = "Customize the settings of your theme.";
     var english = {
     	settingsPanelPlugins: settingsPanelPlugins$5,
     	settingsPanelThemes: settingsPanelThemes$5,
@@ -1066,7 +1075,11 @@ var millennium_main = (function (exports, React, ReactDOM) {
     	optionReloadNow: optionReloadNow$6,
     	optionReloadLater: optionReloadLater$6,
     	updatePanelUpdateNotifications: updatePanelUpdateNotifications$2,
-    	updatePanelUpdateNotificationsTooltip: updatePanelUpdateNotificationsTooltip$2
+    	updatePanelUpdateNotificationsTooltip: updatePanelUpdateNotificationsTooltip$2,
+    	customThemeSettingsColorsHeader: customThemeSettingsColorsHeader,
+    	customThemeSettingsColorsDescription: customThemeSettingsColorsDescription,
+    	customThemeSettingsConfigHeader: customThemeSettingsConfigHeader,
+    	customThemeSettingsConfigDescription: customThemeSettingsConfigDescription
     };
 
     var settingsPanelPlugins$4 = "Wtyczki";
@@ -1565,11 +1578,33 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, plugin?.data?.description ?? locale.itemNoDescription)))))));
     };
 
+    const containerClasses$1 = [
+        Classes.Field,
+        Classes.WithFirstRow,
+        Classes.VerticalAlignCenter,
+        Classes.WithDescription,
+        Classes.WithBottomSeparatorStandard,
+        Classes.ChildrenWidthFixed,
+        Classes.ExtraPaddingOnChildrenBelow,
+        Classes.StandardPadding,
+        Classes.HighlightOnFocus,
+        "Panel"
+    ]
+        .join(" ");
     var ConditionType;
     (function (ConditionType) {
         ConditionType[ConditionType["Dropdown"] = 0] = "Dropdown";
         ConditionType[ConditionType["Toggle"] = 1] = "Toggle";
     })(ConditionType || (ConditionType = {}));
+    var ColorTypes;
+    (function (ColorTypes) {
+        ColorTypes[ColorTypes["RawRGB"] = 1] = "RawRGB";
+        ColorTypes[ColorTypes["RGB"] = 2] = "RGB";
+        ColorTypes[ColorTypes["RawRGBA"] = 3] = "RawRGBA";
+        ColorTypes[ColorTypes["RGBA"] = 4] = "RGBA";
+        ColorTypes[ColorTypes["Hex"] = 5] = "Hex";
+        ColorTypes[ColorTypes["Unknown"] = 6] = "Unknown";
+    })(ColorTypes || (ColorTypes = {}));
     class RenderThemeEditor extends React.Component {
         constructor() {
             super(...arguments);
@@ -1622,25 +1657,58 @@ var millennium_main = (function (exports, React, ReactDOM) {
             };
             this.RenderComponent = ({ condition, value, store }) => {
                 const conditionType = this.GetConditionType(value.values);
-                const containerClasses = [
-                    Classes.Field,
-                    Classes.WithFirstRow,
-                    Classes.VerticalAlignCenter,
-                    Classes.WithDescription,
-                    Classes.WithBottomSeparatorStandard,
-                    Classes.ChildrenWidthFixed,
-                    Classes.ExtraPaddingOnChildrenBelow,
-                    Classes.StandardPadding,
-                    Classes.HighlightOnFocus,
-                    "Panel"
-                ]
-                    .join(" ");
-                return (window.SP_REACT.createElement("div", { key: condition, className: containerClasses },
+                return (window.SP_REACT.createElement("div", { key: condition, className: containerClasses$1 },
                     window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabelRow },
                         window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabel }, condition),
                         window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon },
                             window.SP_REACT.createElement(this.RenderComponentInterface, { conditionType: conditionType, store: store, conditionName: condition, values: Object.keys(value?.values) }))),
                     window.SP_REACT.createElement("div", { className: classMap.FieldDescription, dangerouslySetInnerHTML: { __html: value?.description ?? "No description yet." } })));
+            };
+            this.RenderColorComponent = ({ color, index }) => {
+                const [colorState, setColorState] = React.useState(color?.hex ?? "#000000");
+                const settingsClasses = findClassModule(m => m.SettingsTitleBar && m.SettingsDialogButton);
+                window.lastColorChangeTime = performance.now();
+                const UpdateColor = (hexColor) => {
+                    if (performance.now() - window.lastColorChangeTime < 5) {
+                        return;
+                    }
+                    setColorState(hexColor);
+                    wrappedCallServerMethod("cfg.change_color", { color_name: color.color, new_color: hexColor, type: color.type })
+                        .then((result) => {
+                        // @ts-ignore
+                        g_PopupManager.m_mapPopups.data_.forEach((element) => {
+                            var rootColors = element.value_.m_popup.window.document.getElementById("RootColors");
+                            rootColors.innerHTML = rootColors.innerHTML.replace(new RegExp(`${color.color}:.*?;`, 'g'), `${color.color}: ${result};`);
+                        });
+                    });
+                };
+                const ResetColor = () => {
+                    UpdateColor(color.defaultColor);
+                };
+                return (window.SP_REACT.createElement("div", { key: index, className: containerClasses$1 },
+                    window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabelRow },
+                        window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabel }, color?.name ?? color?.color),
+                        window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon },
+                            colorState != color.defaultColor && window.SP_REACT.createElement(Button, { className: settingsClasses.SettingsDialogButton + " DialogButton _DialogLayout Secondary", onClick: ResetColor }, "Reset"),
+                            window.SP_REACT.createElement("input", { type: "color", className: "colorPicker", name: "colorPicker", value: colorState, onChange: (event) => UpdateColor(event.target.value) }))),
+                    window.SP_REACT.createElement("div", { className: classMap.FieldDescription, dangerouslySetInnerHTML: { __html: color?.description ?? "No description yet." } })));
+            };
+            this.RenderColorsOpts = () => {
+                const activeTheme = pluginSelf.activeTheme;
+                const [themeColors, setThemeColors] = React.useState();
+                React.useEffect(() => {
+                    if (activeTheme?.data?.RootColors) {
+                        wrappedCallServerMethod("cfg.get_color_opts")
+                            .then((result) => {
+                            console.log(JSON.parse(result));
+                            setThemeColors(JSON.parse(result));
+                        });
+                    }
+                }, []);
+                return themeColors && window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
+                    window.SP_REACT.createElement(DialogSubHeader, { className: '_2rK4YqGvSzXLj1bPZL8xMJ' }, locale.customThemeSettingsColorsHeader),
+                    window.SP_REACT.createElement(DialogBodyText, { className: '_3fPiC9QRyT5oJ6xePCVYz8' }, locale.customThemeSettingsColorsDescription),
+                    themeColors?.map((color, index) => window.SP_REACT.createElement(this.RenderColorComponent, { color: color, index: index })));
             };
         }
         render() {
@@ -1648,7 +1716,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
             const themeConditions = activeTheme.data.Conditions;
             const savedConditions = pluginSelf?.conditionals?.[activeTheme.native];
             return (window.SP_REACT.createElement("div", { className: "ModalPosition", tabIndex: 0 },
-                window.SP_REACT.createElement("style", null, `.DialogBody.${Classes.SettingsDialogBodyFade}:last-child { padding-bottom: 65px; }`),
+                window.SP_REACT.createElement("style", null, `.DialogBody.${Classes.SettingsDialogBodyFade}:last-child { padding-bottom: 65px; }
+                        input.colorPicker { margin-left: 10px !important; border: unset !important; min-width: 38px; width: 38px !important; height: 38px; !important; background: transparent; padding: unset !important; }`),
                 window.SP_REACT.createElement("div", { className: "ModalPosition_Content", style: { width: "100vw", height: "100vh" } },
                     window.SP_REACT.createElement("div", { className: `${Classes.PagedSettingsDialog} ${Classes.SettingsModal} ${Classes.DesktopPopup} Panel` },
                         window.SP_REACT.createElement("div", { className: "DialogContentTransition Panel", style: { minWidth: "100vw" } },
@@ -1657,7 +1726,12 @@ var millennium_main = (function (exports, React, ReactDOM) {
                                     window.SP_REACT.createElement("div", { className: "DialogHeader" },
                                         "Editing ",
                                         activeTheme?.data?.name ?? activeTheme.native),
-                                    window.SP_REACT.createElement("div", { className: `DialogBody ${Classes.SettingsDialogBodyFade}` }, Object.entries(themeConditions).map(([key, value]) => window.SP_REACT.createElement(this.RenderComponent, { condition: key, store: savedConditions, value: value }))))))))));
+                                    window.SP_REACT.createElement("div", { className: `DialogBody ${Classes.SettingsDialogBodyFade}` },
+                                        themeConditions && window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
+                                            window.SP_REACT.createElement(DialogSubHeader, { className: '_2rK4YqGvSzXLj1bPZL8xMJ' }, locale.customThemeSettingsConfigHeader),
+                                            window.SP_REACT.createElement(DialogBodyText, { className: '_3fPiC9QRyT5oJ6xePCVYz8' }, locale.customThemeSettingsConfigDescription),
+                                            Object.entries(themeConditions).map(([key, value]) => window.SP_REACT.createElement(this.RenderComponent, { condition: key, store: savedConditions, value: value }))),
+                                        window.SP_REACT.createElement(this.RenderColorsOpts, null)))))))));
         }
     }
 
@@ -1894,8 +1968,9 @@ var millennium_main = (function (exports, React, ReactDOM) {
      * @returns react component
      */
     const RenderEditTheme = ({ active }) => {
+        const Theme = pluginSelf.activeTheme;
         /** Current theme is not editable */
-        if (pluginSelf?.isDefaultTheme || pluginSelf.activeTheme?.data?.Conditions === undefined) {
+        if (pluginSelf?.isDefaultTheme || (Theme?.data?.Conditions === undefined && Theme?.data?.RootColors === undefined)) {
             return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null));
         }
         return (window.SP_REACT.createElement("button", { onClick: () => ShowThemeSettings(active), style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable millenniumIconButton" },
@@ -2465,6 +2540,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
         pluginSelf.conditionals = result.conditions;
         pluginSelf.scriptsAllowed = result?.settings?.scripts ?? true;
         pluginSelf.stylesAllowed = result?.settings?.styles ?? true;
+        pluginSelf.steamPath = result.steamPath;
         // @ts-ignore
         if (g_PopupManager.m_mapPopups.size > 0) {
             SteamClient.Browser.RestartJSContext();
