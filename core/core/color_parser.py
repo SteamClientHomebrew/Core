@@ -87,12 +87,6 @@ def convert_to_hex(color, type: ColorTypes):
     else:
         return None
 
-def expand_hex_color(short_hex):
-    if len(short_hex) == 4 and short_hex[0] == '#':
-        return '#' + ''.join([char*2 for char in short_hex[1:]])
-    else:
-        return short_hex
-
 def try_raw_parse(color):
     if ", " in color:
         channels = color.split(", ")
@@ -156,11 +150,10 @@ def parse_root(file_path):
 
             for prop in rule.style:
 
-                value = expand_hex_color(prop.value)
-                color_type = parse_color(value)
+                color_type = parse_color(prop.value)
 
                 if color_type == ColorTypes.Unknown:
-                    logger.error(f"ERROR: Could not parse color value '{value}'")
+                    logger.error(f"ERROR: Could not parse color value '{prop.value}'")
                     continue
 
                 details = item_map.get(prop.name, (None, None))
@@ -170,7 +163,7 @@ def parse_root(file_path):
                     "name": details[0],
                     "description": details[1],
                     "type": color_type.value,
-                    "defaultColor": convert_to_hex(value, color_type)
+                    "defaultColor": convert_to_hex(prop.value, color_type)
                 })
 
     return json.dumps(result, indent=4)
