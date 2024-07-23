@@ -53,6 +53,8 @@ def convert_from_hex(color, type: ColorTypes):
 
 
 def convert_to_hex(color, type: ColorTypes):
+
+    print(f"convert_to_hex: {color}, {type}")
     
     if type == ColorTypes.RawRGB:
 
