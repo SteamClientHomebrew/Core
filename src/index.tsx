@@ -119,17 +119,18 @@ export default async function PluginMain() {
     const startTime = performance.now();
     Settings.FetchAllSettings().then((result: SettingsProps) => InitializePatcher(startTime, result))
 
-    Millennium.callServerMethod("updater.get_update_list")
-        .then((result: any) => {
-            pluginSelf.connectionFailed = false
-            return result
-        })
-        .then((result : any)          => JSON.parse(result).updates)
-        .then((updates: UpdateItem[]) => ProcessUpdates(updates))
-        .catch((_: any)               => {
-            console.error("Failed to fetch updates")
-            pluginSelf.connectionFailed = true
-        })
+    // @todo: fix notificaitons modal
+    // Millennium.callServerMethod("updater.get_update_list")
+    //     .then((result: any) => {
+    //         pluginSelf.connectionFailed = false
+    //         return result
+    //     })
+    //     .then((result : any)          => JSON.parse(result).updates)
+    //     .then((updates: UpdateItem[]) => ProcessUpdates(updates))
+    //     .catch((_: any)               => {
+    //         console.error("Failed to fetch updates")
+    //         pluginSelf.connectionFailed = true
+    //     })
 
     Millennium.AddWindowCreateHook(windowCreated)
 }

@@ -15,12 +15,12 @@ export const CreatePopupBase: any = findModuleChild((m) => {
     }
 });
 
-const TitleBarControls: any = findModuleChild((m) => {
+export const TitleBarControls: any = findModuleChild((m) => {
     if (typeof m !== 'object') return undefined;
     for (let prop in m) { if (typeof m[prop] === 'function' && m[prop].toString().includes('className:"title-area-highlight"')) { return m[prop] } }
 });
 
-interface RenderProps {
+export interface RenderProps {
     _window: Window
 }
 

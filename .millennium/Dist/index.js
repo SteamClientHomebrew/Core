@@ -424,7 +424,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
             throw new Error('[DFL:Modals]: Cannot find showModal function');
         }
     };
-    const ConfirmModal = findModuleChild((m) => {
+    findModuleChild((m) => {
         if (typeof m !== 'object')
             return undefined;
         for (let prop in m) {
@@ -485,15 +485,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
         MessageBoxResult[MessageBoxResult["close"] = 0] = "close";
         MessageBoxResult[MessageBoxResult["okay"] = 1] = "okay";
     })(MessageBoxResult || (MessageBoxResult = {}));
-    const RenderMessageBox = ({ props, close }) => {
-        return (window.SP_REACT.createElement(ConfirmModal, { onCancel: () => close(MessageBoxResult.close), onOK: () => close(MessageBoxResult.okay), ...props }));
-    };
-    const ShowMessageBox = (modalProps, messageProps) => {
-        const windowOptions = modalProps;
-        return new Promise((resolve, _) => {
-            const modal = showModal(window.SP_REACT.createElement(RenderMessageBox, { props: messageProps, close: (type) => { resolve(type); modal.Close(); } }), window, windowOptions);
-        });
-    };
 
     const [mod, panelSection] = findModuleDetailsByExport((e) => e.toString()?.includes('.PanelSection'));
     Object.values(mod).filter((exp) => !exp?.toString()?.includes('.PanelSection'))[0];
@@ -1735,22 +1726,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
         }
     }
 
-    const PromptReload = async (message) => {
-        const windowOptions = {
-            strTitle: locale.reloadRequired,
-            bHideMainWindowForPopouts: false,
-            popupHeight: 250,
-            popupWidth: 425,
-        };
-        const modalProps = {
-            strTitle: locale.reloadRequired,
-            strDescription: locale.reloadRequiredBody,
-            strOKButtonText: locale.optionReloadNow,
-            strCancelButtonText: locale.optionReloadLater
-        };
-        return await ShowMessageBox(windowOptions, modalProps);
-    };
-
     const CreatePopupBase = findModuleChild((m) => {
         if (typeof m !== 'object')
             return undefined;
@@ -1806,6 +1781,89 @@ var millennium_main = (function (exports, React, ReactDOM) {
             this.m_popup.SteamClient.Window.ShowWindow();
         }
     }
+
+    class RenderComfirmModal extends CreatePopupBase {
+        constructor(strMessage, strPopupName, options) {
+            super(strPopupName, options);
+            this.strMessage = strMessage;
+        }
+        waitForResult() {
+            return new Promise((resolve) => {
+                this.onClickConfirm = () => {
+                    resolve(MessageBoxResult.okay);
+                };
+                this.onClickCancel = () => {
+                    resolve(MessageBoxResult.close);
+                };
+            });
+        }
+        Show() {
+            super.Show();
+            const RenderComponent = ({ _window }) => {
+                return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
+                    window.SP_REACT.createElement("div", { className: "PopupFullWindow" },
+                        window.SP_REACT.createElement(TitleBarControls, { popup: _window, hideMin: true, hideMax: true, hideActions: false }),
+                        window.SP_REACT.createElement("div", { className: "DialogContent _DialogLayout GenericConfirmDialog _DialogCenterVertically" },
+                            window.SP_REACT.createElement("div", { className: "DialogContent_InnerWidth" },
+                                window.SP_REACT.createElement("form", null,
+                                    window.SP_REACT.createElement("div", { className: "DialogHeader" }, " Reload Required "),
+                                    window.SP_REACT.createElement("div", { className: "DialogBody Panel Focusable" },
+                                        window.SP_REACT.createElement("div", { className: "DialogBodyText" }, this.strMessage ?? locale.reloadRequiredBody),
+                                        window.SP_REACT.createElement("div", { className: "DialogFooter" },
+                                            window.SP_REACT.createElement("div", { className: "DialogTwoColLayout _DialogColLayout Panel Focusable" },
+                                                window.SP_REACT.createElement("button", { type: "submit", className: "DialogButton _DialogLayout Primary Focusable", tabIndex: 0, onClick: this.onClickConfirm }, "Confirm "),
+                                                window.SP_REACT.createElement("button", { type: "button", className: "DialogButton _DialogLayout Secondary Focusable", tabIndex: 0, onClick: this.onClickCancel }, "Cancel"))))))))));
+            };
+            ReactDOM.render(window.SP_REACT.createElement(RenderComponent, { _window: super.window }), super.root_element);
+        }
+        SetTitle() {
+            if (this.m_popup && this.m_popup.document) {
+                this.m_popup.document.title = "WINDOW";
+            }
+        }
+        Render(_window, _element) { }
+        OnClose() { }
+        OnLoad() {
+            const element = this.m_popup.document.querySelector(".DialogContent_InnerWidth");
+            const height = element?.getBoundingClientRect()?.height;
+            this.m_popup.SteamClient?.Window?.ResizeTo(450, height + 48, true);
+            this.m_popup.SteamClient.Window.GetDefaultMonitorDimensions().then((result) => {
+                const screenWidth = result.nFullWidth;
+                const screenHeight = result.nFullHeight;
+                this.m_popup.SteamClient.Window.MoveTo(screenWidth / 2 - 450 / 2, screenHeight / 2 - (height + 48) / 2);
+                this.m_popup.SteamClient.Window.ShowWindow();
+                this.m_popup.SteamClient.Window.BringToFront();
+                this.m_popup.SteamClient.Window.FlashWindow();
+            });
+        }
+    }
+    const PromptReload = (message) => {
+        return new Promise((resolve) => {
+            const params = {
+                title: locale.reloadRequired,
+                popup_class: "fullheight",
+                body_class: "fullheight ModalDialogBody DesktopUI ",
+                html_class: "client_chat_frame fullheight ModalDialogPopup ",
+                eCreationFlags: 274,
+                window_opener_id: 1,
+                dimensions: { width: 450, height: 375 },
+                replace_existing_popup: false,
+            };
+            try {
+                const popupWND = new RenderComfirmModal(message, "Reload", params);
+                popupWND.waitForResult().then((result) => {
+                    resolve(result);
+                    popupWND.Close();
+                });
+                popupWND.OnClose = () => {
+                    console.log("message box closed");
+                    resolve(MessageBoxResult.close);
+                };
+                popupWND.Show();
+            }
+            catch (e) { }
+        });
+    };
 
     const settingsClasses = findClassModule(m => m.SettingsDialogFatButton);
     class AboutThemeRenderer extends React.Component {
@@ -2122,7 +2180,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
                     window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, locale.themePanelInjectCSSToolTip)))));
     };
 
-    let SettingsStore = pluginSelf.SettingsStore;
+    pluginSelf.SettingsStore;
     const Settings = {
         FetchAllSettings: () => {
             return new Promise(async (resolve, _reject) => {
@@ -2135,7 +2193,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
                     console.error("Failed to fetch settings");
                     pluginSelf.connectionFailed = true;
                 }));
-                SettingsStore = settingsStore;
                 resolve(settingsStore);
             });
         }
@@ -2557,31 +2614,22 @@ var millennium_main = (function (exports, React, ReactDOM) {
         }
         PatchMissedDocuments();
     };
-    const ProcessUpdates = (updates) => {
-        const updateCount = updates.length;
-        if (!SettingsStore.settings.updateNotifications || updateCount <= 0) {
-            return;
-        }
-        const message = `Millennium found ${updateCount} available update${updateCount > 1 ? "s" : ""}`;
-        setTimeout(() => {
-            SteamClient.ClientNotifications.DisplayClientNotification(1, JSON.stringify({ title: 'Updates Available', body: message, state: 'online', steamid: 0 }), (_) => { });
-        }, 5000);
-    };
     // Entry point on the front end of your plugin
     async function PluginMain() {
         const startTime = performance.now();
         Settings.FetchAllSettings().then((result) => InitializePatcher(startTime, result));
-        wrappedCallServerMethod("updater.get_update_list")
-            .then((result) => {
-            pluginSelf.connectionFailed = false;
-            return result;
-        })
-            .then((result) => JSON.parse(result).updates)
-            .then((updates) => ProcessUpdates(updates))
-            .catch((_) => {
-            console.error("Failed to fetch updates");
-            pluginSelf.connectionFailed = true;
-        });
+        // @todo: fix notificaitons modal
+        // wrappedCallServerMethod("updater.get_update_list")
+        //     .then((result: any) => {
+        //         pluginSelf.connectionFailed = false
+        //         return result
+        //     })
+        //     .then((result : any)          => JSON.parse(result).updates)
+        //     .then((updates: UpdateItem[]) => ProcessUpdates(updates))
+        //     .catch((_: any)               => {
+        //         console.error("Failed to fetch updates")
+        //         pluginSelf.connectionFailed = true
+        //     })
         Millennium.AddWindowCreateHook(windowCreated);
     }
 
