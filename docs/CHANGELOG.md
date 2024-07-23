@@ -1,3 +1,15 @@
+# [1.1.0](https://github.com/SteamClientHomebrew/Core/compare/v1.0.0...v1.1.0) (2024-07-23)
+
+
+### Bug Fixes
+
+* **CI:** add github token ([08dc8b2](https://github.com/SteamClientHomebrew/Core/commit/08dc8b2f3488343f84b843cf9117a10cc0456b8e))
+
+
+### Features
+
+* Add semantic github releases ([deb7122](https://github.com/SteamClientHomebrew/Core/commit/deb712282d3ffab91f8ffeac92f29852ca63beaa))
+
 # 1.0.0 (2024-07-23)
 
 
