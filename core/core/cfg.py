@@ -102,7 +102,7 @@ class Config:
 
         for color in self.colors:
             color_name = color["color"]
-            color_value = color["defaultColor"]
+            color_value = convert_from_hex(color["defaultColor"], ColorTypes(color["type"]))
 
             if color_name not in self.config["colors"][self.name]:
                 self.config["colors"][self.name][color_name] = color_value

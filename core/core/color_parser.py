@@ -54,8 +54,6 @@ def convert_from_hex(color, type: ColorTypes):
 
 def convert_to_hex(color, type: ColorTypes):
 
-    print(f"convert_to_hex: {color}, {type}")
-    
     if type == ColorTypes.RawRGB:
 
         r, g, b = [x.strip() for x in color.split(',')]
