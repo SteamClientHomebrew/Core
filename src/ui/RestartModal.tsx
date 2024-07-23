@@ -1,10 +1,8 @@
-import { ConfirmModal, ConfirmModalProps, MessageBoxResult, ModalRoot, ShowMessageBox, ShowModalProps } from "@millennium/ui"
-import { locale } from "../locales"
-import { Classes, findClassModule, Millennium, pluginSelf } from "@millennium/ui"
-import { ThemeItem } from "../components/types"
-import { CreatePopupBase, RenderProps, TitleBarControls } from "../components/Popups"
-import React, { ReactNode } from "react"
+import React from "react"
 import ReactDOM from "react-dom"
+import { MessageBoxResult } from "@millennium/ui"
+import { locale } from "../locales"
+import { CreatePopupBase, RenderProps, TitleBarControls } from "../components/Popups"
 
 export class RenderComfirmModal extends CreatePopupBase {
 
@@ -17,8 +15,7 @@ export class RenderComfirmModal extends CreatePopupBase {
         return new Promise((resolve) => {
             this.onClickConfirm = () => {
                 resolve(MessageBoxResult.okay)
-            }
-    
+            } 
             this.onClickCancel = () => {
                 resolve(MessageBoxResult.close)
             }
@@ -28,16 +25,10 @@ export class RenderComfirmModal extends CreatePopupBase {
     Show() {
         super.Show()
         const RenderComponent: React.FC<RenderProps> = ({_window}) => {
-
             return (
                 <>
                     <div className="PopupFullWindow">
-                        <TitleBarControls
-                            popup={_window}
-                            hideMin={true}
-                            hideMax={true}
-                            hideActions={false}
-                        />
+                        <TitleBarControls popup={_window} hideMin={true} hideMax={true} hideActions={false}/>
                         <div className="DialogContent _DialogLayout GenericConfirmDialog _DialogCenterVertically">
                             <div className="DialogContent_InnerWidth">
                             <form>
@@ -55,11 +46,9 @@ export class RenderComfirmModal extends CreatePopupBase {
                             </div>
                         </div>
                     </div>
-                </>
-        
+                </> 
             )
         }
-
         ReactDOM.render(<RenderComponent _window={super.window}/>, super.root_element)
     }
 
