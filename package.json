@@ -5,9 +5,11 @@
     "create-env": "python -m venv .venv"
   },
   "devDependencies": {
+    "@semantic-release/github": "^10.1.1",
     "@types/react": "16.14.0",
     "@types/react-dom": "^18.2.25",
     "@types/webpack": "^5.28.0",
+    "semantic-release": "^24.0.0",
     "shx": "^0.3.4",
     "tslib": "^2.6.2",
     "typescript": "^4.9.5"
@@ -29,7 +31,6 @@
   },
   "dependencies": {
     "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/git": "^10.0.1",
-    "semantic-release": "^24.0.0"
+    "@semantic-release/git": "^10.0.1"
   }
 }
