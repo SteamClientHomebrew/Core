@@ -109,12 +109,19 @@ export interface PluginComponent {
  */
 export interface SystemAccentColor {
     accent: string, 
+    accentRgb: string, 
     light1: string, 
+    light1Rgb: string, 
     light2: string, 
+    light2Rgb: string, 
     light3: string, 
+    light3Rgb: string, 
     dark1: string, 
+    dark1Rgb: string, 
     dark2: string, 
+    dark2Rgb: string, 
     dark3: string, 
+    dark3Rgb: string, 
 }
 
 export interface UpdateItem {

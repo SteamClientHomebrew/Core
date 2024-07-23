@@ -133,10 +133,7 @@ class Config:
         for saved_color in self.config["colors"][self.name]:
             for color in root_colors:
                 if color["color"] == saved_color:
-                    print(self.config["colors"][self.name][saved_color], color["type"], convert_to_hex(self.config["colors"][self.name][saved_color], color["type"]))
                     color["hex"] = convert_to_hex(self.config["colors"][self.name][saved_color], ColorTypes(color["type"]))
-
-        # print(json.dumps(root_colors, indent=4))
 
         return json.dumps(root_colors, indent=4)
     
