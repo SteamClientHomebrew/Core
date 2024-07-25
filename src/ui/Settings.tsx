@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { PluginViewModal } from './Plugins'
 import { ThemeViewModal } from './Themes'
 import { UpdatesViewModal } from './Updates'
-import { IconsModule, Millennium, pluginSelf, findClass, findModule, findClassModule, findModuleExport, classMapList, findAllModules, Classes } from '@millennium/ui';
+import { IconsModule, Millennium, pluginSelf, findClassModule, Classes } from '@millennium/ui';
 import { locale } from '../locales';
 
 const activeClassName: any = (findClassModule(m => m.PagedSettingsDialog_PageList) as any).Active

@@ -11,11 +11,9 @@ import {
     MessageBoxResult, 
     showModal, 
     Classes,
-    ConfirmModal,
-    ConfirmModalProps
 } from '@millennium/ui'
 
-import { FC, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { RenderThemeEditor } from './ThemeEditor'
 import { ComboItem, ThemeItem } from '../components/types'
 import { PromptReload } from './RestartModal'
@@ -23,7 +21,6 @@ import { SetupAboutRenderer } from './AboutTheme'
 import { locale } from '../locales'
 import { ConnectionFailed } from './ConnectionFailed'
 import { FieldClasses } from '../components/Classes'
-import ReactDOM from 'react-dom'
 
 const ShowThemeSettings = async (activeTheme: string) => {
 
