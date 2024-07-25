@@ -101,11 +101,8 @@ const PluginComponent: React.FC = () => {
  * @todo A better, more integrated way of doing this, that doesn't involve runtime patching. 
  */
 const hookSettingsComponent = () => {
-	const elements = pluginSelf.settingsDoc.querySelectorAll(`.${Classes.PagedSettingsDialog_PageListItem}:not(.MillenniumTab)`);
-
-	console.log(elements)	
-
 	let processingItem = false;
+	const elements = pluginSelf.settingsDoc.querySelectorAll(`.${Classes.PagedSettingsDialog_PageListItem}:not(.MillenniumTab)`);
 
 	elements.forEach((element: HTMLElement, index: number) => {
 		element.addEventListener('click', function(_: any) {
