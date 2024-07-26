@@ -123,8 +123,7 @@ export class RenderThemeEditor extends React.Component {
     
     RenderColorComponent: React.FC<{color: ColorProps, index: number}> = ({color, index}) => {
 
-        const [colorState, setColorState] = useState(color?.hex ?? "#000000")
-
+        const [colorState, setColorState] = useState(color?.hex ?? "#000000");
         (window as any).lastColorChangeTime = performance.now();
 
         const UpdateColor = (hexColor: string) => {
