@@ -5,8 +5,9 @@ import { ThemeViewModal } from './Themes'
 import { UpdatesViewModal } from '../components/Updates'
 import { IconsModule, Millennium, pluginSelf, findClassModule, Classes } from '@millennium/ui';
 import { locale } from '../locales';
+import { pagedSettingsClasses } from '../classes';
 
-const activeClassName: any = (findClassModule(m => m.PagedSettingsDialog_PageList) as any).Active
+const activeClassName: any = pagedSettingsClasses.Active
 
 enum Renderer {
 	Plugins,

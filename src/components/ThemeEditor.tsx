@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
-import { Button, Classes, DialogBodyText, DialogSubHeader, Dropdown, Millennium, SingleDropdownOption, Toggle, classMap, findClassModule, pluginSelf } from "@millennium/ui"
+import { Button, Classes, DialogBodyText, DialogSubHeader, Dropdown, Millennium, SingleDropdownOption, Toggle, classMap, pluginSelf } from "@millennium/ui"
 import { Conditions, ConditionsStore, ICondition, ThemeItem } from "../types"
-import { FieldClasses } from "../classes"
+import { containerClasses, fieldClasses, settingsClasses } from "../classes"
 import { locale } from "../locales"
 
 interface ConditionalComponent {
@@ -16,20 +16,6 @@ interface ComponentInterface {
     conditionName: string,
     store: ConditionsStore
 }
-
-const containerClasses = [
-    Classes.Field, 
-    Classes.WithFirstRow, 
-    Classes.VerticalAlignCenter, 
-    Classes.WithDescription, 
-    Classes.WithBottomSeparatorStandard, 
-    Classes.ChildrenWidthFixed, 
-    Classes.ExtraPaddingOnChildrenBelow, 
-    Classes.StandardPadding, 
-    Classes.HighlightOnFocus,
-    "Panel"
-]
-.join(" ")
 
 enum ConditionType {
     Dropdown,
@@ -123,8 +109,8 @@ export class RenderThemeEditor extends React.Component {
 
         return (
             <div key={condition} className={containerClasses}>
-                <div className={FieldClasses.FieldLabelRow}>
-                    <div className={FieldClasses.FieldLabel}>{condition}</div>
+                <div className={fieldClasses.FieldLabelRow}>
+                    <div className={fieldClasses.FieldLabel}>{condition}</div>
                     <div className={classMap.FieldChildrenWithIcon}>
                         <this.RenderComponentInterface conditionType={conditionType} store={store} conditionName={condition} values={Object.keys(value?.values)} />
                     </div>
@@ -138,7 +124,6 @@ export class RenderThemeEditor extends React.Component {
     RenderColorComponent: React.FC<{color: ColorProps, index: number}> = ({color, index}) => {
 
         const [colorState, setColorState] = useState(color?.hex ?? "#000000")
-        const settingsClasses = findClassModule(m => m.SettingsTitleBar && m.SettingsDialogButton) as any
 
         (window as any).lastColorChangeTime = performance.now();
 
@@ -165,8 +150,8 @@ export class RenderThemeEditor extends React.Component {
 
         return (
             <div key={index} className={containerClasses}>
-                <div className={FieldClasses.FieldLabelRow}>
-                    <div className={FieldClasses.FieldLabel}>{color?.name ?? color?.color}</div>
+                <div className={fieldClasses.FieldLabelRow}>
+                    <div className={fieldClasses.FieldLabel}>{color?.name ?? color?.color}</div>
                     <div className={classMap.FieldChildrenWithIcon}>
                         {colorState != color.defaultColor && <Button className={settingsClasses.SettingsDialogButton + " DialogButton _DialogLayout Secondary"} onClick={ResetColor}>Reset</Button>}
                         <input type="color" className="colorPicker" name="colorPicker" value={colorState} onChange={(event) => UpdateColor(event.target.value)}/>

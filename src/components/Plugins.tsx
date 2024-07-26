@@ -3,7 +3,7 @@ import { Classes, DialogBody, DialogHeader, Millennium, Toggle, classMap, plugin
 import { PluginComponent } from '../types';
 import { locale } from '../locales';
 import { ConnectionFailed } from './ConnectionFailed';
-import { FieldClasses } from '../classes';
+import { fieldClasses, containerClasses } from '../classes';
 
 interface EditPluginProps {
 	plugin: PluginComponent
@@ -74,20 +74,6 @@ const PluginViewModal: React.FC = () => {
 		return <ConnectionFailed/>
 	}
 
-    const containerClasses = [
-        Classes.Field, 
-        Classes.WithFirstRow, 
-        Classes.VerticalAlignCenter, 
-        Classes.WithDescription, 
-        Classes.WithBottomSeparatorStandard, 
-        Classes.ChildrenWidthFixed, 
-        Classes.ExtraPaddingOnChildrenBelow, 
-        Classes.StandardPadding, 
-        Classes.HighlightOnFocus,
-        "Panel"
-    ]
-    .join(" ")
-
 	return (
 		<>
 		<DialogHeader>{locale.settingsPanelPlugins}</DialogHeader>
@@ -96,7 +82,7 @@ const PluginViewModal: React.FC = () => {
 
 				<div className={containerClasses} key={index}>
 					<div className={classMap.FieldLabelRow}>
-					<div className={FieldClasses.FieldLabel}>{plugin?.data?.common_name}</div>
+					<div className={fieldClasses.FieldLabel}>{plugin?.data?.common_name}</div>
 					<div className={classMap.FieldChildrenWithIcon} style={{display: "flex", alignItems: "center"}}>
 						<EditPlugin plugin={plugin}/>
 						<div className={Classes.FieldChildrenInner}>

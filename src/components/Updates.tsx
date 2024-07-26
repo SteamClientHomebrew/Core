@@ -4,21 +4,7 @@ import { locale } from '../locales';
 import { ThemeItem } from '../types';
 import { Settings } from '../Settings';
 import { ConnectionFailed } from './ConnectionFailed';
-import { FieldClasses } from '../classes';
-
-const containerClasses = [
-    Classes.Field, 
-    Classes.WithFirstRow, 
-    Classes.VerticalAlignCenter, 
-    Classes.WithDescription, 
-    Classes.WithBottomSeparatorStandard, 
-    Classes.ChildrenWidthFixed, 
-    Classes.ExtraPaddingOnChildrenBelow, 
-    Classes.StandardPadding, 
-    Classes.HighlightOnFocus,
-    "Panel"
-]
-.join(" ")
+import { containerClasses, fieldClasses } from '../classes';
 
 interface UpdateProps {
     updates: UpdateItemType[];
@@ -96,7 +82,7 @@ const RenderAvailableUpdates: React.FC<UpdateProps> = ({ updates, setUpdates }) 
             <div className={containerClasses} key={index}>
                 <div className={classMap.FieldLabelRow}>
                     <div className="update-item-type" style={{color: "white", fontSize: "12px", padding: "4px", background: "#007eff", borderRadius: "6px"}}>Theme</div>
-                    <div className={FieldClasses.FieldLabel}>{update.name}</div>
+                    <div className={fieldClasses.FieldLabel}>{update.name}</div>
                     <div className={classMap.FieldChildrenWithIcon}>
                         <div className={Classes.FieldChildrenInner} style={{gap: "10px", width: "200px"}}>
 
@@ -207,8 +193,8 @@ const UpdatesViewModal: React.FC = () => {
             </DialogHeader>
             <DialogBody className={classMap.SettingsDialogBodyFade}>
                 <div className={containerClasses}>
-                    <div className={FieldClasses.FieldLabelRow}>
-                        <div className={FieldClasses.FieldLabel}>{locale.updatePanelUpdateNotifications}</div>
+                    <div className={fieldClasses.FieldLabelRow}>
+                        <div className={fieldClasses.FieldLabel}>{locale.updatePanelUpdateNotifications}</div>
                         <div className={classMap.FieldChildrenWithIcon}>
 
                             { showUpdateNotifications !== undefined && <Toggle value={showUpdateNotifications} onChange={OnNotificationsChange}></Toggle> }
