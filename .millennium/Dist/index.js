@@ -1638,7 +1638,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
                     window.SP_REACT.createElement("div", { className: classMap.FieldDescription, dangerouslySetInnerHTML: { __html: value?.description ?? "No description yet." } })));
             };
             this.RenderColorComponent = ({ color, index }) => {
-                const [colorState, setColorState] = React.useState(color?.hex ?? "#000000")(window).lastColorChangeTime = performance.now();
+                const [colorState, setColorState] = React.useState(color?.hex ?? "#000000");
+                window.lastColorChangeTime = performance.now();
                 const UpdateColor = (hexColor) => {
                     if (performance.now() - window.lastColorChangeTime < 5) {
                         return;
