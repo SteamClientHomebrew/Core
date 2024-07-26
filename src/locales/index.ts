@@ -5,7 +5,7 @@ import indonesian from "./locales/indonesian.json";
 import schinese from "./locales/schinese.json";
 import german from "./locales/german.json";
 import russian from "./locales/russian.json";
-import { Logger } from "../components/Logger";
+import { Logger } from "../Logger";
 
 interface LocalizationData {
     [key: string]: string;

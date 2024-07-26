@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { Button, Classes, DialogBodyText, DialogSubHeader, Dropdown, Millennium, SingleDropdownOption, Toggle, classMap, findClassModule, pluginSelf } from "@millennium/ui"
-import { Conditions, ConditionsStore, ICondition, ThemeItem } from "../components/types"
-import { FieldClasses } from "../components/Classes"
+import { Conditions, ConditionsStore, ICondition, ThemeItem } from "../types"
+import { FieldClasses } from "../classes"
 import { locale } from "../locales"
 
 interface ConditionalComponent {

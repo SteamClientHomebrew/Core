@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { PluginViewModal } from './Plugins'
+import { PluginViewModal } from '../components/Plugins'
 import { ThemeViewModal } from './Themes'
-import { UpdatesViewModal } from './Updates'
+import { UpdatesViewModal } from '../components/Updates'
 import { IconsModule, Millennium, pluginSelf, findClassModule, Classes } from '@millennium/ui';
 import { locale } from '../locales';
 

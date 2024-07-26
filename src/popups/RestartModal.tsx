@@ -2,7 +2,9 @@ import React from "react"
 import ReactDOM from "react-dom"
 import { MessageBoxResult } from "@millennium/ui"
 import { locale } from "../locales"
-import { CreatePopupBase, RenderProps, TitleBarControls } from "../components/Popups"
+import { RenderProps } from "../components/CreatePopup"
+import { CreatePopupBase } from "../components/CreatePopupBase";
+import { TitleBar } from "../components/TitleBar"
 
 export class RenderComfirmModal extends CreatePopupBase {
 
@@ -28,7 +30,7 @@ export class RenderComfirmModal extends CreatePopupBase {
             return (
                 <>
                     <div className="PopupFullWindow">
-                        <TitleBarControls popup={_window} hideMin={true} hideMax={true} hideActions={false}/>
+                        <TitleBar popup={_window} hideMin={true} hideMax={true} hideActions={false}/>
                         <div className="DialogContent _DialogLayout GenericConfirmDialog _DialogCenterVertically">
                             <div className="DialogContent_InnerWidth">
                             <form>

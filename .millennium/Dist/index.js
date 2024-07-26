@@ -671,24 +671,18 @@ var millennium_main = (function (exports, React, ReactDOM) {
         callServerMethod: (pluginName, methodName, kwargs) => {
             return new Promise((resolve, reject) => {
                 const query = {
-                    pluginName: pluginName,
-                    methodName: methodName
+                    pluginName,
+                    methodName,
+                    ...(kwargs && { argumentList: kwargs })
                 };
-                if (kwargs)
-                    query.argumentList = kwargs;
                 /* call handled from "src\core\ipc\pipe.cpp @ L:67" */
                 window.MILLENNIUM_BACKEND_IPC.postMessage(0, query).then((response) => {
                     if (response?.failedRequest) {
-                        const m = ` wrappedCallServerMethod() from [name: ${pluginName}, method: ${methodName}] failed on exception -> ${response.failMessage}`;
-                        // Millennium can't accurately pin point where this came from
-                        // check the sources tab and find your plugins index.js, and look for a call that could error this
-                        throw new Error(m);
+                        reject(` IPC call from [name: ${pluginName}, method: ${methodName}] failed on exception -> ${response.failMessage}`);
                     }
-                    const val = response.returnValue;
-                    if (typeof val === 'string') {
-                        resolve(atob(val));
-                    }
-                    resolve(val);
+                    const responseStream = response.returnValue;
+                    // FFI backend encodes string responses in base64 to avoid encoding issues
+                    resolve(typeof responseStream === 'string' ? atob(responseStream) : responseStream);
                 });
             });
         },
@@ -1727,60 +1721,27 @@ var millennium_main = (function (exports, React, ReactDOM) {
     }
 
     const CreatePopupBase = findModuleChild((m) => {
-        if (typeof m !== 'object')
+        if (typeof m !== "object")
             return undefined;
         for (let prop in m) {
-            if (typeof m[prop] === 'function'
-                && m[prop]?.toString().includes('CreatePopup(this.m_strName')
-                && m[prop]?.toString().includes('GetWindowRestoreDetails')) {
+            if (typeof m[prop] === "function" &&
+                m[prop]?.toString().includes("CreatePopup(this.m_strName") &&
+                m[prop]?.toString().includes("GetWindowRestoreDetails")) {
                 return m[prop];
             }
         }
     });
-    const TitleBarControls = findModuleChild((m) => {
-        if (typeof m !== 'object')
+
+    const TitleBar = findModuleChild((m) => {
+        if (typeof m !== "object")
             return undefined;
         for (let prop in m) {
-            if (typeof m[prop] === 'function' && m[prop].toString().includes('className:"title-area-highlight"')) {
+            if (typeof m[prop] === "function" &&
+                m[prop].toString().includes('className:"title-area-highlight"')) {
                 return m[prop];
             }
         }
     });
-    class CreatePopup extends CreatePopupBase {
-        constructor(component, strPopupName, options) {
-            super(strPopupName, options);
-            this.component = component;
-        }
-        Show() {
-            super.Show();
-            const RenderComponent = ({ _window }) => {
-                return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
-                    window.SP_REACT.createElement("div", { className: "PopupFullWindow", onContextMenu: ((_e) => {
-                            // console.log('CONTEXT MENU OPEN')
-                            // _e.preventDefault()
-                            // this.contextMenuHandler.CreateContextMenuInstance(_e)
-                        }) },
-                        window.SP_REACT.createElement(TitleBarControls, { popup: _window, hideMin: false, hideMax: false, hideActions: false }),
-                        window.SP_REACT.createElement(this.component, null))));
-            };
-            console.log(super.root_element);
-            ReactDOM.render(window.SP_REACT.createElement(RenderComponent, { _window: super.window }), super.root_element);
-        }
-        SetTitle() {
-            console.log("[internal] setting title ->", this);
-            if (this.m_popup && this.m_popup.document) {
-                this.m_popup.document.title = "WINDOW";
-            }
-        }
-        Render(_window, _element) { }
-        OnClose() { }
-        OnLoad() {
-            const element = this.m_popup.document.querySelector(".DialogContent_InnerWidth");
-            const height = element?.getBoundingClientRect()?.height;
-            this.m_popup.SteamClient?.Window?.ResizeTo(450, height + 48, true);
-            this.m_popup.SteamClient.Window.ShowWindow();
-        }
-    }
 
     class RenderComfirmModal extends CreatePopupBase {
         constructor(strMessage, strPopupName, options) {
@@ -1802,7 +1763,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
             const RenderComponent = ({ _window }) => {
                 return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
                     window.SP_REACT.createElement("div", { className: "PopupFullWindow" },
-                        window.SP_REACT.createElement(TitleBarControls, { popup: _window, hideMin: true, hideMax: true, hideActions: false }),
+                        window.SP_REACT.createElement(TitleBar, { popup: _window, hideMin: true, hideMax: true, hideActions: false }),
                         window.SP_REACT.createElement("div", { className: "DialogContent _DialogLayout GenericConfirmDialog _DialogCenterVertically" },
                             window.SP_REACT.createElement("div", { className: "DialogContent_InnerWidth" },
                                 window.SP_REACT.createElement("form", null,
@@ -1864,6 +1825,42 @@ var millennium_main = (function (exports, React, ReactDOM) {
             catch (e) { }
         });
     };
+
+    class CreatePopup extends CreatePopupBase {
+        constructor(component, strPopupName, options) {
+            super(strPopupName, options);
+            this.component = component;
+        }
+        Show() {
+            super.Show();
+            const RenderComponent = ({ _window }) => {
+                return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
+                    window.SP_REACT.createElement("div", { className: "PopupFullWindow", onContextMenu: ((_e) => {
+                            // console.log('CONTEXT MENU OPEN')
+                            // _e.preventDefault()
+                            // this.contextMenuHandler.CreateContextMenuInstance(_e)
+                        }) },
+                        window.SP_REACT.createElement(TitleBar, { popup: _window, hideMin: false, hideMax: false, hideActions: false }),
+                        window.SP_REACT.createElement(this.component, null))));
+            };
+            console.log(super.root_element);
+            ReactDOM.render(window.SP_REACT.createElement(RenderComponent, { _window: super.window }), super.root_element);
+        }
+        SetTitle() {
+            console.log("[internal] setting title ->", this);
+            if (this.m_popup && this.m_popup.document) {
+                this.m_popup.document.title = "WINDOW";
+            }
+        }
+        Render(_window, _element) { }
+        OnClose() { }
+        OnLoad() {
+            const element = this.m_popup.document.querySelector(".DialogContent_InnerWidth");
+            const height = element?.getBoundingClientRect()?.height;
+            this.m_popup.SteamClient?.Window?.ResizeTo(450, height + 48, true);
+            this.m_popup.SteamClient.Window.ShowWindow();
+        }
+    }
 
     const settingsClasses = findClassModule(m => m.SettingsDialogFatButton);
     class AboutThemeRenderer extends React.Component {
@@ -2415,9 +2412,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
      * @todo A better, more integrated way of doing this, that doesn't involve runtime patching.
      */
     const hookSettingsComponent = () => {
-        const elements = pluginSelf.settingsDoc.querySelectorAll(`.${Classes.PagedSettingsDialog_PageListItem}:not(.MillenniumTab)`);
-        console.log(elements);
         let processingItem = false;
+        const elements = pluginSelf.settingsDoc.querySelectorAll(`.${Classes.PagedSettingsDialog_PageListItem}:not(.MillenniumTab)`);
         elements.forEach((element, index) => {
             element.addEventListener('click', function (_) {
                 if (processingItem)

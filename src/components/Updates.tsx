@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Millennium, DialogBody, DialogBodyText, DialogSubHeader, classMap, DialogHeader, IconsModule, pluginSelf, Toggle, Classes } from '@millennium/ui'
 import { locale } from '../locales';
-import { ThemeItem } from '../components/types';
-import { Settings } from '../components/Settings';
+import { ThemeItem } from '../types';
+import { Settings } from '../Settings';
 import { ConnectionFailed } from './ConnectionFailed';
-import { FieldClasses } from '../components/Classes';
+import { FieldClasses } from '../classes';
 
 const containerClasses = [
     Classes.Field, 

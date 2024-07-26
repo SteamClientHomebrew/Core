@@ -1,5 +1,5 @@
 import { pluginSelf } from "@millennium/ui"
-import { Patch, Theme, ThemeItem } from "../components/types";
+import { Patch, Theme, ThemeItem } from "../types";
 
 /**
  * Interpolates and overrides default patches on a theme. 

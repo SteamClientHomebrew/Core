@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Classes, DialogBody, DialogHeader, Millennium, Toggle, classMap, pluginSelf } from '@millennium/ui';
-import { PluginComponent } from '../components/types';
+import { PluginComponent } from '../types';
 import { locale } from '../locales';
 import { ConnectionFailed } from './ConnectionFailed';
-import { FieldClasses } from '../components/Classes';
+import { FieldClasses } from '../classes';
 
 interface EditPluginProps {
 	plugin: PluginComponent

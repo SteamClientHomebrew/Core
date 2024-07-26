@@ -14,13 +14,13 @@ import {
 } from '@millennium/ui'
 
 import { useEffect, useState } from 'react'
-import { RenderThemeEditor } from './ThemeEditor'
-import { ComboItem, ThemeItem } from '../components/types'
-import { PromptReload } from './RestartModal'
-import { SetupAboutRenderer } from './AboutTheme'
+import { RenderThemeEditor } from '../components/ThemeEditor'
+import { ComboItem, ThemeItem } from '../types'
+import { PromptReload } from '../popups/RestartModal'
+import { SetupAboutRenderer } from '../popups/AboutTheme'
 import { locale } from '../locales'
-import { ConnectionFailed } from './ConnectionFailed'
-import { FieldClasses } from '../components/Classes'
+import { ConnectionFailed } from '../components/ConnectionFailed'
+import { FieldClasses } from '../classes'
 
 const ShowThemeSettings = async (activeTheme: string) => {
 
