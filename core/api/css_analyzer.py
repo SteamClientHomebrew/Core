@@ -125,7 +125,7 @@ def parse_color(color):
 
 
 # Lexically analyze the CSS properties of a style rule and construct a map of property names to their respective comments
-def lexically_analyze(rule: cssutils.css.CSSStyleRule) -> Dict[Tuple]:
+def lexically_analyze(rule: cssutils.css.CSSStyleRule):
 
     propertyMap = {}
     for item in rule.style.cssText.split(";"):
