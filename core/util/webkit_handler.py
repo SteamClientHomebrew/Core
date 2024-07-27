@@ -1,5 +1,5 @@
+# This module is intended to keep track on the webkit hooks that are added to the browser
 import Millennium
-import copy
 
 class WebkitStack:
     _instance = None
@@ -41,11 +41,9 @@ class WebkitStack:
 
 
 def add_browser_css(css_path: str) -> None:
-    # print(f"[debug] adding webkit css module -> {css_path}")
     stack = WebkitStack()
     stack.push(Millennium.add_browser_css(css_path))
 
 def add_browser_js(js_path: str) -> None:
-    # print(f"[debug] adding webkit js module -> {js_path}")
     stack = WebkitStack()
     stack.push(Millennium.add_browser_js(js_path))

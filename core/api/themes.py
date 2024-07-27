@@ -1,5 +1,6 @@
 import os
 import json
+import subprocess
 import Millennium
 
 class Colors:
@@ -39,9 +40,7 @@ class Colors:
         return json.dumps(color_dictionary)
 
     @staticmethod
-    # Get user preferred color scheme on posix
     def get_accent_color_posix():
-        # Get the accent color
         print("[posix] get_accent_color has no implementation")
 
         color_dictionary = {
@@ -75,6 +74,7 @@ def is_valid(theme_native_name: str) -> bool:
 
     return True
 
+
 def find_all_themes() -> str:
 
     themes = [] 
@@ -93,8 +93,7 @@ def find_all_themes() -> str:
         if not os.path.exists(skin_json_path):
             continue
 
-        with open(skin_json_path, 'r') as json_file:
-            
+        with open(skin_json_path, 'r') as json_file:         
             try:
                 skin_data = json.load(json_file)
                 themes.append({"native": theme, "data": skin_data})

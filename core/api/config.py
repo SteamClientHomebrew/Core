@@ -1,9 +1,9 @@
 import os
 import json
 import Millennium
-from core.color_parser import ColorTypes, convert_from_hex, convert_to_hex, parse_root
-from core.themes import is_valid
-from webkit.stack import WebkitStack, add_browser_css
+from api.css_analyzer import ColorTypes, convert_from_hex, convert_to_hex, parse_root
+from api.themes import is_valid
+from util.webkit_handler import WebkitStack, add_browser_css
 
 class Config:
 
@@ -11,6 +11,7 @@ class Config:
         config = self.get_config()
         config[key] = value
         self.set_config(json.dumps(config, indent=4))
+
 
     def get_config(self) -> json:
 
@@ -60,6 +61,7 @@ class Config:
     def get_active_theme_name(self) -> str:
         return self.get_config()["active"]
     
+
     def get_active_theme(self) -> str:
 
         active_theme = self.get_active_theme_name()
@@ -88,6 +90,7 @@ class Config:
                 print("Inserting root colors...")
                 add_browser_css(root_colors)
  
+
     def setup_colors(self, file_path):
     
         self.colors = json.loads(parse_root(file_path))
@@ -109,6 +112,7 @@ class Config:
 
         self.set_config(json.dumps(self.config, indent=4))
 
+
     def get_colors(self):
         
         def create_root(data: str):
@@ -126,6 +130,7 @@ class Config:
 
         return create_root(root)
     
+
     def get_color_opts(self):
 
         root_colors = self.colors
@@ -150,7 +155,6 @@ class Config:
 
             self.set_config(json.dumps(self.config, indent=4))
             return parsed_color
-
 
 
     def set_theme_cb(self):
@@ -189,9 +193,7 @@ class Config:
         # pre-initialize webkit data for selected theme
         self.set_theme_cb()
 
-    """
-    BEGIN CONDITIONAL SETUP
-    """
+
     def get_conditionals(self):
 
         if not os.path.exists(self.config_path):
@@ -221,7 +223,6 @@ class Config:
 
 
     def change_condition(self, theme, newData, condition):
-
         try:
             config = self.get_config()
 
@@ -239,18 +240,12 @@ class Config:
         if "conditions" not in config:
             config["conditions"] = {}
 
-        if "failed" in theme:
-            return # failed to parse the skin, invalid or default
-
-        if "Conditions" not in theme["data"]:
-            # print("no conditions to evaluate")
-            return 
+        if "failed" in theme or "Conditions" not in theme["data"]:
+            return
         
         for condition_name, condition_value in theme["data"]["Conditions"].items():
-
             self.is_invalid_condition(config["conditions"], name, condition_name, condition_value)
 
         self.set_config(json.dumps(config, indent=4))
-
 
 cfg = Config()

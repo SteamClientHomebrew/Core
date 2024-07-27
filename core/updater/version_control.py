@@ -3,21 +3,17 @@ import time
 import Millennium
 from datetime import datetime
 import pygit2, os, json, shutil
-from core.themes import find_all_themes
-from core.cfg import cfg
+from api.themes import find_all_themes
+from api.config import cfg
 import requests
 import arrow
 
 class Updater:
 
     def get_update_list(self):
-        return json.dumps({
-            "updates": self.update_list, 
-            "notifications": cfg.get_config()["updateNotifications"]
-        })
+        return json.dumps({ "updates": self.update_list, "notifications": cfg.get_config()["updateNotifications"] })
     
     def set_update_notifs_status(self, status: bool):
-
         cfg.set_config_keypair("updateNotifications", status)
         return True
 
@@ -29,10 +25,9 @@ class Updater:
         for theme in themes:
 
             path = os.path.join(Millennium.steam_path(), "steamui", "skins", theme["native"])
-            # Initialize the repository
+
             try: 
                 repo = pygit2.Repository(path)
-                # print(f"successfully opened {theme}")
                 self.update_query.append((theme, repo))
 
             except pygit2.GitError as e:
@@ -42,22 +37,18 @@ class Updater:
 
 
             except Exception as e:
-                # Code to handle the exception
                 print(f"An exception occurred: {e}")
                 
         if needs_copy:
             source_dir = os.path.join(Millennium.steam_path(), "steamui", "skins")
-
-            # Get the current date and time
             current_date = datetime.now()
 
-            # Convert the date to a string using the strftime() method
             date_string = current_date.strftime('%Y-%m-%d@%H-%M-%S')
             destination_dir = os.path.join(Millennium.steam_path(), "steamui", f"skins-backup-{date_string}")
 
             if os.path.exists(destination_dir):
                 shutil.rmtree(destination_dir)
-            # Copy the directory and its contents
+
             shutil.copytree(source_dir, destination_dir)
 
         for theme, path in update_queue:
@@ -74,14 +65,12 @@ class Updater:
         post_body = []
 
         for theme, repo in self.update_query:
-
             if "github" in theme.get("data", {}):
 
                 github_data = theme["data"]["github"]
                 owner = github_data.get("owner")
                 repo = github_data.get("repo_name")
         
-                # Skip iteration if either owner or repo is null
                 if owner is None or repo is None:
                     continue
         
@@ -90,17 +79,12 @@ class Updater:
         return post_body
     
     def pull_head(self, path: str, data: any) -> None:
-
-        print(data)
-
         try:
             shutil.rmtree(path)
             repo_url = f'https://github.com/{data["owner"]}/{data["repo_name"]}.git'
-            # Clone the repository
             pygit2.clone_repository(repo_url, path)
 
         except Exception as e:
-            # Code to handle the exception
             print(f"An exception occurred: {e}")
 
     def update_theme(self, native: str) -> bool:
@@ -109,16 +93,13 @@ class Updater:
         try: 
             repo = pygit2.Repository(os.path.join(Millennium.steam_path(), "steamui", "skins", native))
 
-            # Fetch the latest changes from the remote
             remote_name = 'origin'
             remote = repo.remotes[remote_name]
             remote.fetch()
 
-            # Get the latest commit from the remote
             latest_commit = repo.revparse_single('origin/HEAD').id 
             print(f"updating {native} to {latest_commit}")
 
-            # Reset the local branch to the remote commit (force update)
             repo.reset(latest_commit, pygit2.GIT_RESET_HARD)
 
         except pygit2.GitError as e:
@@ -126,25 +107,15 @@ class Updater:
             return False
         
         except Exception as e:
-            # Code to handle the exception
             print(f"An exception occurred: {e}")
         
         self.re_initialize()
         return True
 
     def needs_update(self, remote_commit: str, theme: str, repo: pygit2.Repository):
-
-        # Get the default branch name
-        # default_branch = repo.active_branch.name
-
         local_commit = repo[repo.head.target].id
-        # print(f"local_commit: {local_commit}, remote_commit: {remote_commit}")
-
-        # Get the local and remote commit hashes for the default branch
-        # local_commit = getattr(repo.heads[default_branch], "commit", None)
         needs_update = str(local_commit) != str(remote_commit)
 
-        # # Compare the local and remote commit hashes
         return needs_update
     
 
@@ -186,7 +157,7 @@ class Updater:
         headers = {
             "Content-Type": "application/json"
         }
-        # Make the POST request
+
         response = requests.post("https://steambrew.app/api/v2/checkupdates", data=json.dumps(post_body), headers=headers)
 
         if response.status_code != 200:

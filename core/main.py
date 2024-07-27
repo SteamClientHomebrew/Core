@@ -1,17 +1,16 @@
-import subprocess, platform
 import Millennium
-import os, threading, json
+import threading, json
 
-from core.color_parser import parse_root
-from core.themes import Colors
-from ipc.socket import serve_websocket, start_websocket_server
+from api.css_analyzer import parse_root
+from api.themes import Colors
+from util.theme_installer import serve_websocket, start_websocket_server
 
-from core.themes  import find_all_themes
-from core.plugins import find_all_plugins
-from core.cfg     import Config, cfg
-from webkit.stack import WebkitStack, add_browser_css, add_browser_js
-from ipc.socket   import uninstall_theme
-from ffi.git      import Updater
+from api.themes import find_all_themes
+from api.plugins import find_all_plugins
+from api.config import Config, cfg
+from util.webkit_handler import WebkitStack, add_browser_css, add_browser_js
+from util.theme_installer import uninstall_theme
+from updater.version_control import Updater
 
 print(f"Loading Millennium-Core@{Millennium.version()}")
 updater = Updater()
@@ -37,8 +36,9 @@ class Plugin:
     def _load(self):     
         cfg.set_theme_cb()
 
-        websocket_thread = threading.Thread(target=start_websocket_server)
-        websocket_thread.start()
+        # Disable until further notice
+        # websocket_thread = threading.Thread(target=start_websocket_server)
+        # websocket_thread.start()
 
         print("Millennium-Core is ready!")
         Millennium.ready()

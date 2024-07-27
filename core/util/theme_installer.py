@@ -1,8 +1,8 @@
 import Millennium
 import os, stat, json, shutil, websockets, asyncio
 
-from core.cfg import cfg
-from core.themes import find_all_themes
+from api.config import cfg
+from api.themes import find_all_themes
 
 def get_theme_from_gitpair(repo, owner):
     themes = json.loads(find_all_themes())
