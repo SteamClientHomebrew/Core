@@ -192,12 +192,12 @@ var millennium_main = (function (exports, React, ReactDOM) {
         }
     }));
     const DialogHeader = MappedDialogDivs.get('DialogHeader');
-    const DialogSubHeader = MappedDialogDivs.get('DialogSubHeader');
+    MappedDialogDivs.get('DialogSubHeader');
     MappedDialogDivs.get('DialogFooter');
     MappedDialogDivs.get('DialogLabel');
     const DialogBodyText = MappedDialogDivs.get('DialogBodyText');
     const DialogBody = MappedDialogDivs.get('DialogBody');
-    MappedDialogDivs.get('DialogControlsSection');
+    const DialogControlsSection = MappedDialogDivs.get('DialogControlsSection');
     MappedDialogDivs.get('DialogControlsSectionHeader');
     Object.values(CommonUIModule).find((mod) => mod?.render?.toString()?.includes('"DialogButton","_DialogLayout","Primary"'));
     const DialogButtonSecondary = Object.values(CommonUIModule).find((mod) => mod?.render?.toString()?.includes('"DialogButton","_DialogLayout","Secondary"'));
@@ -334,7 +334,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
     const dropdownItemRegex = createPropListRegex(["dropDownControlRef", "description"], false);
     Object.values(CommonUIModule).find((mod) => mod?.toString && dropdownItemRegex.test(mod.toString()));
 
-    findModuleExport((e) => e?.render?.toString().includes('"shift-children-below"'));
+    const Field = findModuleExport((e) => e?.render?.toString().includes('"shift-children-below"'));
 
     const focusableRegex = createPropListRegex(["flow-children", "onActivate", "onCancel", "focusClassName", "focusWithinClassName"]);
     findModuleExport((e) => e?.render?.toString && focusableRegex.test(e.render.toString()));
@@ -1495,22 +1495,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
             window.SP_REACT.createElement(Button, { onClick: () => SteamClient.System.OpenLocalDirectoryInSystemExplorer("ext\\data\\logs\\"), style: { marginTop: "20px" } }, "Open Logs Folder")));
     };
 
-    const fieldClasses = findClassModule(m => m.FieldLabel && !m.GyroButtonPickerDialog && !m.ControllerOutline && !m.AwaitingEmailConfIcon);
-    const pagedSettingsClasses = findClassModule(m => m.PagedSettingsDialog_PageList);
-    const settingsClasses$1 = findClassModule(m => m.SettingsTitleBar && m.SettingsDialogButton);
-    const containerClasses = [
-        Classes.Field,
-        Classes.WithFirstRow,
-        Classes.VerticalAlignCenter,
-        Classes.WithDescription,
-        Classes.WithBottomSeparatorStandard,
-        Classes.ChildrenWidthFixed,
-        Classes.ExtraPaddingOnChildrenBelow,
-        Classes.StandardPadding,
-        Classes.HighlightOnFocus,
-        "Panel",
-    ].join(" ");
-
     const isEditablePlugin = (plugin_name) => {
         return window.PLUGIN_LIST && window.PLUGIN_LIST[plugin_name]
             && typeof window.PLUGIN_LIST[plugin_name].renderPluginSettings === 'function' ? true : false;
@@ -1519,7 +1503,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
         if (!isEditablePlugin(plugin?.data?.name)) {
             return window.SP_REACT.createElement(window.SP_REACT.Fragment, null);
         }
-        return (window.SP_REACT.createElement("div", { className: "_1WKUOT3FdB9-48MMP0Tz9l Focusable", style: { marginTop: 0, marginLeft: 0, marginRight: 15 }, tabIndex: 0 },
+        return (window.SP_REACT.createElement(DialogButton, { className: "_3epr8QYWw_FqFgMx38YEEm", style: { marginTop: 0, marginLeft: 0, marginRight: 15 } },
             window.SP_REACT.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 36 36", fill: "none" },
                 window.SP_REACT.createElement("path", { d: "M21.75 18C21.75 18.7417 21.5301 19.4667 21.118 20.0834C20.706 20.7001 20.1203 21.1807 19.4351 21.4645C18.7498 21.7484 17.9958 21.8226 17.2684 21.6779C16.541 21.5332 15.8728 21.1761 15.3484 20.6517C14.8239 20.1272 14.4668 19.459 14.3221 18.7316C14.1774 18.0042 14.2516 17.2502 14.5355 16.5649C14.8193 15.8797 15.2999 15.294 15.9166 14.882C16.5333 14.4699 17.2583 14.25 18 14.25C18.9946 14.25 19.9484 14.6451 20.6517 15.3483C21.3549 16.0516 21.75 17.0054 21.75 18ZM6 14.25C5.25832 14.25 4.5333 14.4699 3.91661 14.882C3.29993 15.294 2.81928 15.8797 2.53545 16.5649C2.25162 17.2502 2.17736 18.0042 2.32206 18.7316C2.46675 19.459 2.8239 20.1272 3.34835 20.6517C3.8728 21.1761 4.54098 21.5332 5.26841 21.6779C5.99584 21.8226 6.74984 21.7484 7.43506 21.4645C8.12029 21.1807 8.70596 20.7001 9.11801 20.0834C9.53007 19.4667 9.75 18.7417 9.75 18C9.75 17.0054 9.35491 16.0516 8.65165 15.3483C7.94839 14.6451 6.99456 14.25 6 14.25ZM30 14.25C29.2583 14.25 28.5333 14.4699 27.9166 14.882C27.2999 15.294 26.8193 15.8797 26.5355 16.5649C26.2516 17.2502 26.1774 18.0042 26.3221 18.7316C26.4668 19.459 26.8239 20.1272 27.3484 20.6517C27.8728 21.1761 28.541 21.5332 29.2684 21.6779C29.9958 21.8226 30.7498 21.7484 31.4351 21.4645C32.1203 21.1807 32.706 20.7001 33.118 20.0834C33.5301 19.4667 33.75 18.7417 33.75 18C33.75 17.0054 33.3549 16.0516 32.6517 15.3483C31.9484 14.6451 30.9946 14.25 30 14.25Z", fill: "currentColor" }))));
     };
@@ -1554,15 +1538,15 @@ var millennium_main = (function (exports, React, ReactDOM) {
         }
         return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
             window.SP_REACT.createElement(DialogHeader, null, locale.settingsPanelPlugins),
-            window.SP_REACT.createElement(DialogBody, { className: classMap.SettingsDialogBodyFade }, plugins.map((plugin, index) => (window.SP_REACT.createElement("div", { className: containerClasses, key: index },
-                window.SP_REACT.createElement("div", { className: classMap.FieldLabelRow },
-                    window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabel }, plugin?.data?.common_name),
-                    window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon, style: { display: "flex", alignItems: "center" } },
-                        window.SP_REACT.createElement(EditPlugin, { plugin: plugin }),
-                        window.SP_REACT.createElement("div", { className: Classes.FieldChildrenInner },
-                            window.SP_REACT.createElement(Toggle, { disabled: plugin?.data?.name == "core", value: checkedItems[index], onChange: (_checked) => handleCheckboxChange(index) })))),
-                window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, plugin?.data?.description ?? locale.itemNoDescription)))))));
+            window.SP_REACT.createElement(DialogBody, { className: classMap.SettingsDialogBodyFade }, plugins.map((plugin, index) => (window.SP_REACT.createElement(Field, { key: index, label: plugin?.data?.common_name, description: plugin?.data?.description ?? locale.itemNoDescription },
+                window.SP_REACT.createElement(EditPlugin, { plugin: plugin }),
+                window.SP_REACT.createElement(Toggle, { disabled: plugin?.data?.name == "core", value: checkedItems[index], onChange: (_checked) => handleCheckboxChange(index) })))))));
     };
+
+    const pagedSettingsClasses = findClassModule(m => m.PagedSettingsDialog_PageList);
+    const settingsClasses$1 = findClassModule(m => m.SettingsTitleBar && m.SettingsDialogButton);
+
+    const SettingsDialogSubHeader = ({ children }) => window.SP_REACT.createElement("div", { className: "SettingsDialogSubHeader" }, children);
 
     var ConditionType;
     (function (ConditionType) {
@@ -1630,12 +1614,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
             };
             this.RenderComponent = ({ condition, value, store }) => {
                 const conditionType = this.GetConditionType(value.values);
-                return (window.SP_REACT.createElement("div", { key: condition, className: containerClasses },
-                    window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabelRow },
-                        window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabel }, condition),
-                        window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon },
-                            window.SP_REACT.createElement(this.RenderComponentInterface, { conditionType: conditionType, store: store, conditionName: condition, values: Object.keys(value?.values) }))),
-                    window.SP_REACT.createElement("div", { className: classMap.FieldDescription, dangerouslySetInnerHTML: { __html: value?.description ?? "No description yet." } })));
+                return (window.SP_REACT.createElement(Field, { label: condition, description: value?.description ?? "No description yet." },
+                    window.SP_REACT.createElement(this.RenderComponentInterface, { conditionType: conditionType, store: store, conditionName: condition, values: Object.keys(value?.values) })));
             };
             this.RenderColorComponent = ({ color, index }) => {
                 const [colorState, setColorState] = React.useState(color?.hex ?? "#000000");
@@ -1657,13 +1637,9 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 const ResetColor = () => {
                     UpdateColor(color.defaultColor);
                 };
-                return (window.SP_REACT.createElement("div", { key: index, className: containerClasses },
-                    window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabelRow },
-                        window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabel }, color?.name ?? color?.color),
-                        window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon },
-                            colorState != color.defaultColor && window.SP_REACT.createElement(Button, { className: settingsClasses$1.SettingsDialogButton + " DialogButton _DialogLayout Secondary", onClick: ResetColor }, "Reset"),
-                            window.SP_REACT.createElement("input", { type: "color", className: "colorPicker", name: "colorPicker", value: colorState, onChange: (event) => UpdateColor(event.target.value) }))),
-                    window.SP_REACT.createElement("div", { className: classMap.FieldDescription, dangerouslySetInnerHTML: { __html: color?.description ?? "No description yet." } })));
+                return (window.SP_REACT.createElement(Field, { key: index, label: color?.name ?? color?.color, description: color?.description ?? "No description yet." },
+                    colorState != color.defaultColor && window.SP_REACT.createElement(DialogButton, { className: settingsClasses$1.SettingsDialogButton, onClick: ResetColor }, "Reset"),
+                    window.SP_REACT.createElement("input", { type: "color", className: "colorPicker", name: "colorPicker", value: colorState, onChange: (event) => UpdateColor(event.target.value) })));
             };
             this.RenderColorsOpts = () => {
                 const activeTheme = pluginSelf.activeTheme;
@@ -1677,8 +1653,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
                         });
                     }
                 }, []);
-                return themeColors && window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
-                    window.SP_REACT.createElement(DialogSubHeader, { className: '_2rK4YqGvSzXLj1bPZL8xMJ' }, locale.customThemeSettingsColorsHeader),
+                return themeColors && window.SP_REACT.createElement(DialogControlsSection, null,
+                    window.SP_REACT.createElement(SettingsDialogSubHeader, null, locale.customThemeSettingsColorsHeader),
                     window.SP_REACT.createElement(DialogBodyText, { className: '_3fPiC9QRyT5oJ6xePCVYz8' }, locale.customThemeSettingsColorsDescription),
                     themeColors?.map((color, index) => window.SP_REACT.createElement(this.RenderColorComponent, { color: color, index: index })));
             };
@@ -1695,12 +1671,12 @@ var millennium_main = (function (exports, React, ReactDOM) {
                         window.SP_REACT.createElement("div", { className: "DialogContentTransition Panel", style: { minWidth: "100vw" } },
                             window.SP_REACT.createElement("div", { className: `DialogContent _DialogLayout ${Classes.PagedSettingsDialog_PageContent} ` },
                                 window.SP_REACT.createElement("div", { className: "DialogContent_InnerWidth" },
-                                    window.SP_REACT.createElement("div", { className: "DialogHeader" },
+                                    window.SP_REACT.createElement(DialogHeader, null,
                                         "Editing ",
                                         activeTheme?.data?.name ?? activeTheme.native),
-                                    window.SP_REACT.createElement("div", { className: `DialogBody ${Classes.SettingsDialogBodyFade}` },
-                                        themeConditions && window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
-                                            window.SP_REACT.createElement(DialogSubHeader, { className: '_2rK4YqGvSzXLj1bPZL8xMJ' }, locale.customThemeSettingsConfigHeader),
+                                    window.SP_REACT.createElement(DialogBody, { className: Classes.SettingsDialogBodyFade },
+                                        themeConditions && window.SP_REACT.createElement(DialogControlsSection, null,
+                                            window.SP_REACT.createElement(SettingsDialogSubHeader, null, locale.customThemeSettingsConfigHeader),
                                             window.SP_REACT.createElement(DialogBodyText, { className: '_3fPiC9QRyT5oJ6xePCVYz8' }, locale.customThemeSettingsConfigDescription),
                                             Object.entries(themeConditions).map(([key, value]) => window.SP_REACT.createElement(this.RenderComponent, { condition: key, store: savedConditions, value: value }))),
                                         window.SP_REACT.createElement(this.RenderColorsOpts, null)))))))));
@@ -2015,7 +1991,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
         if (pluginSelf?.isDefaultTheme || (Theme?.data?.Conditions === undefined && Theme?.data?.RootColors === undefined)) {
             return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null));
         }
-        return (window.SP_REACT.createElement("button", { onClick: () => ShowThemeSettings(active), style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable millenniumIconButton" },
+        return (window.SP_REACT.createElement(DialogButton, { onClick: () => ShowThemeSettings(active), style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, className: "_3epr8QYWw_FqFgMx38YEEm millenniumIconButton" },
             window.SP_REACT.createElement(IconsModule.Edit, { style: { height: "16px" } })));
     };
     const findAllThemes = async () => {
@@ -2122,33 +2098,20 @@ var millennium_main = (function (exports, React, ReactDOM) {
                     }`),
             window.SP_REACT.createElement(DialogHeader, null, locale.settingsPanelThemes),
             window.SP_REACT.createElement(DialogBody, { className: classMap.SettingsDialogBodyFade },
-                window.SP_REACT.createElement("div", { className: containerClasses },
-                    window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabelRow },
-                        window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabel }, locale.themePanelClientTheme),
-                        window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon },
-                            window.SP_REACT.createElement(RenderEditTheme, { active: active }),
-                            !pluginSelf.isDefaultTheme &&
-                                window.SP_REACT.createElement("button", { onClick: () => SetupAboutRenderer(active), style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable millenniumIconButton" },
-                                    window.SP_REACT.createElement(IconsModule.Information, { style: { height: "16px" } })),
-                            window.SP_REACT.createElement("button", { onClick: OpenThemesFolder, style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable millenniumIconButton" },
-                                window.SP_REACT.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 48 48", width: "16px", height: "16px" },
-                                    window.SP_REACT.createElement("path", { fill: "currentColor", d: "M 8.5 8 C 6.019 8 4 10.019 4 12.5 L 4 18 L 16.052734 18 C 16.636734 18 17.202344 17.793922 17.652344 17.419922 L 23.5 12.546875 L 19.572266 9.2734375 C 18.586266 8.4524375 17.336734 8 16.052734 8 L 8.5 8 z M 27.644531 13 L 19.572266 19.724609 C 18.585266 20.546609 17.336734 21 16.052734 21 L 4 21 L 4 35.5 C 4 37.981 6.019 40 8.5 40 L 39.5 40 C 41.981 40 44 37.981 44 35.5 L 44 17.5 C 44 15.019 41.981 13 39.5 13 L 27.644531 13 z" }))),
-                            window.SP_REACT.createElement(Dropdown, { contextMenuPositionOptions: { bMatchWidth: false }, rgOptions: themes, selectedOption: 1, strDefaultLabel: active, onChange: updateThemeCallback }))),
-                    window.SP_REACT.createElement("div", { className: classMap.FieldDescription },
+                window.SP_REACT.createElement(Field, { label: locale.themePanelClientTheme, description: window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
                         window.SP_REACT.createElement("div", null, locale.themePanelThemeTooltip),
                         window.SP_REACT.createElement("a", { href: "#", onClick: OpenThemeRepository, className: "RmxP90Yut4EIwychIEg51", style: { display: "flex", gap: "5px" } },
                             window.SP_REACT.createElement(IconsModule.Hyperlink, { style: { width: "14px" } }),
-                            locale.themePanelGetMoreThemes))),
-                window.SP_REACT.createElement("div", { className: containerClasses },
-                    window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabelRow },
-                        window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabel }, locale.themePanelInjectJavascript),
-                        window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon }, jsState !== undefined && window.SP_REACT.createElement(Toggle, { value: jsState, onChange: onScriptToggle }))),
-                    window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, locale.themePanelInjectJavascriptToolTip)),
-                window.SP_REACT.createElement("div", { className: containerClasses },
-                    window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabelRow },
-                        window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabel }, locale.themePanelInjectCSS),
-                        window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon }, cssState !== undefined && window.SP_REACT.createElement(Toggle, { value: cssState, onChange: onStyleToggle }))),
-                    window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, locale.themePanelInjectCSSToolTip)))));
+                            locale.themePanelGetMoreThemes)) },
+                    window.SP_REACT.createElement(RenderEditTheme, { active: active }),
+                    !pluginSelf.isDefaultTheme && (window.SP_REACT.createElement(DialogButton, { onClick: () => SetupAboutRenderer(active), style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, className: "_3epr8QYWw_FqFgMx38YEEm millenniumIconButton" },
+                        window.SP_REACT.createElement(IconsModule.Information, { style: { height: "16px" } }))),
+                    window.SP_REACT.createElement(DialogButton, { onClick: OpenThemesFolder, style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, className: "_3epr8QYWw_FqFgMx38YEEm millenniumIconButton" },
+                        window.SP_REACT.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 48 48", width: "16px", height: "16px" },
+                            window.SP_REACT.createElement("path", { fill: "currentColor", d: "M 8.5 8 C 6.019 8 4 10.019 4 12.5 L 4 18 L 16.052734 18 C 16.636734 18 17.202344 17.793922 17.652344 17.419922 L 23.5 12.546875 L 19.572266 9.2734375 C 18.586266 8.4524375 17.336734 8 16.052734 8 L 8.5 8 z M 27.644531 13 L 19.572266 19.724609 C 18.585266 20.546609 17.336734 21 16.052734 21 L 4 21 L 4 35.5 C 4 37.981 6.019 40 8.5 40 L 39.5 40 C 41.981 40 44 37.981 44 35.5 L 44 17.5 C 44 15.019 41.981 13 39.5 13 L 27.644531 13 z" }))),
+                    window.SP_REACT.createElement(Dropdown, { contextMenuPositionOptions: { bMatchWidth: false }, rgOptions: themes, selectedOption: 1, strDefaultLabel: active, onChange: updateThemeCallback })),
+                window.SP_REACT.createElement(Field, { label: locale.themePanelInjectJavascript, description: locale.themePanelInjectCSSToolTip }, jsState !== undefined && (window.SP_REACT.createElement(Toggle, { value: jsState, onChange: onScriptToggle }))),
+                window.SP_REACT.createElement(Field, { label: locale.themePanelInjectCSS, description: locale.themePanelInjectCSSToolTip }, cssState !== undefined && (window.SP_REACT.createElement(Toggle, { value: cssState, onChange: onStyleToggle }))))));
     };
 
     pluginSelf.SettingsStore;
@@ -2209,25 +2172,40 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 });
             });
         };
-        return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
-            window.SP_REACT.createElement(DialogSubHeader, { className: '_2rK4YqGvSzXLj1bPZL8xMJ' }, locale.updatePanelHasUpdates),
+        const fieldButtonsStyles = {
+            display: "flex",
+            gap: "8px",
+        };
+        const updateButtonStyles = {
+            minWidth: "80px",
+        };
+        const updateDescriptionStyles = {
+            display: "flex",
+            flexDirection: "column",
+        };
+        const updateLabelStyles = {
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+        };
+        return (window.SP_REACT.createElement(DialogControlsSection, null,
+            window.SP_REACT.createElement(SettingsDialogSubHeader, null, locale.updatePanelHasUpdates),
             window.SP_REACT.createElement(DialogBodyText, { className: '_3fPiC9QRyT5oJ6xePCVYz8' }, locale.updatePanelHasUpdatesSub),
-            updates.map((update, index) => (window.SP_REACT.createElement("div", { className: containerClasses, key: index },
-                window.SP_REACT.createElement("div", { className: classMap.FieldLabelRow },
-                    window.SP_REACT.createElement("div", { className: "update-item-type", style: { color: "white", fontSize: "12px", padding: "4px", background: "#007eff", borderRadius: "6px" } }, "Theme"),
-                    window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabel }, update.name),
-                    window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon },
-                        window.SP_REACT.createElement("div", { className: Classes.FieldChildrenInner, style: { gap: "10px", width: "200px" } },
-                            window.SP_REACT.createElement("button", { onClick: () => viewMoreClick(update), className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" }, locale.ViewMore),
-                            window.SP_REACT.createElement("button", { onClick: () => updateItemMessage(update, index), className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" }, updating[index] ? locale.updatePanelIsUpdating : locale.updatePanelUpdate)))),
-                window.SP_REACT.createElement("div", { className: classMap.FieldDescription },
-                    window.SP_REACT.createElement("b", null, locale.updatePanelReleasedTag),
-                    " ",
-                    update?.date),
-                window.SP_REACT.createElement("div", { className: classMap.FieldDescription },
-                    window.SP_REACT.createElement("b", null, locale.updatePanelReleasePatchNotes),
-                    " ",
-                    update?.message))))));
+            updates.map((update, index) => (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
+                window.SP_REACT.createElement(Field, { key: index, label: window.SP_REACT.createElement("div", { style: updateLabelStyles },
+                        window.SP_REACT.createElement("div", { className: "update-item-type", style: { color: "white", fontSize: "12px", padding: "4px", background: "#007eff", borderRadius: "6px" } }, "Theme"),
+                        update.name), description: window.SP_REACT.createElement("div", { style: updateDescriptionStyles },
+                        window.SP_REACT.createElement("div", null,
+                            window.SP_REACT.createElement("b", null, locale.updatePanelReleasedTag),
+                            " ",
+                            update?.date),
+                        window.SP_REACT.createElement("div", null,
+                            window.SP_REACT.createElement("b", null, locale.updatePanelReleasePatchNotes),
+                            " ",
+                            update?.message)) },
+                    window.SP_REACT.createElement("div", { style: fieldButtonsStyles },
+                        window.SP_REACT.createElement(DialogButton, { onClick: () => viewMoreClick(update), style: updateButtonStyles, className: "_3epr8QYWw_FqFgMx38YEEm" }, locale.ViewMore),
+                        window.SP_REACT.createElement(DialogButton, { onClick: () => updateItemMessage(update, index), style: updateButtonStyles, className: "_3epr8QYWw_FqFgMx38YEEm" }, updating[index] ? locale.updatePanelIsUpdating : locale.updatePanelUpdate))))))));
     };
     const UpdatesViewModal = () => {
         const [updates, setUpdates] = React.useState(null);
@@ -2292,14 +2270,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
             window.SP_REACT.createElement(DialogHeader, { style: DialogHeaderStyles },
                 locale.settingsPanelUpdates,
                 !checkingForUpdates &&
-                    window.SP_REACT.createElement("button", { onClick: checkForUpdates, className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable", style: { width: "16px", "-webkit-app-region": "no-drag", zIndex: "9999", padding: "4px 4px", display: "flex" } },
+                    window.SP_REACT.createElement(DialogButton, { onClick: checkForUpdates, className: "_3epr8QYWw_FqFgMx38YEEm", style: { width: "16px", "-webkit-app-region": "no-drag", zIndex: "9999", padding: "4px 4px", display: "flex" } },
                         window.SP_REACT.createElement(IconsModule.Update, null))),
             window.SP_REACT.createElement(DialogBody, { className: classMap.SettingsDialogBodyFade },
-                window.SP_REACT.createElement("div", { className: containerClasses },
-                    window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabelRow },
-                        window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabel }, locale.updatePanelUpdateNotifications),
-                        window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon }, showUpdateNotifications !== undefined && window.SP_REACT.createElement(Toggle, { value: showUpdateNotifications, onChange: OnNotificationsChange }))),
-                    window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, locale.updatePanelUpdateNotificationsTooltip)),
+                window.SP_REACT.createElement(Field, { label: locale.updatePanelUpdateNotifications, description: locale.updatePanelUpdateNotificationsTooltip }, showUpdateNotifications !== undefined && window.SP_REACT.createElement(Toggle, { value: showUpdateNotifications, onChange: OnNotificationsChange })),
                 updates && (!updates.length ? window.SP_REACT.createElement(UpToDateModal, null) : window.SP_REACT.createElement(RenderAvailableUpdates, { updates: updates, setUpdates: setUpdates })))));
     };
 

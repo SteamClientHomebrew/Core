@@ -10,7 +10,7 @@ export interface RenderProps {
 export class CreatePopup extends CreatePopupBase {
 
     constructor(component: ReactNode, strPopupName: string, options: any) {
-        super(strPopupName, options) as any
+        super(strPopupName, options)
         this.component = component
     }
 

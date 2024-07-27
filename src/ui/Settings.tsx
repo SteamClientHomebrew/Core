@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { PluginViewModal } from '../components/Plugins'
 import { ThemeViewModal } from './Themes'
 import { UpdatesViewModal } from '../components/Updates'
-import { IconsModule, Millennium, pluginSelf, findClassModule, Classes } from '@millennium/ui';
+import { IconsModule, Millennium, pluginSelf, Classes } from '@millennium/ui';
 import { locale } from '../locales';
 import { pagedSettingsClasses } from '../classes';
 

@@ -1,10 +1,22 @@
-import { useEffect, useState } from 'react'
-import { Millennium, DialogBody, DialogBodyText, DialogSubHeader, classMap, DialogHeader, IconsModule, pluginSelf, Toggle, Classes } from '@millennium/ui'
+import { CSSProperties, useEffect, useState } from 'react'
+import {
+    Millennium,
+    DialogBody,
+    DialogBodyText,
+    DialogButton,
+    DialogControlsSection,
+    classMap,
+    DialogHeader,
+    Field,
+    IconsModule,
+    pluginSelf,
+    Toggle,
+} from '@millennium/ui'
 import { locale } from '../locales';
 import { ThemeItem } from '../types';
 import { Settings } from '../Settings';
 import { ConnectionFailed } from './ConnectionFailed';
-import { containerClasses, fieldClasses } from '../classes';
+import { SettingsDialogSubHeader } from './SettingsDialogSubHeader';
 
 interface UpdateProps {
     updates: UpdateItemType[];
@@ -73,37 +85,59 @@ const RenderAvailableUpdates: React.FC<UpdateProps> = ({ updates, setUpdates }) 
         })
     }
 
+    const fieldButtonsStyles: CSSProperties = {
+        display: "flex",
+        gap: "8px",
+    };
+    const updateButtonStyles: CSSProperties = {
+        minWidth: "80px",
+    };
+    const updateDescriptionStyles: CSSProperties = {
+        display: "flex",
+        flexDirection: "column",
+    };
+    const updateLabelStyles: CSSProperties = {
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+    };
+
     return (
-        <>
-        <DialogSubHeader className='_2rK4YqGvSzXLj1bPZL8xMJ'>{locale.updatePanelHasUpdates}</DialogSubHeader>
+        <DialogControlsSection>
+        <SettingsDialogSubHeader>{locale.updatePanelHasUpdates}</SettingsDialogSubHeader>
         <DialogBodyText className='_3fPiC9QRyT5oJ6xePCVYz8'>{locale.updatePanelHasUpdatesSub}</DialogBodyText>
 
         {updates.map((update: UpdateItemType, index: number) => (
-            <div className={containerClasses} key={index}>
-                <div className={classMap.FieldLabelRow}>
+            <>
+            <Field
+                key={index}
+                label=<div style={updateLabelStyles}>
                     <div className="update-item-type" style={{color: "white", fontSize: "12px", padding: "4px", background: "#007eff", borderRadius: "6px"}}>Theme</div>
-                    <div className={fieldClasses.FieldLabel}>{update.name}</div>
-                    <div className={classMap.FieldChildrenWithIcon}>
-                        <div className={Classes.FieldChildrenInner} style={{gap: "10px", width: "200px"}}>
-
-                            <button 
-                                onClick={() => viewMoreClick(update)} 
-                                className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable">
-                                    {locale.ViewMore}
-                            </button>
-                            <button 
-                                onClick={() => updateItemMessage(update, index)} 
-                                className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable">
-                                    {updating[index] ? locale.updatePanelIsUpdating : locale.updatePanelUpdate}
-                            </button>
-                        </div>
-                    </div>
+                    {update.name}
                 </div>
-                <div className={classMap.FieldDescription}><b>{locale.updatePanelReleasedTag}</b> {update?.date}</div>
-                <div className={classMap.FieldDescription}><b>{locale.updatePanelReleasePatchNotes}</b> {update?.message}</div>
-            </div>
+                description=<div style={updateDescriptionStyles}>
+                    <div><b>{locale.updatePanelReleasedTag}</b> {update?.date}</div>
+                    <div><b>{locale.updatePanelReleasePatchNotes}</b> {update?.message}</div>
+                </div>
+            >
+                <div style={fieldButtonsStyles}>
+                    <DialogButton 
+                        onClick={() => viewMoreClick(update)} 
+                        style={updateButtonStyles}
+                        className="_3epr8QYWw_FqFgMx38YEEm">
+                            {locale.ViewMore}
+                    </DialogButton>
+                    <DialogButton 
+                        onClick={() => updateItemMessage(update, index)} 
+                        style={updateButtonStyles}
+                        className="_3epr8QYWw_FqFgMx38YEEm">
+                            {updating[index] ? locale.updatePanelIsUpdating : locale.updatePanelUpdate}
+                    </DialogButton>
+                </div>
+            </Field>
+            </>
         ))}
-        </>
+        </DialogControlsSection>
     )
 } 
 
@@ -183,25 +217,21 @@ const UpdatesViewModal: React.FC = () => {
                 {locale.settingsPanelUpdates}
                 {
                     !checkingForUpdates && 
-                    <button 
+                    <DialogButton 
                         onClick={checkForUpdates} 
-                        className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" 
+                        className="_3epr8QYWw_FqFgMx38YEEm" 
                         style={{width: "16px", "-webkit-app-region": "no-drag", zIndex: "9999", padding: "4px 4px", display: "flex"} as any}>
                         <IconsModule.Update/>
-                    </button>
+                    </DialogButton>
                 }
             </DialogHeader>
             <DialogBody className={classMap.SettingsDialogBodyFade}>
-                <div className={containerClasses}>
-                    <div className={fieldClasses.FieldLabelRow}>
-                        <div className={fieldClasses.FieldLabel}>{locale.updatePanelUpdateNotifications}</div>
-                        <div className={classMap.FieldChildrenWithIcon}>
-
-                            { showUpdateNotifications !== undefined && <Toggle value={showUpdateNotifications} onChange={OnNotificationsChange}></Toggle> }
-                        </div>
-                    </div>
-                    <div className={classMap.FieldDescription}>{locale.updatePanelUpdateNotificationsTooltip}</div>
-                </div> 
+                <Field
+                    label={locale.updatePanelUpdateNotifications}
+                    description={locale.updatePanelUpdateNotificationsTooltip}
+                >
+                    { showUpdateNotifications !== undefined && <Toggle value={showUpdateNotifications} onChange={OnNotificationsChange} /> }
+                </Field>
                 {updates && (!updates.length ? <UpToDateModal/> : <RenderAvailableUpdates updates={updates} setUpdates={setUpdates}/>)}   
             </DialogBody>
         </>

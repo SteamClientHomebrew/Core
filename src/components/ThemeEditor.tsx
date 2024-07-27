@@ -1,8 +1,22 @@
 import React, { useEffect, useState } from "react"
-import { Button, Classes, DialogBodyText, DialogSubHeader, Dropdown, Millennium, SingleDropdownOption, Toggle, classMap, pluginSelf } from "@millennium/ui"
+import {
+    Classes,
+    DialogBody,
+    DialogBodyText,
+    DialogButton,
+    DialogControlsSection,
+    DialogHeader,
+    Dropdown,
+    Field,
+    Millennium,
+    SingleDropdownOption,
+    Toggle,
+    pluginSelf,
+  } from "@millennium/ui";
 import { Conditions, ConditionsStore, ICondition, ThemeItem } from "../types"
-import { containerClasses, fieldClasses, settingsClasses } from "../classes"
+import { settingsClasses } from "../classes"
 import { locale } from "../locales"
+import { SettingsDialogSubHeader } from "./SettingsDialogSubHeader";
 
 interface ConditionalComponent {
     condition: string,
@@ -108,16 +122,12 @@ export class RenderThemeEditor extends React.Component {
         const conditionType: ConditionType = this.GetConditionType(value.values)
 
         return (
-            <div key={condition} className={containerClasses}>
-                <div className={fieldClasses.FieldLabelRow}>
-                    <div className={fieldClasses.FieldLabel}>{condition}</div>
-                    <div className={classMap.FieldChildrenWithIcon}>
-                        <this.RenderComponentInterface conditionType={conditionType} store={store} conditionName={condition} values={Object.keys(value?.values)} />
-                    </div>
-                </div>
-                <div className={classMap.FieldDescription} dangerouslySetInnerHTML={{__html: value?.description ?? "No description yet."}}>
-                </div>
-            </div> 
+            <Field
+                label={condition}
+                description={value?.description ?? "No description yet."}
+            >
+                <this.RenderComponentInterface conditionType={conditionType} store={store} conditionName={condition} values={Object.keys(value?.values)} />
+            </Field>
         )
     }
     
@@ -148,17 +158,14 @@ export class RenderThemeEditor extends React.Component {
         }
 
         return (
-            <div key={index} className={containerClasses}>
-                <div className={fieldClasses.FieldLabelRow}>
-                    <div className={fieldClasses.FieldLabel}>{color?.name ?? color?.color}</div>
-                    <div className={classMap.FieldChildrenWithIcon}>
-                        {colorState != color.defaultColor && <Button className={settingsClasses.SettingsDialogButton + " DialogButton _DialogLayout Secondary"} onClick={ResetColor}>Reset</Button>}
-                        <input type="color" className="colorPicker" name="colorPicker" value={colorState} onChange={(event) => UpdateColor(event.target.value)}/>
-                    </div>
-                </div>
-                <div className={classMap.FieldDescription} dangerouslySetInnerHTML={{__html: color?.description ?? "No description yet."}}>
-                </div>
-            </div> 
+            <Field
+                key={index}
+                label={color?.name ?? color?.color}
+                description={color?.description ?? "No description yet."}
+            >
+                {colorState != color.defaultColor && <DialogButton className={settingsClasses.SettingsDialogButton} onClick={ResetColor}>Reset</DialogButton>}
+                <input type="color" className="colorPicker" name="colorPicker" value={colorState} onChange={(event) => UpdateColor(event.target.value)}/>
+            </Field>
         )
     }
 
@@ -176,12 +183,12 @@ export class RenderThemeEditor extends React.Component {
             }
         }, [])
 
-        return themeColors && <>
-            <DialogSubHeader className='_2rK4YqGvSzXLj1bPZL8xMJ'>{locale.customThemeSettingsColorsHeader}</DialogSubHeader>
+        return themeColors && <DialogControlsSection>
+            <SettingsDialogSubHeader>{locale.customThemeSettingsColorsHeader}</SettingsDialogSubHeader>
             <DialogBodyText className='_3fPiC9QRyT5oJ6xePCVYz8'>{locale.customThemeSettingsColorsDescription}</DialogBodyText>
 
             {themeColors?.map((color: any, index: number) => <this.RenderColorComponent color={color} index={index}/>)}
-        </>      
+        </DialogControlsSection>      
     }
 
     render() {
@@ -205,16 +212,16 @@ export class RenderThemeEditor extends React.Component {
                         <div className="DialogContentTransition Panel" style={{minWidth: "100vw"}}>
                             <div className={`DialogContent _DialogLayout ${Classes.PagedSettingsDialog_PageContent} `}>
                                 <div className="DialogContent_InnerWidth">
-                                    <div className="DialogHeader">Editing {activeTheme?.data?.name ?? activeTheme.native}</div>
-                                    <div className={`DialogBody ${Classes.SettingsDialogBodyFade}`}>
-                                        {themeConditions && <>
-                                            <DialogSubHeader className='_2rK4YqGvSzXLj1bPZL8xMJ'>{locale.customThemeSettingsConfigHeader}</DialogSubHeader>
+                                    <DialogHeader>Editing {activeTheme?.data?.name ?? activeTheme.native}</DialogHeader>
+                                    <DialogBody className={Classes.SettingsDialogBodyFade}>
+                                        {themeConditions && <DialogControlsSection>
+                                            <SettingsDialogSubHeader>{locale.customThemeSettingsConfigHeader}</SettingsDialogSubHeader>
                                             <DialogBodyText className='_3fPiC9QRyT5oJ6xePCVYz8'>{locale.customThemeSettingsConfigDescription}</DialogBodyText>
                                     
                                             {Object.entries(themeConditions).map(([key, value]) => <this.RenderComponent condition={key} store={savedConditions} value={value}/>)}
-                                        </>}
+                                        </DialogControlsSection>}
                                         <this.RenderColorsOpts/>
-                                    </div>
+                                    </DialogBody>
                                 </div>
                             </div>
                         </div>

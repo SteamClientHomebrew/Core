@@ -3,6 +3,8 @@ import {
     Dropdown, 
     DialogHeader, 
     DialogBody, 
+    DialogButton,
+    Field,
     classMap, 
     IconsModule, 
     pluginSelf, 
@@ -19,7 +21,6 @@ import { PromptReload } from '../popups/RestartModal'
 import { SetupAboutRenderer } from '../popups/AboutTheme'
 import { locale } from '../locales'
 import { ConnectionFailed } from '../components/ConnectionFailed'
-import { containerClasses, fieldClasses } from '../classes'
 
 const ShowThemeSettings = async (activeTheme: string) => {
 
@@ -97,13 +98,13 @@ const RenderEditTheme: React.FC<EditThemeProps> = ({ active }) => {
     }
 
     return (
-        <button 
+        <DialogButton 
             onClick={() => ShowThemeSettings(active)} 
             style={{margin: "0", padding: "0px 10px", marginRight: "10px"}} 
-            className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable millenniumIconButton" 
+            className="_3epr8QYWw_FqFgMx38YEEm millenniumIconButton" 
         >
             <IconsModule.Edit style={{height: "16px"}}/>
-        </button>
+        </DialogButton>
     )
 }
 
@@ -243,61 +244,72 @@ const ThemeViewModal: React.FC = () => {
 
             <DialogHeader>{locale.settingsPanelThemes}</DialogHeader>
             <DialogBody className={classMap.SettingsDialogBodyFade}>
-                <div className={containerClasses}>
-                    <div className={fieldClasses.FieldLabelRow}>
-                        <div className={fieldClasses.FieldLabel}>{locale.themePanelClientTheme}</div>
-                        <div className={classMap.FieldChildrenWithIcon}>
-
-                            <RenderEditTheme active={active}/>
-                            {
-                                !pluginSelf.isDefaultTheme && 
-                                <button 
-                                    onClick={() => SetupAboutRenderer(active)} 
-                                    style={{margin: "0", padding: "0px 10px", marginRight: "10px"}} 
-                                    className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable millenniumIconButton" 
-                                >
-                                    <IconsModule.Information style={{height: "16px"}}/>
-                                </button>
-                            }
-
-                            <button 
-                                onClick={OpenThemesFolder} 
-                                style={{margin: "0", padding: "0px 10px", marginRight: "10px"}} 
-                                className="_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable millenniumIconButton" 
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="16px" height="16px"><path fill="currentColor" d="M 8.5 8 C 6.019 8 4 10.019 4 12.5 L 4 18 L 16.052734 18 C 16.636734 18 17.202344 17.793922 17.652344 17.419922 L 23.5 12.546875 L 19.572266 9.2734375 C 18.586266 8.4524375 17.336734 8 16.052734 8 L 8.5 8 z M 27.644531 13 L 19.572266 19.724609 C 18.585266 20.546609 17.336734 21 16.052734 21 L 4 21 L 4 35.5 C 4 37.981 6.019 40 8.5 40 L 39.5 40 C 41.981 40 44 37.981 44 35.5 L 44 17.5 C 44 15.019 41.981 13 39.5 13 L 27.644531 13 z" /></svg>
-                            </button>
-
-                            <Dropdown contextMenuPositionOptions={{bMatchWidth: false}} rgOptions={themes as any} selectedOption={1} strDefaultLabel={active} onChange={updateThemeCallback as any}></Dropdown>        
-                        </div>
-                    </div>
-                    <div className={classMap.FieldDescription}>
+                <Field
+                    label={locale.themePanelClientTheme}
+                    description=<>
                         <div>{locale.themePanelThemeTooltip}</div>
                         <a href="#" onClick={OpenThemeRepository} className="RmxP90Yut4EIwychIEg51" style={{ display: "flex", gap: "5px"}}>
                             <IconsModule.Hyperlink style={{width: "14px"}}/>
                             {locale.themePanelGetMoreThemes}
                         </a>
-                    </div>
-                </div> 
-                <div className={containerClasses}>
-                    <div className={fieldClasses.FieldLabelRow}>
-                        <div className={fieldClasses.FieldLabel}>{locale.themePanelInjectJavascript}</div>
-                        <div className={classMap.FieldChildrenWithIcon}>
+                    </>
+                >
+                    <RenderEditTheme active={active} />
 
-                            { jsState !== undefined && <Toggle value={jsState} onChange={onScriptToggle}></Toggle> }
-                        </div>
-                    </div>
-                    <div className={classMap.FieldDescription}>{locale.themePanelInjectJavascriptToolTip}</div>
-                </div> 
-                <div className={containerClasses}>
-                    <div className={fieldClasses.FieldLabelRow}>
-                        <div className={fieldClasses.FieldLabel}>{locale.themePanelInjectCSS}</div>
-                        <div className={classMap.FieldChildrenWithIcon}>
-                            { cssState !== undefined && <Toggle value={cssState} onChange={onStyleToggle}></Toggle> }
-                        </div>
-                    </div>
-                    <div className={classMap.FieldDescription}>{locale.themePanelInjectCSSToolTip}</div>
-                </div> 
+                    {!pluginSelf.isDefaultTheme && (
+                        <DialogButton
+                            onClick={() => SetupAboutRenderer(active)}
+                            style={{ margin: "0", padding: "0px 10px", marginRight: "10px" }}
+                            className="_3epr8QYWw_FqFgMx38YEEm millenniumIconButton"
+                        >
+                            <IconsModule.Information style={{ height: "16px" }} />
+                        </DialogButton>
+                    )}
+        
+                    <DialogButton
+                        onClick={OpenThemesFolder}
+                        style={{ margin: "0", padding: "0px 10px", marginRight: "10px" }}
+                        className="_3epr8QYWw_FqFgMx38YEEm millenniumIconButton"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 48 48"
+                            width="16px"
+                            height="16px"
+                        >
+                            <path
+                                fill="currentColor"
+                                d="M 8.5 8 C 6.019 8 4 10.019 4 12.5 L 4 18 L 16.052734 18 C 16.636734 18 17.202344 17.793922 17.652344 17.419922 L 23.5 12.546875 L 19.572266 9.2734375 C 18.586266 8.4524375 17.336734 8 16.052734 8 L 8.5 8 z M 27.644531 13 L 19.572266 19.724609 C 18.585266 20.546609 17.336734 21 16.052734 21 L 4 21 L 4 35.5 C 4 37.981 6.019 40 8.5 40 L 39.5 40 C 41.981 40 44 37.981 44 35.5 L 44 17.5 C 44 15.019 41.981 13 39.5 13 L 27.644531 13 z"
+                            />
+                        </svg>
+                    </DialogButton>
+        
+                    <Dropdown
+                        contextMenuPositionOptions={{ bMatchWidth: false }}
+                        rgOptions={themes as any}
+                        selectedOption={1}
+                        strDefaultLabel={active}
+                        onChange={updateThemeCallback as any}
+                    />
+                </Field>
+
+                <Field
+                    label={locale.themePanelInjectJavascript}
+                    description={locale.themePanelInjectCSSToolTip}
+                >
+                    {jsState !== undefined && (
+                        <Toggle value={jsState} onChange={onScriptToggle} />
+                    )}
+                </Field>
+
+                <Field
+                    label={locale.themePanelInjectCSS}
+                    description={locale.themePanelInjectCSSToolTip}
+                >
+                    {cssState !== undefined && (
+                        <Toggle value={cssState} onChange={onStyleToggle} />
+                    )}
+                </Field>
             </DialogBody>
         </>
     )
