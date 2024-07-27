@@ -1,6 +1,6 @@
 import { Classes, findClassModule, Millennium, pluginSelf } from "@millennium/ui"
-import { ThemeItem } from "../components/types"
-import { CreatePopup } from "../components/Popups"
+import { ThemeItem } from "../types"
+import { CreatePopup } from "../components/CreatePopup"
 import React from "react"
 import { locale } from "../locales";
 

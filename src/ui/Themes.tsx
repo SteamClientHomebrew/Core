@@ -10,17 +10,16 @@ import {
     Toggle, 
     MessageBoxResult, 
     showModal, 
-    Classes,
 } from '@millennium/ui'
 
 import { useEffect, useState } from 'react'
-import { RenderThemeEditor } from './ThemeEditor'
-import { ComboItem, ThemeItem } from '../components/types'
-import { PromptReload } from './RestartModal'
-import { SetupAboutRenderer } from './AboutTheme'
+import { RenderThemeEditor } from '../components/ThemeEditor'
+import { ComboItem, ThemeItem } from '../types'
+import { PromptReload } from '../popups/RestartModal'
+import { SetupAboutRenderer } from '../popups/AboutTheme'
 import { locale } from '../locales'
-import { ConnectionFailed } from './ConnectionFailed'
-import { FieldClasses } from '../components/Classes'
+import { ConnectionFailed } from '../components/ConnectionFailed'
+import { containerClasses, fieldClasses } from '../classes'
 
 const ShowThemeSettings = async (activeTheme: string) => {
 
@@ -219,20 +218,6 @@ const ThemeViewModal: React.FC = () => {
 		return <ConnectionFailed/>
 	}
 
-    const containerClasses = [
-        Classes.Field, 
-        Classes.WithFirstRow, 
-        Classes.VerticalAlignCenter, 
-        Classes.WithDescription, 
-        Classes.WithBottomSeparatorStandard, 
-        Classes.ChildrenWidthFixed, 
-        Classes.ExtraPaddingOnChildrenBelow, 
-        Classes.StandardPadding, 
-        Classes.HighlightOnFocus,
-        "Panel"
-    ]
-    .join(" ")
-
     const OpenThemesFolder = () => {
         Millennium.callServerMethod("Millennium.steam_path")
         .then((result: any) => {
@@ -259,8 +244,8 @@ const ThemeViewModal: React.FC = () => {
             <DialogHeader>{locale.settingsPanelThemes}</DialogHeader>
             <DialogBody className={classMap.SettingsDialogBodyFade}>
                 <div className={containerClasses}>
-                    <div className={FieldClasses.FieldLabelRow}>
-                        <div className={FieldClasses.FieldLabel}>{locale.themePanelClientTheme}</div>
+                    <div className={fieldClasses.FieldLabelRow}>
+                        <div className={fieldClasses.FieldLabel}>{locale.themePanelClientTheme}</div>
                         <div className={classMap.FieldChildrenWithIcon}>
 
                             <RenderEditTheme active={active}/>
@@ -295,8 +280,8 @@ const ThemeViewModal: React.FC = () => {
                     </div>
                 </div> 
                 <div className={containerClasses}>
-                    <div className={FieldClasses.FieldLabelRow}>
-                        <div className={FieldClasses.FieldLabel}>{locale.themePanelInjectJavascript}</div>
+                    <div className={fieldClasses.FieldLabelRow}>
+                        <div className={fieldClasses.FieldLabel}>{locale.themePanelInjectJavascript}</div>
                         <div className={classMap.FieldChildrenWithIcon}>
 
                             { jsState !== undefined && <Toggle value={jsState} onChange={onScriptToggle}></Toggle> }
@@ -305,8 +290,8 @@ const ThemeViewModal: React.FC = () => {
                     <div className={classMap.FieldDescription}>{locale.themePanelInjectJavascriptToolTip}</div>
                 </div> 
                 <div className={containerClasses}>
-                    <div className={FieldClasses.FieldLabelRow}>
-                        <div className={FieldClasses.FieldLabel}>{locale.themePanelInjectCSS}</div>
+                    <div className={fieldClasses.FieldLabelRow}>
+                        <div className={fieldClasses.FieldLabel}>{locale.themePanelInjectCSS}</div>
                         <div className={classMap.FieldChildrenWithIcon}>
                             { cssState !== undefined && <Toggle value={cssState} onChange={onStyleToggle}></Toggle> }
                         </div>

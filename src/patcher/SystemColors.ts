@@ -1,5 +1,5 @@
 import { pluginSelf } from "@millennium/ui"
-import { SystemAccentColor } from "../components/types"
+import { SystemAccentColor } from "../types"
 
 /**
  * appends a virtual CSS script into self module

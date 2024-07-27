@@ -1,5 +1,5 @@
 import { pluginSelf } from "@millennium/ui"
-import { ColorProp } from "../../components/types"
+import { ColorProp } from "../../types"
 
 /**
  * appends a virtual CSS script into self module

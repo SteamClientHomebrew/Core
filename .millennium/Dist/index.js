@@ -671,24 +671,18 @@ var millennium_main = (function (exports, React, ReactDOM) {
         callServerMethod: (pluginName, methodName, kwargs) => {
             return new Promise((resolve, reject) => {
                 const query = {
-                    pluginName: pluginName,
-                    methodName: methodName
+                    pluginName,
+                    methodName,
+                    ...(kwargs && { argumentList: kwargs })
                 };
-                if (kwargs)
-                    query.argumentList = kwargs;
                 /* call handled from "src\core\ipc\pipe.cpp @ L:67" */
                 window.MILLENNIUM_BACKEND_IPC.postMessage(0, query).then((response) => {
                     if (response?.failedRequest) {
-                        const m = ` wrappedCallServerMethod() from [name: ${pluginName}, method: ${methodName}] failed on exception -> ${response.failMessage}`;
-                        // Millennium can't accurately pin point where this came from
-                        // check the sources tab and find your plugins index.js, and look for a call that could error this
-                        throw new Error(m);
+                        reject(` IPC call from [name: ${pluginName}, method: ${methodName}] failed on exception -> ${response.failMessage}`);
                     }
-                    const val = response.returnValue;
-                    if (typeof val === 'string') {
-                        resolve(atob(val));
-                    }
-                    resolve(val);
+                    const responseStream = response.returnValue;
+                    // FFI backend encodes string responses in base64 to avoid encoding issues
+                    resolve(typeof responseStream === 'string' ? atob(responseStream) : responseStream);
                 });
             });
         },
@@ -1501,7 +1495,21 @@ var millennium_main = (function (exports, React, ReactDOM) {
             window.SP_REACT.createElement(Button, { onClick: () => SteamClient.System.OpenLocalDirectoryInSystemExplorer("ext\\data\\logs\\"), style: { marginTop: "20px" } }, "Open Logs Folder")));
     };
 
-    const FieldClasses = findClassModule(m => m.FieldLabel && !m.GyroButtonPickerDialog && !m.ControllerOutline && !m.AwaitingEmailConfIcon);
+    const fieldClasses = findClassModule(m => m.FieldLabel && !m.GyroButtonPickerDialog && !m.ControllerOutline && !m.AwaitingEmailConfIcon);
+    const pagedSettingsClasses = findClassModule(m => m.PagedSettingsDialog_PageList);
+    const settingsClasses$1 = findClassModule(m => m.SettingsTitleBar && m.SettingsDialogButton);
+    const containerClasses = [
+        Classes.Field,
+        Classes.WithFirstRow,
+        Classes.VerticalAlignCenter,
+        Classes.WithDescription,
+        Classes.WithBottomSeparatorStandard,
+        Classes.ChildrenWidthFixed,
+        Classes.ExtraPaddingOnChildrenBelow,
+        Classes.StandardPadding,
+        Classes.HighlightOnFocus,
+        "Panel",
+    ].join(" ");
 
     const isEditablePlugin = (plugin_name) => {
         return window.PLUGIN_LIST && window.PLUGIN_LIST[plugin_name]
@@ -1544,24 +1552,11 @@ var millennium_main = (function (exports, React, ReactDOM) {
         if (pluginSelf.connectionFailed) {
             return window.SP_REACT.createElement(ConnectionFailed, null);
         }
-        const containerClasses = [
-            Classes.Field,
-            Classes.WithFirstRow,
-            Classes.VerticalAlignCenter,
-            Classes.WithDescription,
-            Classes.WithBottomSeparatorStandard,
-            Classes.ChildrenWidthFixed,
-            Classes.ExtraPaddingOnChildrenBelow,
-            Classes.StandardPadding,
-            Classes.HighlightOnFocus,
-            "Panel"
-        ]
-            .join(" ");
         return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
             window.SP_REACT.createElement(DialogHeader, null, locale.settingsPanelPlugins),
             window.SP_REACT.createElement(DialogBody, { className: classMap.SettingsDialogBodyFade }, plugins.map((plugin, index) => (window.SP_REACT.createElement("div", { className: containerClasses, key: index },
                 window.SP_REACT.createElement("div", { className: classMap.FieldLabelRow },
-                    window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabel }, plugin?.data?.common_name),
+                    window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabel }, plugin?.data?.common_name),
                     window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon, style: { display: "flex", alignItems: "center" } },
                         window.SP_REACT.createElement(EditPlugin, { plugin: plugin }),
                         window.SP_REACT.createElement("div", { className: Classes.FieldChildrenInner },
@@ -1569,19 +1564,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, plugin?.data?.description ?? locale.itemNoDescription)))))));
     };
 
-    const containerClasses$1 = [
-        Classes.Field,
-        Classes.WithFirstRow,
-        Classes.VerticalAlignCenter,
-        Classes.WithDescription,
-        Classes.WithBottomSeparatorStandard,
-        Classes.ChildrenWidthFixed,
-        Classes.ExtraPaddingOnChildrenBelow,
-        Classes.StandardPadding,
-        Classes.HighlightOnFocus,
-        "Panel"
-    ]
-        .join(" ");
     var ConditionType;
     (function (ConditionType) {
         ConditionType[ConditionType["Dropdown"] = 0] = "Dropdown";
@@ -1648,16 +1630,15 @@ var millennium_main = (function (exports, React, ReactDOM) {
             };
             this.RenderComponent = ({ condition, value, store }) => {
                 const conditionType = this.GetConditionType(value.values);
-                return (window.SP_REACT.createElement("div", { key: condition, className: containerClasses$1 },
-                    window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabelRow },
-                        window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabel }, condition),
+                return (window.SP_REACT.createElement("div", { key: condition, className: containerClasses },
+                    window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabelRow },
+                        window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabel }, condition),
                         window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon },
                             window.SP_REACT.createElement(this.RenderComponentInterface, { conditionType: conditionType, store: store, conditionName: condition, values: Object.keys(value?.values) }))),
                     window.SP_REACT.createElement("div", { className: classMap.FieldDescription, dangerouslySetInnerHTML: { __html: value?.description ?? "No description yet." } })));
             };
             this.RenderColorComponent = ({ color, index }) => {
                 const [colorState, setColorState] = React.useState(color?.hex ?? "#000000");
-                const settingsClasses = findClassModule(m => m.SettingsTitleBar && m.SettingsDialogButton);
                 window.lastColorChangeTime = performance.now();
                 const UpdateColor = (hexColor) => {
                     if (performance.now() - window.lastColorChangeTime < 5) {
@@ -1676,11 +1657,11 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 const ResetColor = () => {
                     UpdateColor(color.defaultColor);
                 };
-                return (window.SP_REACT.createElement("div", { key: index, className: containerClasses$1 },
-                    window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabelRow },
-                        window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabel }, color?.name ?? color?.color),
+                return (window.SP_REACT.createElement("div", { key: index, className: containerClasses },
+                    window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabelRow },
+                        window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabel }, color?.name ?? color?.color),
                         window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon },
-                            colorState != color.defaultColor && window.SP_REACT.createElement(Button, { className: settingsClasses.SettingsDialogButton + " DialogButton _DialogLayout Secondary", onClick: ResetColor }, "Reset"),
+                            colorState != color.defaultColor && window.SP_REACT.createElement(Button, { className: settingsClasses$1.SettingsDialogButton + " DialogButton _DialogLayout Secondary", onClick: ResetColor }, "Reset"),
                             window.SP_REACT.createElement("input", { type: "color", className: "colorPicker", name: "colorPicker", value: colorState, onChange: (event) => UpdateColor(event.target.value) }))),
                     window.SP_REACT.createElement("div", { className: classMap.FieldDescription, dangerouslySetInnerHTML: { __html: color?.description ?? "No description yet." } })));
             };
@@ -1727,60 +1708,27 @@ var millennium_main = (function (exports, React, ReactDOM) {
     }
 
     const CreatePopupBase = findModuleChild((m) => {
-        if (typeof m !== 'object')
+        if (typeof m !== "object")
             return undefined;
         for (let prop in m) {
-            if (typeof m[prop] === 'function'
-                && m[prop]?.toString().includes('CreatePopup(this.m_strName')
-                && m[prop]?.toString().includes('GetWindowRestoreDetails')) {
+            if (typeof m[prop] === "function" &&
+                m[prop]?.toString().includes("CreatePopup(this.m_strName") &&
+                m[prop]?.toString().includes("GetWindowRestoreDetails")) {
                 return m[prop];
             }
         }
     });
-    const TitleBarControls = findModuleChild((m) => {
-        if (typeof m !== 'object')
+
+    const TitleBar = findModuleChild((m) => {
+        if (typeof m !== "object")
             return undefined;
         for (let prop in m) {
-            if (typeof m[prop] === 'function' && m[prop].toString().includes('className:"title-area-highlight"')) {
+            if (typeof m[prop] === "function" &&
+                m[prop].toString().includes('className:"title-area-highlight"')) {
                 return m[prop];
             }
         }
     });
-    class CreatePopup extends CreatePopupBase {
-        constructor(component, strPopupName, options) {
-            super(strPopupName, options);
-            this.component = component;
-        }
-        Show() {
-            super.Show();
-            const RenderComponent = ({ _window }) => {
-                return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
-                    window.SP_REACT.createElement("div", { className: "PopupFullWindow", onContextMenu: ((_e) => {
-                            // console.log('CONTEXT MENU OPEN')
-                            // _e.preventDefault()
-                            // this.contextMenuHandler.CreateContextMenuInstance(_e)
-                        }) },
-                        window.SP_REACT.createElement(TitleBarControls, { popup: _window, hideMin: false, hideMax: false, hideActions: false }),
-                        window.SP_REACT.createElement(this.component, null))));
-            };
-            console.log(super.root_element);
-            ReactDOM.render(window.SP_REACT.createElement(RenderComponent, { _window: super.window }), super.root_element);
-        }
-        SetTitle() {
-            console.log("[internal] setting title ->", this);
-            if (this.m_popup && this.m_popup.document) {
-                this.m_popup.document.title = "WINDOW";
-            }
-        }
-        Render(_window, _element) { }
-        OnClose() { }
-        OnLoad() {
-            const element = this.m_popup.document.querySelector(".DialogContent_InnerWidth");
-            const height = element?.getBoundingClientRect()?.height;
-            this.m_popup.SteamClient?.Window?.ResizeTo(450, height + 48, true);
-            this.m_popup.SteamClient.Window.ShowWindow();
-        }
-    }
 
     class RenderComfirmModal extends CreatePopupBase {
         constructor(strMessage, strPopupName, options) {
@@ -1802,7 +1750,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
             const RenderComponent = ({ _window }) => {
                 return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
                     window.SP_REACT.createElement("div", { className: "PopupFullWindow" },
-                        window.SP_REACT.createElement(TitleBarControls, { popup: _window, hideMin: true, hideMax: true, hideActions: false }),
+                        window.SP_REACT.createElement(TitleBar, { popup: _window, hideMin: true, hideMax: true, hideActions: false }),
                         window.SP_REACT.createElement("div", { className: "DialogContent _DialogLayout GenericConfirmDialog _DialogCenterVertically" },
                             window.SP_REACT.createElement("div", { className: "DialogContent_InnerWidth" },
                                 window.SP_REACT.createElement("form", null,
@@ -1864,6 +1812,42 @@ var millennium_main = (function (exports, React, ReactDOM) {
             catch (e) { }
         });
     };
+
+    class CreatePopup extends CreatePopupBase {
+        constructor(component, strPopupName, options) {
+            super(strPopupName, options);
+            this.component = component;
+        }
+        Show() {
+            super.Show();
+            const RenderComponent = ({ _window }) => {
+                return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
+                    window.SP_REACT.createElement("div", { className: "PopupFullWindow", onContextMenu: ((_e) => {
+                            // console.log('CONTEXT MENU OPEN')
+                            // _e.preventDefault()
+                            // this.contextMenuHandler.CreateContextMenuInstance(_e)
+                        }) },
+                        window.SP_REACT.createElement(TitleBar, { popup: _window, hideMin: false, hideMax: false, hideActions: false }),
+                        window.SP_REACT.createElement(this.component, null))));
+            };
+            console.log(super.root_element);
+            ReactDOM.render(window.SP_REACT.createElement(RenderComponent, { _window: super.window }), super.root_element);
+        }
+        SetTitle() {
+            console.log("[internal] setting title ->", this);
+            if (this.m_popup && this.m_popup.document) {
+                this.m_popup.document.title = "WINDOW";
+            }
+        }
+        Render(_window, _element) { }
+        OnClose() { }
+        OnLoad() {
+            const element = this.m_popup.document.querySelector(".DialogContent_InnerWidth");
+            const height = element?.getBoundingClientRect()?.height;
+            this.m_popup.SteamClient?.Window?.ResizeTo(450, height + 48, true);
+            this.m_popup.SteamClient.Window.ShowWindow();
+        }
+    }
 
     const settingsClasses = findClassModule(m => m.SettingsDialogFatButton);
     class AboutThemeRenderer extends React.Component {
@@ -2121,19 +2105,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
         if (pluginSelf.connectionFailed) {
             return window.SP_REACT.createElement(ConnectionFailed, null);
         }
-        const containerClasses = [
-            Classes.Field,
-            Classes.WithFirstRow,
-            Classes.VerticalAlignCenter,
-            Classes.WithDescription,
-            Classes.WithBottomSeparatorStandard,
-            Classes.ChildrenWidthFixed,
-            Classes.ExtraPaddingOnChildrenBelow,
-            Classes.StandardPadding,
-            Classes.HighlightOnFocus,
-            "Panel"
-        ]
-            .join(" ");
         const OpenThemesFolder = () => {
             wrappedCallServerMethod("Millennium.steam_path")
                 .then((result) => {
@@ -2152,8 +2123,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
             window.SP_REACT.createElement(DialogHeader, null, locale.settingsPanelThemes),
             window.SP_REACT.createElement(DialogBody, { className: classMap.SettingsDialogBodyFade },
                 window.SP_REACT.createElement("div", { className: containerClasses },
-                    window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabelRow },
-                        window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabel }, locale.themePanelClientTheme),
+                    window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabelRow },
+                        window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabel }, locale.themePanelClientTheme),
                         window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon },
                             window.SP_REACT.createElement(RenderEditTheme, { active: active }),
                             !pluginSelf.isDefaultTheme &&
@@ -2169,13 +2140,13 @@ var millennium_main = (function (exports, React, ReactDOM) {
                             window.SP_REACT.createElement(IconsModule.Hyperlink, { style: { width: "14px" } }),
                             locale.themePanelGetMoreThemes))),
                 window.SP_REACT.createElement("div", { className: containerClasses },
-                    window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabelRow },
-                        window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabel }, locale.themePanelInjectJavascript),
+                    window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabelRow },
+                        window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabel }, locale.themePanelInjectJavascript),
                         window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon }, jsState !== undefined && window.SP_REACT.createElement(Toggle, { value: jsState, onChange: onScriptToggle }))),
                     window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, locale.themePanelInjectJavascriptToolTip)),
                 window.SP_REACT.createElement("div", { className: containerClasses },
-                    window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabelRow },
-                        window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabel }, locale.themePanelInjectCSS),
+                    window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabelRow },
+                        window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabel }, locale.themePanelInjectCSS),
                         window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon }, cssState !== undefined && window.SP_REACT.createElement(Toggle, { value: cssState, onChange: onStyleToggle }))),
                     window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, locale.themePanelInjectCSSToolTip)))));
     };
@@ -2198,19 +2169,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
         }
     };
 
-    const containerClasses = [
-        Classes.Field,
-        Classes.WithFirstRow,
-        Classes.VerticalAlignCenter,
-        Classes.WithDescription,
-        Classes.WithBottomSeparatorStandard,
-        Classes.ChildrenWidthFixed,
-        Classes.ExtraPaddingOnChildrenBelow,
-        Classes.StandardPadding,
-        Classes.HighlightOnFocus,
-        "Panel"
-    ]
-        .join(" ");
     const UpToDateModal = () => {
         return (window.SP_REACT.createElement("div", { className: "__up-to-date-container", style: {
                 display: "flex", flexDirection: "column", alignItems: "center", gap: "20px", height: "100%", justifyContent: "center"
@@ -2257,7 +2215,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
             updates.map((update, index) => (window.SP_REACT.createElement("div", { className: containerClasses, key: index },
                 window.SP_REACT.createElement("div", { className: classMap.FieldLabelRow },
                     window.SP_REACT.createElement("div", { className: "update-item-type", style: { color: "white", fontSize: "12px", padding: "4px", background: "#007eff", borderRadius: "6px" } }, "Theme"),
-                    window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabel }, update.name),
+                    window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabel }, update.name),
                     window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon },
                         window.SP_REACT.createElement("div", { className: Classes.FieldChildrenInner, style: { gap: "10px", width: "200px" } },
                             window.SP_REACT.createElement("button", { onClick: () => viewMoreClick(update), className: "_3epr8QYWw_FqFgMx38YEEm DialogButton _DialogLayout Secondary Focusable" }, locale.ViewMore),
@@ -2338,14 +2296,14 @@ var millennium_main = (function (exports, React, ReactDOM) {
                         window.SP_REACT.createElement(IconsModule.Update, null))),
             window.SP_REACT.createElement(DialogBody, { className: classMap.SettingsDialogBodyFade },
                 window.SP_REACT.createElement("div", { className: containerClasses },
-                    window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabelRow },
-                        window.SP_REACT.createElement("div", { className: FieldClasses.FieldLabel }, locale.updatePanelUpdateNotifications),
+                    window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabelRow },
+                        window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabel }, locale.updatePanelUpdateNotifications),
                         window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon }, showUpdateNotifications !== undefined && window.SP_REACT.createElement(Toggle, { value: showUpdateNotifications, onChange: OnNotificationsChange }))),
                     window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, locale.updatePanelUpdateNotificationsTooltip)),
                 updates && (!updates.length ? window.SP_REACT.createElement(UpToDateModal, null) : window.SP_REACT.createElement(RenderAvailableUpdates, { updates: updates, setUpdates: setUpdates })))));
     };
 
-    const activeClassName = findClassModule(m => m.PagedSettingsDialog_PageList).Active;
+    const activeClassName = pagedSettingsClasses.Active;
     var Renderer;
     (function (Renderer) {
         Renderer[Renderer["Plugins"] = 0] = "Plugins";
@@ -2415,9 +2373,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
      * @todo A better, more integrated way of doing this, that doesn't involve runtime patching.
      */
     const hookSettingsComponent = () => {
-        const elements = pluginSelf.settingsDoc.querySelectorAll(`.${Classes.PagedSettingsDialog_PageListItem}:not(.MillenniumTab)`);
-        console.log(elements);
         let processingItem = false;
+        const elements = pluginSelf.settingsDoc.querySelectorAll(`.${Classes.PagedSettingsDialog_PageListItem}:not(.MillenniumTab)`);
         elements.forEach((element, index) => {
             element.addEventListener('click', function (_) {
                 if (processingItem)

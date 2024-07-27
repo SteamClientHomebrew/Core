@@ -1,23 +1,7 @@
-import { findModuleChild } from "@millennium/ui";
 import ReactDOM from "react-dom";
 import { ReactNode } from "react";
-
-export const CreatePopupBase: any = findModuleChild((m) => {
-    if (typeof m !== 'object') return undefined;
-    for (let prop in m) {
-      if (typeof m[prop] === 'function' 
-        && m[prop]?.toString().includes('CreatePopup(this.m_strName')
-        && m[prop]?.toString().includes('GetWindowRestoreDetails')
-    ) {
-        return m[prop]
-      }
-    }
-});
-
-export const TitleBarControls: any = findModuleChild((m) => {
-    if (typeof m !== 'object') return undefined;
-    for (let prop in m) { if (typeof m[prop] === 'function' && m[prop].toString().includes('className:"title-area-highlight"')) { return m[prop] } }
-});
+import { TitleBar } from "./TitleBar";
+import { CreatePopupBase } from "./CreatePopupBase";
 
 export interface RenderProps {
     _window: Window
@@ -45,7 +29,7 @@ export class CreatePopup extends CreatePopupBase {
                             // this.contextMenuHandler.CreateContextMenuInstance(_e)
                         })}
                         >
-                        <TitleBarControls
+                        <TitleBar
                             popup={_window}
                             hideMin={false}
                             hideMax={false}

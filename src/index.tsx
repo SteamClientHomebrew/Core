@@ -1,12 +1,12 @@
 import { Millennium, pluginSelf } from "@millennium/ui"; 
 import { patchDocumentContext } from "./patcher/index"
 import { RenderSettingsModal } from "./ui/Settings"
-import { ConditionsStore, ThemeItem, SystemAccentColor, UpdateItem, SettingsProps, ThemeItemV1 } from "./components/types";
+import { ConditionsStore, ThemeItem, SystemAccentColor, UpdateItem, SettingsProps, ThemeItemV1 } from "./types";
 import { DispatchSystemColors } from "./patcher/SystemColors";
 import { ParseLocalTheme } from "./patcher/ThemeParser";
-import { Logger } from "./components/Logger";
+import { Logger } from "./Logger";
 import { PatchNotification } from "./ui/Notifications";
-import { Settings, SettingsStore } from "./components/Settings";
+import { Settings, SettingsStore } from "./Settings";
 import { DispatchGlobalColors } from "./patcher/v1/GlobalColors";
 
 /**
@@ -39,11 +39,16 @@ const SetSilentStartup = () => {
 
 const PatchMissedDocuments = () => {
     // @ts-ignore
-    g_PopupManager.m_mapPopups.data_.forEach((element: any) => {
-        if (element.value_.m_popup.window.HAS_INJECTED_THEME === undefined) {
-            patchDocumentContext(element.value_);
+    g_PopupManager?.m_mapPopups?.data_?.forEach((element: any) => {
+        if (element?.value_?.m_popup?.window?.HAS_INJECTED_THEME === undefined) {
+            patchDocumentContext(element?.value_);
         }
     })
+
+    // @ts-ignore
+    if (g_PopupManager?.m_mapPopups?.data_?.length === 0) {
+        Logger.Warn("windowCreated callback called, but no popups found...")
+    }
 }
 
 const windowCreated = (windowContext: any): void => {
@@ -90,8 +95,14 @@ const InitializePatcher = (startTime: number, result: SettingsProps) => {
     pluginSelf.steamPath      = result.steamPath
 
     // @ts-ignore
-    if (g_PopupManager.m_mapPopups.size > 0) {
-        SteamClient.Browser.RestartJSContext();
+    if (g_PopupManager?.m_mapPopups?.size > 0) {
+        // check if RestartJSContext exists
+        if (SteamClient?.Browser?.RestartJSContext) {
+            SteamClient.Browser.RestartJSContext()
+        }
+        else {
+            Logger.Warn("SteamClient.Browser.RestartJSContext is not available")
+        }
     }
     PatchMissedDocuments();
 }

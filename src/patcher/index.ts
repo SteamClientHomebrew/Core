@@ -1,5 +1,5 @@
 import { Millennium, pluginSelf } from "@millennium/ui";
-import { ConditionalControlFlowType as ModuleType, Patch, ThemeItem } from "../components/types";
+import { ConditionalControlFlowType as ModuleType, Patch, ThemeItem } from "../types";
 import { DOMModifier, classListMatch, constructThemePath } from "./Dispatch";
 import { EvaluateConditions } from "./v2/Conditions";
 import { PatchV1, EvaluateStatements } from "./v1/Conditions"
