@@ -2531,11 +2531,15 @@ var millennium_main = (function (exports, React, ReactDOM) {
 
     const PatchMissedDocuments = () => {
         // @ts-ignore
-        g_PopupManager.m_mapPopups.data_.forEach((element) => {
-            if (element.value_.m_popup.window.HAS_INJECTED_THEME === undefined) {
-                patchDocumentContext(element.value_);
+        g_PopupManager?.m_mapPopups?.data_?.forEach((element) => {
+            if (element?.value_?.m_popup?.window?.HAS_INJECTED_THEME === undefined) {
+                patchDocumentContext(element?.value_);
             }
         });
+        // @ts-ignore
+        if (g_PopupManager?.m_mapPopups?.data_?.length === 0) {
+            Logger.Warn("windowCreated callback called, but no popups found...");
+        }
     };
     const windowCreated = (windowContext) => {
         switch (windowContext.m_strTitle) {
@@ -2566,8 +2570,14 @@ var millennium_main = (function (exports, React, ReactDOM) {
         pluginSelf.stylesAllowed = result?.settings?.styles ?? true;
         pluginSelf.steamPath = result.steamPath;
         // @ts-ignore
-        if (g_PopupManager.m_mapPopups.size > 0) {
-            SteamClient.Browser.RestartJSContext();
+        if (g_PopupManager?.m_mapPopups?.size > 0) {
+            // check if RestartJSContext exists
+            if (SteamClient?.Browser?.RestartJSContext) {
+                SteamClient.Browser.RestartJSContext();
+            }
+            else {
+                Logger.Warn("SteamClient.Browser.RestartJSContext is not available");
+            }
         }
         PatchMissedDocuments();
     };
