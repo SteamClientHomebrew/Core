@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/SteamClientHomebrew/Core/compare/v1.1.0...v1.1.1) (2024-07-27)
+
+
+### Bug Fixes
+
+* Add null checks on startup ([ad4acdb](https://github.com/SteamClientHomebrew/Core/commit/ad4acdbaba90ecb143f370eec693508e9ddaff2a))
+
 # [1.1.0](https://github.com/SteamClientHomebrew/Core/compare/v1.0.0...v1.1.0) (2024-07-23)
 
 
