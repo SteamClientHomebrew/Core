@@ -100,7 +100,7 @@ export const PromptReload = (message?: string) => {
             html_class: "client_chat_frame fullheight ModalDialogPopup ",
             eCreationFlags: 274,
             window_opener_id: 1,
-            dimensions: {width: 450, height: 375},
+            dimensions: { width: 450, height: 375 },
             replace_existing_popup: false,
         }
     
