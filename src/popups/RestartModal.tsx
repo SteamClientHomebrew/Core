@@ -1,6 +1,14 @@
 import React from "react"
 import ReactDOM from "react-dom"
-import { MessageBoxResult } from "@millennium/ui"
+import {
+    DialogBody,
+    DialogBodyText,
+    DialogButtonPrimary,
+    DialogButtonSecondary,
+    DialogFooter,
+    DialogHeader,
+    MessageBoxResult,
+} from "@millennium/ui"
 import { locale } from "../locales"
 import { RenderProps } from "../components/CreatePopup"
 import { CreatePopupBase } from "../components/CreatePopupBase";
@@ -34,16 +42,16 @@ export class RenderComfirmModal extends CreatePopupBase {
                         <div className="DialogContent _DialogLayout GenericConfirmDialog _DialogCenterVertically">
                             <div className="DialogContent_InnerWidth">
                             <form>
-                                <div className="DialogHeader"> Reload Required </div>
-                                <div className="DialogBody Panel Focusable">
-                                    <div className="DialogBodyText">{this.strMessage ?? locale.reloadRequiredBody}</div>
-                                    <div className="DialogFooter">
+                                <DialogHeader> Reload Required </DialogHeader>
+                                <DialogBody>
+                                    <DialogBodyText> {this.strMessage ?? locale.reloadRequiredBody}</DialogBodyText>
+                                    <DialogFooter>
                                         <div className="DialogTwoColLayout _DialogColLayout Panel Focusable">
-                                            <button type="submit" className="DialogButton _DialogLayout Primary Focusable" tabIndex={0} onClick={this.onClickConfirm}>Confirm </button>
-                                            <button type="button" className="DialogButton _DialogLayout Secondary Focusable" tabIndex={0} onClick={this.onClickCancel}>Cancel</button>
+                                            <DialogButtonPrimary onClick={this.onClickConfirm}>Confirm </DialogButtonPrimary>
+                                            <DialogButtonSecondary onClick={this.onClickCancel}>Cancel</DialogButtonSecondary>
                                         </div>
-                                    </div>
-                                </div>
+                                    </DialogFooter>
+                                </DialogBody>
                             </form>
                             </div>
                         </div>

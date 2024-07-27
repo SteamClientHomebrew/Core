@@ -1,10 +1,18 @@
-import { Classes, findClassModule, Millennium, pluginSelf } from "@millennium/ui"
+import {
+    Classes,
+    DialogBody,
+    DialogBodyText,
+    DialogButton,
+    DialogHeader,
+    DialogSubHeader,
+    Millennium,
+    pluginSelf,
+} from "@millennium/ui"
 import { ThemeItem } from "../types"
 import { CreatePopup } from "../components/CreatePopup"
 import React from "react"
 import { locale } from "../locales";
-
-const settingsClasses = findClassModule(m => m.SettingsDialogFatButton) as any
+import { devClasses, settingsClasses } from "../classes";
 
 class AboutThemeRenderer extends React.Component<any> {
     
@@ -22,8 +30,6 @@ class AboutThemeRenderer extends React.Component<any> {
             this.activeTheme?.data?.github?.owner 
             && SteamClient.System.OpenInSystemBrowser(`https://github.com/${this.activeTheme?.data?.github?.owner}/`)
         }
-
-        const devClasses = findClassModule(m => m.richPresenceLabel && m.blocked) as any
 
         return (
             <>
@@ -66,8 +72,8 @@ class AboutThemeRenderer extends React.Component<any> {
     RenderDescription = () => {
         return (
             <>
-                <div className={`DialogSubHeader ${settingsClasses.SettingsDialogSubHeader}`}>{locale.aboutThemeTitle}</div>
-                <div className={`DialogBodyText ${Classes.FriendsDescription}`}>{this.activeTheme?.data?.description ?? locale.itemNoDescription}</div>
+                <DialogSubHeader className={settingsClasses.SettingsDialogSubHeader}>{locale.aboutThemeTitle}</DialogSubHeader>
+                <DialogBodyText className={Classes.FriendsDescription}>{this.activeTheme?.data?.description ?? locale.itemNoDescription}</DialogBodyText>
             </>
         )
     }
@@ -118,12 +124,12 @@ class AboutThemeRenderer extends React.Component<any> {
 
         return (
             <>
-                {themeOwner && themeRepo && <button type="button" style={{width: "unset"}} className={`${settingsClasses.SettingsDialogButton} DialogButton _DialogLayout Secondary Focusable`} onClick={ShowSource}>{locale.viewSourceCode}</button>}
+                {themeOwner && themeRepo && <DialogButton style={{width: "unset"}} className={settingsClasses.SettingsDialogButton} onClick={ShowSource}>{locale.viewSourceCode}</DialogButton>}
                 {/* {kofiDonate && <button type="button" style={{width: "unset"}} className={`${settingsClasses.SettingsDialogButton} DialogButton _DialogLayout Secondary Focusable`} onClick={OpenDonateDefault}>Donate</button>} */}
 
                 <div className=".flex-btn-container" style={{display: "flex", gap: "5px"}}>
-                    <button type="button" style={{width: "50%", }} className={`${settingsClasses.SettingsDialogButton} DialogButton _DialogLayout Secondary Focusable`} onClick={ShowInFolder}>{locale.showInFolder}</button>
-                    <button type="button" style={{width: "50%"}} className={`${settingsClasses.SettingsDialogButton} DialogButton _DialogLayout Secondary Focusable`} onClick={UninstallTheme}>{locale.uninstall}</button> 
+                    <DialogButton style={{width: "50%", }} className={settingsClasses.SettingsDialogButton} onClick={ShowInFolder}>{locale.showInFolder}</DialogButton>
+                    <DialogButton style={{width: "50%"}} className={settingsClasses.SettingsDialogButton} onClick={UninstallTheme}>{locale.uninstall}</DialogButton> 
                 </div>
             </>
         )
@@ -135,12 +141,12 @@ class AboutThemeRenderer extends React.Component<any> {
                 <div className="ModalPosition_Content" style={{width: "100vw", height: "100vh"}}>
                     <div className="DialogContent _DialogLayout GenericConfirmDialog _DialogCenterVertically">
                         <div className="DialogContent_InnerWidth" style={{flex: "unset"}}>
-                            <div className="DialogHeader">{this.activeTheme?.data?.name ?? this.activeTheme?.native}</div>
-                            <div className="DialogBody Panel Focusable" style={{flex: "unset"}}>
+                            <DialogHeader>{this.activeTheme?.data?.name ?? this.activeTheme?.native}</DialogHeader>
+                            <DialogBody style={{flex: "unset"}}>
                                 <this.RenderDeveloperProfile/>
                                 <this.RenderDescription/>
                                 <this.RenderInfoRow/>
-                            </div>
+                            </DialogBody>
                         </div>
                     </div>
                 </div>

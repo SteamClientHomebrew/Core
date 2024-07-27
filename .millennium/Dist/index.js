@@ -192,14 +192,14 @@ var millennium_main = (function (exports, React, ReactDOM) {
         }
     }));
     const DialogHeader = MappedDialogDivs.get('DialogHeader');
-    MappedDialogDivs.get('DialogSubHeader');
-    MappedDialogDivs.get('DialogFooter');
+    const DialogSubHeader = MappedDialogDivs.get('DialogSubHeader');
+    const DialogFooter = MappedDialogDivs.get('DialogFooter');
     MappedDialogDivs.get('DialogLabel');
     const DialogBodyText = MappedDialogDivs.get('DialogBodyText');
     const DialogBody = MappedDialogDivs.get('DialogBody');
     const DialogControlsSection = MappedDialogDivs.get('DialogControlsSection');
     MappedDialogDivs.get('DialogControlsSectionHeader');
-    Object.values(CommonUIModule).find((mod) => mod?.render?.toString()?.includes('"DialogButton","_DialogLayout","Primary"'));
+    const DialogButtonPrimary = Object.values(CommonUIModule).find((mod) => mod?.render?.toString()?.includes('"DialogButton","_DialogLayout","Primary"'));
     const DialogButtonSecondary = Object.values(CommonUIModule).find((mod) => mod?.render?.toString()?.includes('"DialogButton","_DialogLayout","Secondary"'));
     // This is the "main" button. The Primary can act as a submit button,
     // therefore secondary is chosen (also for backwards comp. reasons)
@@ -1543,8 +1543,9 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 window.SP_REACT.createElement(Toggle, { disabled: plugin?.data?.name == "core", value: checkedItems[index], onChange: (_checked) => handleCheckboxChange(index) })))))));
     };
 
+    const devClasses = findClassModule(m => m.richPresenceLabel && m.blocked);
     const pagedSettingsClasses = findClassModule(m => m.PagedSettingsDialog_PageList);
-    const settingsClasses$1 = findClassModule(m => m.SettingsTitleBar && m.SettingsDialogButton);
+    const settingsClasses = findClassModule(m => m.SettingsTitleBar && m.SettingsDialogButton);
 
     const SettingsDialogSubHeader = ({ children }) => window.SP_REACT.createElement("div", { className: "SettingsDialogSubHeader" }, children);
 
@@ -1638,7 +1639,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
                     UpdateColor(color.defaultColor);
                 };
                 return (window.SP_REACT.createElement(Field, { key: index, label: color?.name ?? color?.color, description: color?.description ?? "No description yet." },
-                    colorState != color.defaultColor && window.SP_REACT.createElement(DialogButton, { className: settingsClasses$1.SettingsDialogButton, onClick: ResetColor }, "Reset"),
+                    colorState != color.defaultColor && window.SP_REACT.createElement(DialogButton, { className: settingsClasses.SettingsDialogButton, onClick: ResetColor }, "Reset"),
                     window.SP_REACT.createElement("input", { type: "color", className: "colorPicker", name: "colorPicker", value: colorState, onChange: (event) => UpdateColor(event.target.value) })));
             };
             this.RenderColorsOpts = () => {
@@ -1730,13 +1731,15 @@ var millennium_main = (function (exports, React, ReactDOM) {
                         window.SP_REACT.createElement("div", { className: "DialogContent _DialogLayout GenericConfirmDialog _DialogCenterVertically" },
                             window.SP_REACT.createElement("div", { className: "DialogContent_InnerWidth" },
                                 window.SP_REACT.createElement("form", null,
-                                    window.SP_REACT.createElement("div", { className: "DialogHeader" }, " Reload Required "),
-                                    window.SP_REACT.createElement("div", { className: "DialogBody Panel Focusable" },
-                                        window.SP_REACT.createElement("div", { className: "DialogBodyText" }, this.strMessage ?? locale.reloadRequiredBody),
-                                        window.SP_REACT.createElement("div", { className: "DialogFooter" },
+                                    window.SP_REACT.createElement(DialogHeader, null, " Reload Required "),
+                                    window.SP_REACT.createElement(DialogBody, null,
+                                        window.SP_REACT.createElement(DialogBodyText, null,
+                                            " ",
+                                            this.strMessage ?? locale.reloadRequiredBody),
+                                        window.SP_REACT.createElement(DialogFooter, null,
                                             window.SP_REACT.createElement("div", { className: "DialogTwoColLayout _DialogColLayout Panel Focusable" },
-                                                window.SP_REACT.createElement("button", { type: "submit", className: "DialogButton _DialogLayout Primary Focusable", tabIndex: 0, onClick: this.onClickConfirm }, "Confirm "),
-                                                window.SP_REACT.createElement("button", { type: "button", className: "DialogButton _DialogLayout Secondary Focusable", tabIndex: 0, onClick: this.onClickCancel }, "Cancel"))))))))));
+                                                window.SP_REACT.createElement(DialogButtonPrimary, { onClick: this.onClickConfirm }, "Confirm "),
+                                                window.SP_REACT.createElement(DialogButtonSecondary, { onClick: this.onClickCancel }, "Cancel"))))))))));
             };
             ReactDOM.render(window.SP_REACT.createElement(RenderComponent, { _window: super.window }), super.root_element);
         }
@@ -1825,7 +1828,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
         }
     }
 
-    const settingsClasses = findClassModule(m => m.SettingsDialogFatButton);
     class AboutThemeRenderer extends React.Component {
         constructor(props) {
             super(props);
@@ -1834,7 +1836,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
                     this.activeTheme?.data?.github?.owner
                         && SteamClient.System.OpenInSystemBrowser(`https://github.com/${this.activeTheme?.data?.github?.owner}/`);
                 };
-                const devClasses = findClassModule(m => m.richPresenceLabel && m.blocked);
                 return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
                     window.SP_REACT.createElement("style", null, `
                 .${Classes.FakeFriend}.online:hover {
@@ -1861,8 +1862,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
             };
             this.RenderDescription = () => {
                 return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
-                    window.SP_REACT.createElement("div", { className: `DialogSubHeader ${settingsClasses.SettingsDialogSubHeader}` }, locale.aboutThemeTitle),
-                    window.SP_REACT.createElement("div", { className: `DialogBodyText ${Classes.FriendsDescription}` }, this.activeTheme?.data?.description ?? locale.itemNoDescription)));
+                    window.SP_REACT.createElement(DialogSubHeader, { className: settingsClasses.SettingsDialogSubHeader }, locale.aboutThemeTitle),
+                    window.SP_REACT.createElement(DialogBodyText, { className: Classes.FriendsDescription }, this.activeTheme?.data?.description ?? locale.itemNoDescription)));
             };
             this.RenderInfoRow = () => {
                 const themeOwner = this.activeTheme?.data?.github?.owner;
@@ -1898,18 +1899,18 @@ var millennium_main = (function (exports, React, ReactDOM) {
                     });
                 };
                 return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
-                    themeOwner && themeRepo && window.SP_REACT.createElement("button", { type: "button", style: { width: "unset" }, className: `${settingsClasses.SettingsDialogButton} DialogButton _DialogLayout Secondary Focusable`, onClick: ShowSource }, locale.viewSourceCode),
+                    themeOwner && themeRepo && window.SP_REACT.createElement(DialogButton, { style: { width: "unset" }, className: settingsClasses.SettingsDialogButton, onClick: ShowSource }, locale.viewSourceCode),
                     window.SP_REACT.createElement("div", { className: ".flex-btn-container", style: { display: "flex", gap: "5px" } },
-                        window.SP_REACT.createElement("button", { type: "button", style: { width: "50%", }, className: `${settingsClasses.SettingsDialogButton} DialogButton _DialogLayout Secondary Focusable`, onClick: ShowInFolder }, locale.showInFolder),
-                        window.SP_REACT.createElement("button", { type: "button", style: { width: "50%" }, className: `${settingsClasses.SettingsDialogButton} DialogButton _DialogLayout Secondary Focusable`, onClick: UninstallTheme }, locale.uninstall))));
+                        window.SP_REACT.createElement(DialogButton, { style: { width: "50%", }, className: settingsClasses.SettingsDialogButton, onClick: ShowInFolder }, locale.showInFolder),
+                        window.SP_REACT.createElement(DialogButton, { style: { width: "50%" }, className: settingsClasses.SettingsDialogButton, onClick: UninstallTheme }, locale.uninstall))));
             };
             this.CreateModalBody = () => {
                 return (window.SP_REACT.createElement("div", { className: "ModalPosition", tabIndex: 0 },
                     window.SP_REACT.createElement("div", { className: "ModalPosition_Content", style: { width: "100vw", height: "100vh" } },
                         window.SP_REACT.createElement("div", { className: "DialogContent _DialogLayout GenericConfirmDialog _DialogCenterVertically" },
                             window.SP_REACT.createElement("div", { className: "DialogContent_InnerWidth", style: { flex: "unset" } },
-                                window.SP_REACT.createElement("div", { className: "DialogHeader" }, this.activeTheme?.data?.name ?? this.activeTheme?.native),
-                                window.SP_REACT.createElement("div", { className: "DialogBody Panel Focusable", style: { flex: "unset" } },
+                                window.SP_REACT.createElement(DialogHeader, null, this.activeTheme?.data?.name ?? this.activeTheme?.native),
+                                window.SP_REACT.createElement(DialogBody, { style: { flex: "unset" } },
                                     window.SP_REACT.createElement(this.RenderDeveloperProfile, null),
                                     window.SP_REACT.createElement(this.RenderDescription, null),
                                     window.SP_REACT.createElement(this.RenderInfoRow, null)))))));
