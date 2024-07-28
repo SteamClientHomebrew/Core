@@ -148,6 +148,8 @@ def lexically_analyze(rule: cssutils.css.CSSStyleRule):
 
         propertyMap[item] = (name, description)
 
+    return propertyMap
+
 
 # Generate metadata for each color property in the CSS style rule
 def generate_color_metadata(style_rule, property_map):
