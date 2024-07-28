@@ -1546,6 +1546,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
     const devClasses = findClassModule(m => m.richPresenceLabel && m.blocked);
     const pagedSettingsClasses = findClassModule(m => m.PagedSettingsDialog_PageList);
     const settingsClasses = findClassModule(m => m.SettingsTitleBar && m.SettingsDialogButton);
+    const notificationClasses = findClassModule(m => m.GroupMessageTitle && !m.ShortTemplate && !m.TwoLine && !m.FriendIndicator && !m.AchievementIcon);
 
     const SettingsDialogSubHeader = ({ children }) => window.SP_REACT.createElement("div", { className: "SettingsDialogSubHeader" }, children);
 
@@ -2453,7 +2454,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
         pluginSelf.activeTheme = theme;
     };
 
-    const notificationClasses = findClassModule(m => m.GroupMessageTitle && !m.ShortTemplate && !m.TwoLine && !m.FriendIndicator && !m.AchievementIcon);
     /**
      * @todo use builtin notification components instead of altering
      * SteamClient.ClientNotifications.DisplayClientNotification
