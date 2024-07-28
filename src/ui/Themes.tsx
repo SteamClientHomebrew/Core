@@ -20,6 +20,7 @@ import { ComboItem, ThemeItem } from '../types'
 import { SetupAboutRenderer } from '../popups/AboutTheme'
 import { locale } from '../locales'
 import { ConnectionFailed } from '../components/ConnectionFailed'
+import { BBCodeParser } from '../components/BBCodeParser'
 
 const PromptReload = (onOK: () => void) =>
 	showModal(
@@ -215,10 +216,6 @@ const ThemeViewModal: React.FC = () => {
         });
     }
 
-    const OpenThemeRepository = () => {
-        SteamClient.System.OpenInSystemBrowser("https://steambrew.app/themes")
-    }
-
 	if (pluginSelf.connectionFailed) {
 		return <ConnectionFailed/>
 	}
@@ -250,13 +247,9 @@ const ThemeViewModal: React.FC = () => {
             <DialogBody className={classMap.SettingsDialogBodyFade}>
                 <Field
                     label={locale.themePanelClientTheme}
-                    description=<>
-                        <div>{locale.themePanelThemeTooltip}</div>
-                        <a href="#" onClick={OpenThemeRepository} className="RmxP90Yut4EIwychIEg51" style={{ display: "flex", gap: "5px"}}>
-                            <IconsModule.Hyperlink style={{width: "14px"}}/>
-                            {locale.themePanelGetMoreThemes}
-                        </a>
-                    </>
+                    description=<BBCodeParser
+                        text={`${locale.themePanelThemeTooltip} [url=https://steambrew.app/themes]${locale.themePanelGetMoreThemes}[/url]`}
+                    />
                 >
                     <RenderEditTheme active={active} />
 

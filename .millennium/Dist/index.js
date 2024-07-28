@@ -1566,6 +1566,17 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 window.SP_REACT.createElement(Toggle, { disabled: plugin?.data?.name == "core", value: checkedItems[index], onChange: (_checked) => handleCheckboxChange(index) })))))));
     };
 
+    const BBCodeParser = findModuleChild((m) => {
+        if (typeof m !== "object")
+            return undefined;
+        for (const prop in m) {
+            if (typeof m[prop] === "function" &&
+                m[prop].toString().includes("this.ElementAccumulator")) {
+                return m[prop];
+            }
+        }
+    });
+
     const devClasses = findClassModule(m => m.richPresenceLabel && m.blocked);
     const pagedSettingsClasses = findClassModule(m => m.PagedSettingsDialog_PageList);
     const settingsClasses = findClassModule(m => m.SettingsTitleBar && m.SettingsDialogButton);
@@ -1639,7 +1650,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
             };
             this.RenderComponent = ({ condition, value, store }) => {
                 const conditionType = this.GetConditionType(value.values);
-                return (window.SP_REACT.createElement(Field, { label: condition, description: value?.description ?? "No description yet." },
+                return (window.SP_REACT.createElement(Field, { label: condition, description: window.SP_REACT.createElement(BBCodeParser, { text: value?.description ?? "No description yet." }) },
                     window.SP_REACT.createElement(this.RenderComponentInterface, { conditionType: conditionType, store: store, conditionName: condition, values: Object.keys(value?.values) })));
             };
             this.RenderColorComponent = ({ color, index }) => {
@@ -1662,7 +1673,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 const ResetColor = () => {
                     UpdateColor(color.defaultColor);
                 };
-                return (window.SP_REACT.createElement(Field, { key: index, label: color?.name ?? color?.color, description: color?.description ?? "No description yet." },
+                return (window.SP_REACT.createElement(Field, { key: index, label: color?.name ?? color?.color, description: window.SP_REACT.createElement(BBCodeParser, { text: color?.description ?? "No description yet." }) },
                     colorState != color.defaultColor && window.SP_REACT.createElement(DialogButton, { className: settingsClasses.SettingsDialogButton, onClick: ResetColor }, "Reset"),
                     window.SP_REACT.createElement("input", { type: "color", className: "colorPicker", name: "colorPicker", value: colorState, onChange: (event) => UpdateColor(event.target.value) })));
             };
@@ -2012,9 +2023,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 SteamClient.Browser.RestartJSContext();
             });
         };
-        const OpenThemeRepository = () => {
-            SteamClient.System.OpenInSystemBrowser("https://steambrew.app/themes");
-        };
         if (pluginSelf.connectionFailed) {
             return window.SP_REACT.createElement(ConnectionFailed, null);
         }
@@ -2035,11 +2043,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
                     }`),
             window.SP_REACT.createElement(DialogHeader, null, locale.settingsPanelThemes),
             window.SP_REACT.createElement(DialogBody, { className: classMap.SettingsDialogBodyFade },
-                window.SP_REACT.createElement(Field, { label: locale.themePanelClientTheme, description: window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
-                        window.SP_REACT.createElement("div", null, locale.themePanelThemeTooltip),
-                        window.SP_REACT.createElement("a", { href: "#", onClick: OpenThemeRepository, className: "RmxP90Yut4EIwychIEg51", style: { display: "flex", gap: "5px" } },
-                            window.SP_REACT.createElement(IconsModule.Hyperlink, { style: { width: "14px" } }),
-                            locale.themePanelGetMoreThemes)) },
+                window.SP_REACT.createElement(Field, { label: locale.themePanelClientTheme, description: window.SP_REACT.createElement(BBCodeParser, { text: `${locale.themePanelThemeTooltip} [url=https://steambrew.app/themes]${locale.themePanelGetMoreThemes}[/url]` }) },
                     window.SP_REACT.createElement(RenderEditTheme, { active: active }),
                     !pluginSelf.isDefaultTheme && (window.SP_REACT.createElement(DialogButton, { onClick: () => SetupAboutRenderer(active), style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, className: "_3epr8QYWw_FqFgMx38YEEm millenniumIconButton" },
                         window.SP_REACT.createElement(IconsModule.Information, { style: { height: "16px" } }))),

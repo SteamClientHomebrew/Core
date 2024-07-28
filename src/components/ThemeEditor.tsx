@@ -12,6 +12,7 @@ import {
     Toggle,
     pluginSelf,
   } from "@millennium/ui";
+import { BBCodeParser } from "./BBCodeParser";
 import { Field } from "../custom_components/Field";
 import { Conditions, ConditionsStore, ICondition, ThemeItem } from "../types"
 import { settingsClasses } from "../classes"
@@ -124,7 +125,7 @@ export class RenderThemeEditor extends React.Component {
         return (
             <Field
                 label={condition}
-                description={value?.description ?? "No description yet."}
+                description=<BBCodeParser text={value?.description ?? "No description yet."} />
             >
                 <this.RenderComponentInterface conditionType={conditionType} store={store} conditionName={condition} values={Object.keys(value?.values)} />
             </Field>
@@ -161,7 +162,7 @@ export class RenderThemeEditor extends React.Component {
             <Field
                 key={index}
                 label={color?.name ?? color?.color}
-                description={color?.description ?? "No description yet."}
+                description=<BBCodeParser text={color?.description ?? "No description yet."} />
             >
                 {colorState != color.defaultColor && <DialogButton className={settingsClasses.SettingsDialogButton} onClick={ResetColor}>Reset</DialogButton>}
                 <input type="color" className="colorPicker" name="colorPicker" value={colorState} onChange={(event) => UpdateColor(event.target.value)}/>
