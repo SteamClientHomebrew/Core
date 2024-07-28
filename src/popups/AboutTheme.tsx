@@ -13,6 +13,7 @@ import { CreatePopup } from "../components/CreatePopup"
 import React from "react"
 import { locale } from "../locales";
 import { devClasses, settingsClasses } from "../classes";
+import { FakeFriend } from "../custom_components/FakeFriend";
 
 class AboutThemeRenderer extends React.Component<any> {
     
@@ -45,26 +46,21 @@ class AboutThemeRenderer extends React.Component<any> {
                 }`}
             </style>
 
-            <div className={`${Classes.FakeFriend} online`} onClick={OpenDeveloperProfile}>
-                <div className={`${Classes.avatarHolder} avatarHolder no-drag Medium online`}>
-                    <div className={`${Classes.avatarStatus} avatarStatus right`} />
-                    <img src={
-                        this.activeTheme?.data?.github?.owner ? 
-                        `https://github.com/${this.activeTheme?.data?.github?.owner}.png`: 
-                        'https://i.pinimg.com/736x/98/1d/6b/981d6b2e0ccb5e968a0618c8d47671da.jpg'       
-                    } className={`${Classes.avatar} avatar`} draggable="false" />
-                </div>
-                <div className={`online ${Classes.noContextMenu} ${Classes.twoLine}`}>
-                    <div className={Classes.statusAndName}>
-                        <div className={Classes.playerName}>{this.activeTheme?.data?.github?.owner ?? this.activeTheme?.data?.author ?? locale.aboutThemeAnonymous}
-                            {/* <span className="_3T-9PkwXmTHyFu3b1pAn2O">(Author)</span> */}
-                        </div>
-                    </div>
-                    <div className={Classes.richPresenceContainer} style={{ width: "100%" }}>
-                        <div className={`${Classes.gameName} ${Classes.richPresenceLabel} no-drag`}>✅ {locale.aboutThemeVerifiedDev}</div>
-                    </div>
-                </div>
-            </div>
+            <FakeFriend
+                eStatus="online"
+                strAvatarURL={
+                    this.activeTheme?.data?.github?.owner
+                        ? `https://github.com/${this.activeTheme?.data?.github?.owner}.png`
+                        : "https://i.pinimg.com/736x/98/1d/6b/981d6b2e0ccb5e968a0618c8d47671da.jpg"
+                }
+                strGameName={`✅ ${locale.aboutThemeVerifiedDev}`}
+                strPlayerName={
+                    this.activeTheme?.data?.github?.owner ??
+                        this.activeTheme?.data?.author ??
+                        locale.aboutThemeAnonymous
+                }
+                onClick={OpenDeveloperProfile}
+            />
             </>
         )
     }

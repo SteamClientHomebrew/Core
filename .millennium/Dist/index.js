@@ -1829,6 +1829,16 @@ var millennium_main = (function (exports, React, ReactDOM) {
         }
     }
 
+    const FakeFriend = ({ eStatus, strAvatarURL, strGameName, strPlayerName, onClick, }) => (window.SP_REACT.createElement("div", { className: `${Classes.FakeFriend} ${eStatus}`, onClick: onClick },
+        window.SP_REACT.createElement("div", { className: `${Classes.avatarHolder} avatarHolder no-drag Medium ${eStatus}` },
+            window.SP_REACT.createElement("div", { className: `${Classes.avatarStatus} avatarStatus right` }),
+            window.SP_REACT.createElement("img", { src: strAvatarURL, className: `${Classes.avatar} avatar`, draggable: "false" })),
+        window.SP_REACT.createElement("div", { className: `${eStatus} ${Classes.noContextMenu} ${Classes.twoLine}` },
+            window.SP_REACT.createElement("div", { className: Classes.statusAndName },
+                window.SP_REACT.createElement("div", { className: Classes.playerName }, strPlayerName)),
+            window.SP_REACT.createElement("div", { className: Classes.richPresenceContainer, style: { width: "100%" } },
+                window.SP_REACT.createElement("div", { className: `${Classes.gameName} ${Classes.richPresenceLabel} no-drag` }, strGameName)))));
+
     class AboutThemeRenderer extends React.Component {
         constructor(props) {
             super(props);
@@ -1847,19 +1857,11 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 .online.${devClasses.noContextMenu}.${devClasses.twoLine} {
                     pointer-events: none;
                 }`),
-                    window.SP_REACT.createElement("div", { className: `${Classes.FakeFriend} online`, onClick: OpenDeveloperProfile },
-                        window.SP_REACT.createElement("div", { className: `${Classes.avatarHolder} avatarHolder no-drag Medium online` },
-                            window.SP_REACT.createElement("div", { className: `${Classes.avatarStatus} avatarStatus right` }),
-                            window.SP_REACT.createElement("img", { src: this.activeTheme?.data?.github?.owner ?
-                                    `https://github.com/${this.activeTheme?.data?.github?.owner}.png` :
-                                    'https://i.pinimg.com/736x/98/1d/6b/981d6b2e0ccb5e968a0618c8d47671da.jpg', className: `${Classes.avatar} avatar`, draggable: "false" })),
-                        window.SP_REACT.createElement("div", { className: `online ${Classes.noContextMenu} ${Classes.twoLine}` },
-                            window.SP_REACT.createElement("div", { className: Classes.statusAndName },
-                                window.SP_REACT.createElement("div", { className: Classes.playerName }, this.activeTheme?.data?.github?.owner ?? this.activeTheme?.data?.author ?? locale.aboutThemeAnonymous)),
-                            window.SP_REACT.createElement("div", { className: Classes.richPresenceContainer, style: { width: "100%" } },
-                                window.SP_REACT.createElement("div", { className: `${Classes.gameName} ${Classes.richPresenceLabel} no-drag` },
-                                    "\u2705 ",
-                                    locale.aboutThemeVerifiedDev))))));
+                    window.SP_REACT.createElement(FakeFriend, { eStatus: "online", strAvatarURL: this.activeTheme?.data?.github?.owner
+                            ? `https://github.com/${this.activeTheme?.data?.github?.owner}.png`
+                            : "https://i.pinimg.com/736x/98/1d/6b/981d6b2e0ccb5e968a0618c8d47671da.jpg", strGameName: `✅ ${locale.aboutThemeVerifiedDev}`, strPlayerName: this.activeTheme?.data?.github?.owner ??
+                            this.activeTheme?.data?.author ??
+                            locale.aboutThemeAnonymous, onClick: OpenDeveloperProfile })));
             };
             this.RenderDescription = () => {
                 return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
