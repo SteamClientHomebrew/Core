@@ -21,9 +21,7 @@ class Updater:
         update_queue = []
 
         for theme in themes:
-
             path = os.path.join(Millennium.steam_path(), "steamui", "skins", theme["native"])
-
             try: 
                 repo = pygit2.Repository(path)
                 self.update_query.append((theme, repo))
@@ -32,7 +30,6 @@ class Updater:
                 if "github" in theme["data"]:
                     needs_copy = True
                     update_queue.append((theme, path))
-
 
             except Exception as e:
                 print(f"An exception occurred: {e}")
@@ -55,7 +52,6 @@ class Updater:
 
             if "github" in theme["data"]:
                 self.pull_head(path, theme["data"]["github"])
-
         
 
     def construct_post_body(self):
@@ -162,8 +158,6 @@ class Updater:
     def process_updates(self) -> bool:
         start_time = time.time()
         self.remote_json = self.fetch_updates()
-
-        print(json.dumps(self.remote_json, indent=4))
 
         if self.remote_json is None:
             return

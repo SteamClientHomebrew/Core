@@ -1,4 +1,4 @@
-import Millennium, json # type: ignore
+import Millennium, json, os, configparser # type: ignore
 
 from api.css_analyzer import parse_root
 from api.themes import Colors
@@ -15,6 +15,15 @@ print(f"Loading Millennium-Core@{Millennium.version()}")
 updater = Updater()
 
 def get_load_config():
+    millennium = configparser.ConfigParser()
+    config_path = os.path.join(Millennium.steam_path(), "ext", "millennium.ini")
+
+    with open(config_path, 'r') as enabled: millennium.read_file(enabled)
+
+    if not 'useInterface' in millennium['Settings']:
+        millennium['Settings']['useInterface'] = "yes"
+
+    with open(config_path, 'w') as enabled: millennium.write(enabled)
     config = cfg.get_config()
 
     return json.dumps({
@@ -22,7 +31,8 @@ def get_load_config():
         "conditions": config["conditions"] if "conditions" in config else None, 
         "active_theme": json.loads(cfg.get_active_theme()),
         "settings": config,
-        "steamPath": Millennium.steam_path()
+        "steamPath": Millennium.steam_path(),
+        "useInterface": True if millennium.get('Settings', 'useInterface', fallback='') == "yes" else False,
     })
 
 def update_plugin_status(plugin_name: str, enabled: bool):

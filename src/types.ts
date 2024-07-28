@@ -145,6 +145,7 @@ export interface SettingsProps {
     conditions: ConditionsStore,
     settings: Settings,
     steamPath: string,
+    useInterface: boolean
 }
 
 export interface ColorProp {

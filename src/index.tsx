@@ -61,7 +61,7 @@ const windowCreated = (windowContext: any): void => {
         }
         /** @ts-ignore */
         case LocalizationManager.LocalizeString("#Settings_Title"): {
-            RenderSettingsModal(windowContext)
+            pluginSelf.useInterface && RenderSettingsModal(windowContext)
         }     
     }
 
@@ -89,10 +89,11 @@ const InitializePatcher = (startTime: number, result: SettingsProps) => {
         DispatchGlobalColors(themeV1?.GlobalsColors)
     }
     
-    pluginSelf.conditionals   = result.conditions as ConditionsStore
+    pluginSelf.conditionals   = result?.conditions as ConditionsStore
     pluginSelf.scriptsAllowed = result?.settings?.scripts as boolean ?? true
     pluginSelf.stylesAllowed  = result?.settings?.styles as boolean ?? true
-    pluginSelf.steamPath      = result.steamPath
+    pluginSelf.steamPath      = result?.steamPath as string
+    pluginSelf.useInterface   = result?.useInterface as boolean ?? true
 
     // @ts-ignore
     if (g_PopupManager?.m_mapPopups?.size > 0) {

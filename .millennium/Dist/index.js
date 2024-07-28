@@ -2464,7 +2464,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
             /** @ts-ignore */
             case LocalizationManager.LocalizeString("#Steam_Platform"):        /** @ts-ignore */
             case LocalizationManager.LocalizeString("#Settings_Title"): {
-                RenderSettingsModal(windowContext);
+                pluginSelf.useInterface && RenderSettingsModal(windowContext);
             }
         }
         if (windowContext.m_strTitle.includes("notificationtoasts")) {
@@ -2483,10 +2483,11 @@ var millennium_main = (function (exports, React, ReactDOM) {
         if (themeV1?.GlobalsColors) {
             DispatchGlobalColors(themeV1?.GlobalsColors);
         }
-        pluginSelf.conditionals = result.conditions;
+        pluginSelf.conditionals = result?.conditions;
         pluginSelf.scriptsAllowed = result?.settings?.scripts ?? true;
         pluginSelf.stylesAllowed = result?.settings?.styles ?? true;
-        pluginSelf.steamPath = result.steamPath;
+        pluginSelf.steamPath = result?.steamPath;
+        pluginSelf.useInterface = result?.useInterface ?? true;
         // @ts-ignore
         if (g_PopupManager?.m_mapPopups?.size > 0) {
             // check if RestartJSContext exists

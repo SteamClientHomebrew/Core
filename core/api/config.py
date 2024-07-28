@@ -1,4 +1,4 @@
-import Millennium, json, os
+import Millennium, json, os # type: ignore
 
 from api.css_analyzer import ColorTypes, convert_from_hex, convert_to_hex, parse_root
 from api.themes import is_valid
