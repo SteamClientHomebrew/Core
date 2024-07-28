@@ -7,3 +7,4 @@ winrt-Windows.UI | Windows
 pygit2
 cssutils
 websockets
+watchdog
