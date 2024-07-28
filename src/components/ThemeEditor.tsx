@@ -7,12 +7,12 @@ import {
     DialogControlsSection,
     DialogHeader,
     Dropdown,
-    Field,
     Millennium,
     SingleDropdownOption,
     Toggle,
     pluginSelf,
   } from "@millennium/ui";
+import { Field } from "../custom_components/Field";
 import { Conditions, ConditionsStore, ICondition, ThemeItem } from "../types"
 import { settingsClasses } from "../classes"
 import { locale } from "../locales"

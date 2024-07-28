@@ -7,11 +7,11 @@ import {
     DialogControlsSection,
     classMap,
     DialogHeader,
-    Field,
     IconsModule,
     pluginSelf,
     Toggle,
 } from '@millennium/ui'
+import { Field } from '../custom_components/Field';
 import { locale } from '../locales';
 import { ThemeItem } from '../types';
 import { Settings } from '../Settings';

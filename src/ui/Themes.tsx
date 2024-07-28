@@ -5,7 +5,6 @@ import {
     DialogHeader, 
     DialogBody, 
     DialogButton,
-    Field,
     classMap, 
     IconsModule, 
     pluginSelf, 
@@ -13,6 +12,7 @@ import {
     Toggle, 
     showModal, 
 } from '@millennium/ui'
+import { Field } from '../custom_components/Field'
 
 import { useEffect, useState } from 'react'
 import { RenderThemeEditor } from '../components/ThemeEditor'

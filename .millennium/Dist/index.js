@@ -334,7 +334,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
     const dropdownItemRegex = createPropListRegex(["dropDownControlRef", "description"], false);
     Object.values(CommonUIModule).find((mod) => mod?.toString && dropdownItemRegex.test(mod.toString()));
 
-    const Field = findModuleExport((e) => e?.render?.toString().includes('"shift-children-below"'));
+    findModuleExport((e) => e?.render?.toString().includes('"shift-children-below"'));
 
     const focusableRegex = createPropListRegex(["flow-children", "onActivate", "onCancel", "focusClassName", "focusWithinClassName"]);
     findModuleExport((e) => e?.render?.toString && focusableRegex.test(e.render.toString()));
@@ -1494,6 +1494,33 @@ var millennium_main = (function (exports, React, ReactDOM) {
             window.SP_REACT.createElement("p", { style: { fontSize: "12px", color: "grey", textAlign: "center", maxWidth: "76%" } }, "This issue isn't network related, you're most likely missing a file millennium needs, or are experiencing an unexpected bug."),
             window.SP_REACT.createElement(Button, { onClick: () => SteamClient.System.OpenLocalDirectoryInSystemExplorer("ext\\data\\logs\\"), style: { marginTop: "20px" } }, "Open Logs Folder")));
     };
+
+    const containerClasses = [
+        Classes.Field,
+        Classes.WithFirstRow,
+        Classes.VerticalAlignCenter,
+        Classes.WithDescription,
+        Classes.WithBottomSeparatorStandard,
+        Classes.ChildrenWidthFixed,
+        Classes.ExtraPaddingOnChildrenBelow,
+        Classes.StandardPadding,
+        Classes.HighlightOnFocus,
+        "Panel",
+    ].join(" ");
+    const fieldClasses = findClassModule((m) => m.FieldLabel &&
+        !m.GyroButtonPickerDialog &&
+        !m.ControllerOutline &&
+        !m.AwaitingEmailConfIcon);
+    /**
+     * Use this instead of the `@millennium/ui` one to prevent the
+     * `Assertion failed: Trying to use ConfigContext without a provider!  Add ConfigContextRoot to application.`
+     * error.
+     */
+    const Field = ({ children, description, label, }) => (window.SP_REACT.createElement("div", { className: containerClasses },
+        window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabelRow },
+            window.SP_REACT.createElement("div", { className: fieldClasses.FieldLabel }, label),
+            window.SP_REACT.createElement("div", { className: classMap.FieldChildrenWithIcon }, children)),
+        window.SP_REACT.createElement("div", { className: classMap.FieldDescription }, description)));
 
     const isEditablePlugin = (plugin_name) => {
         return window.PLUGIN_LIST && window.PLUGIN_LIST[plugin_name]
