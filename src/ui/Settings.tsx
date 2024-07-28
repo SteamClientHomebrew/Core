@@ -39,6 +39,12 @@ const PluginComponent: React.FC = () => {
 	const [selected, setSelected] = useState<Renderer>();
 	const nativeTabs = pluginSelf.settingsDoc.querySelectorAll(`.${Classes.PagedSettingsDialog_PageListItem}:not(.MillenniumTab)`)
 
+	for (const tab of nativeTabs) {
+		tab.addEventListener("click", () => {
+			setSelected(Renderer.Unset);
+		});
+	}
+
 	const componentUpdate = (type: Renderer) => {
 		RenderViewComponent(type);
 		setSelected(type)

@@ -2223,6 +2223,11 @@ var millennium_main = (function (exports, React, ReactDOM) {
     const PluginComponent = () => {
         const [selected, setSelected] = React.useState();
         const nativeTabs = pluginSelf.settingsDoc.querySelectorAll(`.${Classes.PagedSettingsDialog_PageListItem}:not(.MillenniumTab)`);
+        for (const tab of nativeTabs) {
+            tab.addEventListener("click", () => {
+                setSelected(Renderer.Unset);
+            });
+        }
         const componentUpdate = (type) => {
             RenderViewComponent(type);
             setSelected(type);
