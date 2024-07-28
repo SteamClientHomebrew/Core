@@ -1,5 +1,6 @@
 import { 
     Millennium, 
+    ConfirmModal,
     Dropdown, 
     DialogHeader, 
     DialogBody, 
@@ -10,17 +11,28 @@ import {
     pluginSelf, 
     ShowModalProps, 
     Toggle, 
-    MessageBoxResult, 
     showModal, 
 } from '@millennium/ui'
 
 import { useEffect, useState } from 'react'
 import { RenderThemeEditor } from '../components/ThemeEditor'
 import { ComboItem, ThemeItem } from '../types'
-import { PromptReload } from '../popups/RestartModal'
 import { SetupAboutRenderer } from '../popups/AboutTheme'
 import { locale } from '../locales'
 import { ConnectionFailed } from '../components/ConnectionFailed'
+
+const PromptReload = (onOK: () => void) =>
+	showModal(
+		<ConfirmModal
+			strTitle={locale.reloadRequired}
+			strDescription={locale.reloadRequiredBody}
+			onOK={onOK}
+		/>,
+		pluginSelf.settingsWnd,
+		{
+			bNeverPopOut: true,
+		},
+	);
 
 const ShowThemeSettings = async (activeTheme: string) => {
 
@@ -32,11 +44,9 @@ const ShowThemeSettings = async (activeTheme: string) => {
             return
         }
 
-        PromptReload().then((result) => {
-            if (result === MessageBoxResult.okay) {
-                SteamClient.Browser.RestartJSContext()
-            }
-        })
+        PromptReload(() => {
+            SteamClient.Browser.RestartJSContext();
+        });
         pluginSelf.ConditionConfigHasChanged = false
     }
 
@@ -158,8 +168,7 @@ const ThemeViewModal: React.FC = () => {
     const onScriptToggle = (enabled: boolean) => {
         setJsState(enabled)
 
-        PromptReload().then((selection: MessageBoxResult) => {
-            if (selection == MessageBoxResult.okay) {
+        PromptReload(() => {
                 Millennium.callServerMethod("cfg.set_config_keypair", {key: "scripts", value: enabled})
                 .then((result: any) => {
                     pluginSelf.connectionFailed = false
@@ -171,27 +180,24 @@ const ThemeViewModal: React.FC = () => {
                 })
 
                 SteamClient.Browser.RestartJSContext()
-            }
         })
     }
 
     const onStyleToggle = (enabled: boolean) => {
         setCssState(enabled)
 
-        PromptReload().then((selection: MessageBoxResult) => {
-            if (selection == MessageBoxResult.okay) {
-                Millennium.callServerMethod("cfg.set_config_keypair", {key: "styles", value: enabled})
-                .then((result: any) => {
-                    pluginSelf.connectionFailed = false
-                    return result
-                })
-                .catch((_: any) => {
-                    console.error("Failed to update settings")
-                    pluginSelf.connectionFailed = true
-                })
+        PromptReload(() => {
+            Millennium.callServerMethod("cfg.set_config_keypair", {key: "styles", value: enabled})
+            .then((result: any) => {
+                pluginSelf.connectionFailed = false
+                return result
+            })
+            .catch((_: any) => {
+                console.error("Failed to update settings")
+                pluginSelf.connectionFailed = true
+            })
 
-                SteamClient.Browser.RestartJSContext()
-            }
+            SteamClient.Browser.RestartJSContext()
         })
     }
 
@@ -204,11 +210,9 @@ const ThemeViewModal: React.FC = () => {
         });
         findAllThemes().then((result: ComboItem[]) => setThemes(result))
 
-        PromptReload().then((selection: MessageBoxResult) => {
-            if (selection == MessageBoxResult.okay) {
-                SteamClient.Browser.RestartJSContext()
-            }
-        })
+        PromptReload(() => {
+            SteamClient.Browser.RestartJSContext();
+        });
     }
 
     const OpenThemeRepository = () => {
