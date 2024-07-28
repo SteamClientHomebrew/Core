@@ -1,5 +1,4 @@
-import Millennium
-import threading, json
+import Millennium, json # type: ignore
 
 from api.css_analyzer import parse_root
 from api.themes import Colors

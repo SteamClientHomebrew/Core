@@ -1,5 +1,5 @@
 # This module is intended to keep track on the webkit hooks that are added to the browser
-import Millennium
+import Millennium # type: ignore
 
 class WebkitStack:
     _instance = None

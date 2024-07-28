@@ -1,12 +1,10 @@
-import time
+import Millennium # type: ignore
+import pygit2, os, json, shutil, time, requests, arrow
 
-import Millennium
 from datetime import datetime
-import pygit2, os, json, shutil
 from api.themes import find_all_themes
 from api.config import cfg
-import requests
-import arrow
+from util import logger
 
 class Updater:
 
@@ -144,40 +142,34 @@ class Updater:
     def re_initialize(self):
         return self.__init__()
 
-    def __init__(self):
-
+    def fetch_updates(self):
         self.update_list  = []
         self.update_query = []
 
         self.query_themes()
 
-        start_time = time.time()
-        post_body = self.construct_post_body()
-
-        headers = {
-            "Content-Type": "application/json"
-        }
-
-        response = requests.post("https://steambrew.app/api/v2/checkupdates", data=json.dumps(post_body), headers=headers)
+        response = requests.post("https://steambrew.app/api/v2/checkupdates", 
+            data=json.dumps(self.construct_post_body()), 
+            headers={ "Content-Type": "application/json" }
+        )
 
         if response.status_code != 200:
-            print("an error occured checking for updates...")
+            logger.warn("An error occurred checking for updates!")
             return 
 
-        remote_json = response.json()
-        success = False if "success" in remote_json and not remote_json["success"] else True
+        return response.json()
 
-        if not success: 
-            return 
+    def process_updates(self) -> bool:
+        start_time = time.time()
+        self.remote_json = self.fetch_updates()
 
-        self.remote_json = remote_json
+        print(json.dumps(self.remote_json, indent=4))
+
+        if self.remote_json is None:
+            return
 
         for theme, repo in self.update_query:
-
-            if "data" not in theme:
-                continue
-
-            if "github" not in theme["data"]:
+            if "data" not in theme or "github" not in theme["data"]:
                 continue
 
             github_data = theme.get("data", {}).get("github")
@@ -186,5 +178,8 @@ class Updater:
             if repo_name:
                 self.check_theme(theme, repo_name, repo)       
 
-        if len(self.update_list) > 0:
+        if self.update_list:
             print(f"found updates for {[theme['native'] for theme in self.update_list]} in {round((time.time() - start_time) * 1000, 4)} ms")
+
+    def __init__(self):
+        self.process_updates()
