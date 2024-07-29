@@ -1866,9 +1866,11 @@ var millennium_main = (function (exports, React, ReactDOM) {
     const PromptReload = (onOK) => showModal(window.SP_REACT.createElement(ConfirmModal, { strTitle: Localize("#Settings_RestartRequired_Title"), strDescription: Localize("#Settings_RestartRequired_Description"), strOKButtonText: Localize("#Settings_RestartNow_ButtonText"), onOK: onOK }), pluginSelf.settingsWnd, {
         bNeverPopOut: true,
     });
-    const ShowThemeSettings = async (activeTheme) => {
-        const title = "Editing " + activeTheme;
-        const OnClose = () => {
+    const ThemeSettings = (activeTheme) => showModal(window.SP_REACT.createElement(RenderThemeEditor, null), pluginSelf.settingsWnd, {
+        strTitle: "Editing " + activeTheme,
+        popupHeight: 675,
+        popupWidth: 850,
+        fnOnClose: () => {
             if (!pluginSelf.ConditionConfigHasChanged) {
                 return;
             }
@@ -1876,39 +1878,8 @@ var millennium_main = (function (exports, React, ReactDOM) {
                 SteamClient.Browser.RestartJSContext();
             });
             pluginSelf.ConditionConfigHasChanged = false;
-        };
-        const windowOptions = {
-            strTitle: title,
-            bHideMainWindowForPopouts: false,
-            popupHeight: 675,
-            popupWidth: 850,
-            browserContext: 1,
-            fnOnClose: OnClose
-        };
-        showModal(window.SP_REACT.createElement(RenderThemeEditor, null), window, windowOptions);
-        /**
-         * hacky solution to extending the restricted showModal wrapper.
-         * @todo fix with custom wrapper
-         * @returns window details of open modal
-         */
-        const findWindow = () => {
-            return new Promise((resolve, _reject) => {
-                (function checkAgain() {
-                    setTimeout(() => {
-                        // @ts-ignore
-                        const modalResult = Array.from(g_PopupManager.m_mapPopups.data_, ([key, value]) => ({ key, value })).find((value) => {
-                            if (value.key === title)
-                                return value.value;
-                        });
-                        !modalResult ? checkAgain() : resolve(modalResult);
-                    }, 1);
-                })();
-            });
-        };
-        const window1 = await findWindow();
-        const body = window1.value.value_.m_popup.document.body;
-        body.classList.add("DesktopUI");
-    };
+        },
+    });
     /**
      * Display the edit theme button on a theme if applicable
      * @param active the common name of a theme
@@ -1920,7 +1891,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
         if (pluginSelf?.isDefaultTheme || (Theme?.data?.Conditions === undefined && Theme?.data?.RootColors === undefined)) {
             return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null));
         }
-        return (window.SP_REACT.createElement(DialogButton, { onClick: () => ShowThemeSettings(active), style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, className: "_3epr8QYWw_FqFgMx38YEEm millenniumIconButton" },
+        return (window.SP_REACT.createElement(DialogButton, { onClick: () => ThemeSettings(active), style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, className: "_3epr8QYWw_FqFgMx38YEEm millenniumIconButton" },
             window.SP_REACT.createElement(IconsModule.Edit, { style: { height: "16px" } })));
     };
     const findAllThemes = async () => {

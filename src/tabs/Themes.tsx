@@ -40,60 +40,22 @@ const PromptReload = (onOK: () => void) =>
 		},
 	);
 
-const ShowThemeSettings = async (activeTheme: string) => {
-
-    const title = "Editing " + activeTheme
-
-    const OnClose = () => {
-
-        if (!pluginSelf.ConditionConfigHasChanged) {
-            return
-        }
-
-        PromptReload(() => {
-            SteamClient.Browser.RestartJSContext();
-        });
-        pluginSelf.ConditionConfigHasChanged = false
-    }
-
-    const windowOptions: ShowModalProps = {
-        strTitle: title,
-        bHideMainWindowForPopouts: false,
+const ThemeSettings = (activeTheme: string) =>
+    showModal(<RenderThemeEditor />, pluginSelf.settingsWnd, {
+        strTitle: "Editing " + activeTheme,
         popupHeight: 675,
         popupWidth: 850,
-        browserContext: 1,
-        fnOnClose: OnClose
-    }
+        fnOnClose: () => {
+            if (!pluginSelf.ConditionConfigHasChanged) {
+                return;
+            }
 
-    showModal(<RenderThemeEditor/>, window, windowOptions)
-
-    /**
-     * hacky solution to extending the restricted showModal wrapper. 
-     * @todo fix with custom wrapper
-     * @returns window details of open modal
-     */
-    const findWindow = () => {
-        return new Promise((resolve, _reject) => {
-            (function checkAgain() {
-                setTimeout(() => {
-                    // @ts-ignore
-                    const modalResult = Array.from(g_PopupManager.m_mapPopups.data_, ([key, value]) => ({ key, value })).find((value) => {
-            
-                        if (value.key === title) 
-                            return value.value
-                    })
-
-                    !modalResult ? checkAgain() : resolve(modalResult)
-                }, 1)
-            })()
-        })
-    }
-
-    const window1: any = await findWindow()
-    const body: HTMLBodyElement = window1.value.value_.m_popup.document.body as HTMLBodyElement
-
-    body.classList.add("DesktopUI")
-}
+            PromptReload(() => {
+                SteamClient.Browser.RestartJSContext();
+            });
+            pluginSelf.ConditionConfigHasChanged = false;
+        },
+    });
 
 interface EditThemeProps {
     active: string
@@ -115,7 +77,7 @@ const RenderEditTheme: React.FC<EditThemeProps> = ({ active }) => {
 
     return (
         <DialogButton 
-            onClick={() => ShowThemeSettings(active)} 
+            onClick={() => ThemeSettings(active)}
             style={{margin: "0", padding: "0px 10px", marginRight: "10px"}} 
             className="_3epr8QYWw_FqFgMx38YEEm millenniumIconButton" 
         >
