@@ -15,8 +15,8 @@ import { Field } from '../custom_components/Field';
 import { locale } from '../locales';
 import { ThemeItem } from '../types';
 import { Settings } from '../Settings';
-import { ConnectionFailed } from './ConnectionFailed';
-import { SettingsDialogSubHeader } from './SettingsDialogSubHeader';
+import { ConnectionFailed } from '../components/ConnectionFailed';
+import { SettingsDialogSubHeader } from '../components/SettingsDialogSubHeader';
 
 interface UpdateProps {
     updates: UpdateItemType[];

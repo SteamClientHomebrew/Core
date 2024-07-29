@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { DialogBody, DialogButton, DialogHeader, Millennium, Toggle, classMap, pluginSelf } from '@millennium/ui';
 import { PluginComponent } from '../types';
 import { locale } from '../locales';
-import { ConnectionFailed } from './ConnectionFailed';
+import { ConnectionFailed } from '../components/ConnectionFailed';
 import { Field } from '../custom_components/Field';
 
 interface EditPluginProps {

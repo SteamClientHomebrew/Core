@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { PluginViewModal } from '../components/Plugins'
-import { ThemeViewModal } from './Themes'
-import { UpdatesViewModal } from '../components/Updates'
+import { PluginViewModal } from '../tabs/Plugins'
+import { ThemeViewModal } from '../tabs/Themes'
+import { UpdatesViewModal } from '../tabs/Updates'
 import { IconsModule, Millennium, pluginSelf, Classes } from '@millennium/ui';
 import { locale } from '../locales';
 import { pagedSettingsClasses } from "../classes";
