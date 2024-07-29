@@ -41,8 +41,8 @@ class Config:
         PACMAN_LOGS      = os.path.join(LOCALS, "logs", "pacman.log")
         PIP_INSTALL_LOGS = os.path.join(LOCALS, "logs", "pip_boot.log")
 
-        self.set_default('PackageManager', 'devtools', 'no')
-        self.set_default('PackageManager', 'auto_update_devtools', 'yes')
+        self.set_default('PackageManager', 'dev_packages', 'no')
+        self.set_default('PackageManager', 'auto_update_dev_packages', 'yes')
         self.set_default('PackageManager', 'use_pip', 'yes')
         self.set_default('PackageManager', 'python', PYTHON_BIN)
         self.set_default('PackageManager', 'pip_logs', PACMAN_LOGS)
