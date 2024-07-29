@@ -24,8 +24,6 @@
     "viewSourceCode": "Lihat Source Code",
     "showInFolder": "Tampilkan di Folder",
     "uninstall": "Hapus Instalasi",
-    "reloadRequired": "Membutuhkan Muat Ulang",
-    "reloadRequiredBody": "Perubahan yang dipilih perlu dimuat ulang agar dapat diterapkan. Muat ulang sekarang?", 
     "optionReloadNow": "Muat Ulang Sekarang",
     "optionReloadLater": "Muat Ulang Nanti"
 }

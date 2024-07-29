@@ -18,8 +18,6 @@
     "viewSourceCode": "Quellcode anzeigen",
     "showInFolder": "Im Ordner anzeigen",
     "uninstall": "Deinstallieren",
-    "reloadRequired": "Neustart erforderlich",
-    "reloadRequiredBody": "Ausgewählte Änderungen benötigen einen Neustart, um wirksam zu werden. Sollen wir jetzt Neustarten?",
     "optionReloadNow": "Jetzt Neustarten",
     "optionReloadLater": "Später Neustarten",
     "updatePanelUpdateNotifications": "Push-Benachrichtigungen",

@@ -24,8 +24,6 @@
     "viewSourceCode": "View Source Code",
     "showInFolder": "Show in Folder",
     "uninstall": "Uninstall",
-    "reloadRequired": "Reload Required",
-    "reloadRequiredBody": "Selected changes need a reload in order to take affect. Should we reload right now?",
     "optionReloadNow": "Reload Now",
     "optionReloadLater": "Reload Later",
     "updatePanelUpdateNotifications": "Push Notifications",

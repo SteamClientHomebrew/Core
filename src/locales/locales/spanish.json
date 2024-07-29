@@ -24,8 +24,6 @@
     "viewSourceCode": "Ver Código Fuente",
     "showInFolder": "Mostrar en Carpeta",
     "uninstall": "Desinstalar",
-    "reloadRequired": "Requiere Reiniciar",
-    "reloadRequiredBody": "Los cambios seleccionados necesitan reiniciar Steam para tener efecto. ¿Reiniciar ahora?",
     "optionReloadNow": "Reiniciar Ahora",
     "optionReloadLater": "Reiniciar Después"
 }

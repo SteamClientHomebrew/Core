@@ -24,8 +24,6 @@
     "viewSourceCode": "Посмотреть исходный код",
     "showInFolder": "Показать в папке",
     "uninstall": "Удалить",
-    "reloadRequired": "Требуется переинициализация интерфейса",
-    "reloadRequiredBody": "Для того, чтобы применить выбранные настройки, требуется переинициализация интерфейса Steam. Сделать её прямо сейчас?",
     "optionReloadNow": "Сейчас",
     "optionReloadLater": "Потом",
     "updatePanelUpdateNotifications": "Всплывающие уведомления",

@@ -22,11 +22,16 @@ import { locale } from '../locales'
 import { ConnectionFailed } from '../components/ConnectionFailed'
 import { BBCodeParser } from '../components/BBCodeParser'
 
+const Localize = (token: string): string =>
+    // @ts-ignore
+    LocalizationManager.LocalizeString(token);
+
 const PromptReload = (onOK: () => void) =>
 	showModal(
 		<ConfirmModal
-			strTitle={locale.reloadRequired}
-			strDescription={locale.reloadRequiredBody}
+			strTitle={Localize("#Settings_RestartRequired_Title")}
+			strDescription={Localize("#Settings_RestartRequired_Description")}
+            strOKButtonText={Localize("#Settings_RestartNow_ButtonText")}
 			onOK={onOK}
 		/>,
 		pluginSelf.settingsWnd,

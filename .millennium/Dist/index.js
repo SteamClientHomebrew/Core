@@ -1019,8 +1019,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
     var viewSourceCode$6 = "View Source Code";
     var showInFolder$6 = "Show in Folder";
     var uninstall$6 = "Uninstall";
-    var reloadRequired$6 = "Reload Required";
-    var reloadRequiredBody$6 = "Selected changes need a reload in order to take affect. Should we reload right now?";
     var optionReloadNow$6 = "Reload Now";
     var optionReloadLater$6 = "Reload Later";
     var updatePanelUpdateNotifications$2 = "Push Notifications";
@@ -1055,8 +1053,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
     	viewSourceCode: viewSourceCode$6,
     	showInFolder: showInFolder$6,
     	uninstall: uninstall$6,
-    	reloadRequired: reloadRequired$6,
-    	reloadRequiredBody: reloadRequiredBody$6,
     	optionReloadNow: optionReloadNow$6,
     	optionReloadLater: optionReloadLater$6,
     	updatePanelUpdateNotifications: updatePanelUpdateNotifications$2,
@@ -1092,8 +1088,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
     var viewSourceCode$5 = "Zobacz kod źródłowy";
     var showInFolder$5 = "Pokaż w folderze";
     var uninstall$5 = "Odinstaluj";
-    var reloadRequired$5 = "Wymagane ponowne załadowanie";
-    var reloadRequiredBody$5 = "Wybrane zmiany wymagają ponownego załadowania, aby mogły zostać zastosowane. Czy chcesz ponownie załadować teraz?";
     var optionReloadNow$5 = "Załaduj ponownie teraz";
     var optionReloadLater$5 = "Załaduj ponownie później";
     var polish = {
@@ -1122,8 +1116,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
     	viewSourceCode: viewSourceCode$5,
     	showInFolder: showInFolder$5,
     	uninstall: uninstall$5,
-    	reloadRequired: reloadRequired$5,
-    	reloadRequiredBody: reloadRequiredBody$5,
     	optionReloadNow: optionReloadNow$5,
     	optionReloadLater: optionReloadLater$5
     };
@@ -1153,8 +1145,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
     var viewSourceCode$4 = "Ver Código Fuente";
     var showInFolder$4 = "Mostrar en Carpeta";
     var uninstall$4 = "Desinstalar";
-    var reloadRequired$4 = "Requiere Reiniciar";
-    var reloadRequiredBody$4 = "Los cambios seleccionados necesitan reiniciar Steam para tener efecto. ¿Reiniciar ahora?";
     var optionReloadNow$4 = "Reiniciar Ahora";
     var optionReloadLater$4 = "Reiniciar Después";
     var spanish = {
@@ -1183,8 +1173,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
     	viewSourceCode: viewSourceCode$4,
     	showInFolder: showInFolder$4,
     	uninstall: uninstall$4,
-    	reloadRequired: reloadRequired$4,
-    	reloadRequiredBody: reloadRequiredBody$4,
     	optionReloadNow: optionReloadNow$4,
     	optionReloadLater: optionReloadLater$4
     };
@@ -1214,8 +1202,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
     var viewSourceCode$3 = "Lihat Source Code";
     var showInFolder$3 = "Tampilkan di Folder";
     var uninstall$3 = "Hapus Instalasi";
-    var reloadRequired$3 = "Membutuhkan Muat Ulang";
-    var reloadRequiredBody$3 = "Perubahan yang dipilih perlu dimuat ulang agar dapat diterapkan. Muat ulang sekarang?";
     var optionReloadNow$3 = "Muat Ulang Sekarang";
     var optionReloadLater$3 = "Muat Ulang Nanti";
     var indonesian = {
@@ -1244,8 +1230,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
     	viewSourceCode: viewSourceCode$3,
     	showInFolder: showInFolder$3,
     	uninstall: uninstall$3,
-    	reloadRequired: reloadRequired$3,
-    	reloadRequiredBody: reloadRequiredBody$3,
     	optionReloadNow: optionReloadNow$3,
     	optionReloadLater: optionReloadLater$3
     };
@@ -1275,8 +1259,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
     var viewSourceCode$2 = "查看源码";
     var showInFolder$2 = "打开文件位置";
     var uninstall$2 = "卸载";
-    var reloadRequired$2 = "需要重新加载";
-    var reloadRequiredBody$2 = "所选更改需要重新加载才能生效。立即重新加载？";
     var optionReloadNow$2 = "立即重新加载";
     var optionReloadLater$2 = "稍后重新加载";
     var schinese = {
@@ -1305,8 +1287,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
     	viewSourceCode: viewSourceCode$2,
     	showInFolder: showInFolder$2,
     	uninstall: uninstall$2,
-    	reloadRequired: reloadRequired$2,
-    	reloadRequiredBody: reloadRequiredBody$2,
     	optionReloadNow: optionReloadNow$2,
     	optionReloadLater: optionReloadLater$2
     };
@@ -1330,8 +1310,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
     var viewSourceCode$1 = "Quellcode anzeigen";
     var showInFolder$1 = "Im Ordner anzeigen";
     var uninstall$1 = "Deinstallieren";
-    var reloadRequired$1 = "Neustart erforderlich";
-    var reloadRequiredBody$1 = "Ausgewählte Änderungen benötigen einen Neustart, um wirksam zu werden. Sollen wir jetzt Neustarten?";
     var optionReloadNow$1 = "Jetzt Neustarten";
     var optionReloadLater$1 = "Später Neustarten";
     var updatePanelUpdateNotifications$1 = "Push-Benachrichtigungen";
@@ -1356,8 +1334,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
     	viewSourceCode: viewSourceCode$1,
     	showInFolder: showInFolder$1,
     	uninstall: uninstall$1,
-    	reloadRequired: reloadRequired$1,
-    	reloadRequiredBody: reloadRequiredBody$1,
     	optionReloadNow: optionReloadNow$1,
     	optionReloadLater: optionReloadLater$1,
     	updatePanelUpdateNotifications: updatePanelUpdateNotifications$1,
@@ -1389,8 +1365,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
     var viewSourceCode = "Посмотреть исходный код";
     var showInFolder = "Показать в папке";
     var uninstall = "Удалить";
-    var reloadRequired = "Требуется переинициализация интерфейса";
-    var reloadRequiredBody = "Для того, чтобы применить выбранные настройки, требуется переинициализация интерфейса Steam. Сделать её прямо сейчас?";
     var optionReloadNow = "Сейчас";
     var optionReloadLater = "Потом";
     var updatePanelUpdateNotifications = "Всплывающие уведомления";
@@ -1421,8 +1395,6 @@ var millennium_main = (function (exports, React, ReactDOM) {
     	viewSourceCode: viewSourceCode,
     	showInFolder: showInFolder,
     	uninstall: uninstall,
-    	reloadRequired: reloadRequired,
-    	reloadRequiredBody: reloadRequiredBody,
     	optionReloadNow: optionReloadNow,
     	optionReloadLater: optionReloadLater,
     	updatePanelUpdateNotifications: updatePanelUpdateNotifications,
@@ -1888,7 +1860,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
         popupWND.Show();
     };
 
-    const PromptReload = (onOK) => showModal(window.SP_REACT.createElement(ConfirmModal, { strTitle: locale.reloadRequired, strDescription: locale.reloadRequiredBody, onOK: onOK }), pluginSelf.settingsWnd, {
+    const Localize = (token) => 
+    // @ts-ignore
+    LocalizationManager.LocalizeString(token);
+    const PromptReload = (onOK) => showModal(window.SP_REACT.createElement(ConfirmModal, { strTitle: Localize("#Settings_RestartRequired_Title"), strDescription: Localize("#Settings_RestartRequired_Description"), strOKButtonText: Localize("#Settings_RestartNow_ButtonText"), onOK: onOK }), pluginSelf.settingsWnd, {
         bNeverPopOut: true,
     });
     const ShowThemeSettings = async (activeTheme) => {
