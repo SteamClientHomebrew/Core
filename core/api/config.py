@@ -135,16 +135,13 @@ class Config:
 
 
     def start_webkit_hook(self, theme, name):
-
         if "failed" in theme:
             return
 
         if "Steam-WebKit" in theme["data"] and isinstance(theme["data"]["Steam-WebKit"], str):
-            print("Preloading webkit hooks...")
             add_browser_css(os.path.join(Millennium.steam_path(), "skins", name, theme["data"]["Steam-WebKit"]))
 
         if "RootColors" in theme["data"] and isinstance(theme["data"]["RootColors"], str):
-            print("Inserting root colors...")
             add_browser_css(os.path.join(Millennium.steam_path(), "skins", name, theme["data"]["RootColors"]))
 
 
@@ -155,8 +152,6 @@ class Config:
 
         if self.name not in self.config["colors"]:
             self.config["colors"][self.name] = {}
-
-        print(f"Setting up colors for {self.name}...")
 
         for color in self.colors:
             color_name = color["color"]
@@ -213,7 +208,6 @@ class Config:
 
         if "data" in self.theme and "RootColors" in self.theme["data"]:
             root_colors = os.path.join(Millennium.steam_path(), "steamui", "skins", self.name, self.theme["data"]["RootColors"])
-            print("Setting up root colors...")
             self.setup_colors(root_colors)
 
 
