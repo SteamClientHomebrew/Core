@@ -26,6 +26,11 @@ const Localize = (token: string): string =>
     // @ts-ignore
     LocalizationManager.LocalizeString(token);
 
+/**
+ * @note
+ * There is a specific webpack module for that,
+ * but it restarts Steam instead of reloading the UI.
+ */
 const PromptReload = (onOK: () => void) =>
 	showModal(
 		<ConfirmModal

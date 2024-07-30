@@ -9,6 +9,9 @@ interface FakeFriendProps {
 	onClick?: () => void;
 }
 
+/**
+ * @todo Get & use the webpack module for this
+ */
 export const FakeFriend: React.FC<FakeFriendProps> = ({
 	eStatus,
 	strAvatarURL,

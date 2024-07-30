@@ -13,7 +13,7 @@ const containerClasses = [
 	Classes.HighlightOnFocus,
 	"Panel",
 ].join(" ");
-export const fieldClasses: any = findClassModule(
+const fieldClasses: any = findClassModule(
 	(m) =>
 		m.FieldLabel &&
 		!m.GyroButtonPickerDialog &&
@@ -28,6 +28,7 @@ interface FieldProps {
 }
 
 /**
+ * @note
  * Use this instead of the `@millennium/ui` one to prevent the
  * `Assertion failed: Trying to use ConfigContext without a provider!  Add ConfigContextRoot to application.`
  * error.

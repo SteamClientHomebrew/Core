@@ -1480,6 +1480,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
         !m.ControllerOutline &&
         !m.AwaitingEmailConfIcon);
     /**
+     * @note
      * Use this instead of the `@millennium/ui` one to prevent the
      * `Assertion failed: Trying to use ConfigContext without a provider!  Add ConfigContextRoot to application.`
      * error.
@@ -1750,6 +1751,9 @@ var millennium_main = (function (exports, React, ReactDOM) {
         }
     }
 
+    /**
+     * @todo Get & use the webpack module for this
+     */
     const FakeFriend = ({ eStatus, strAvatarURL, strGameName, strPlayerName, onClick, }) => (window.SP_REACT.createElement("div", { className: `${Classes.FakeFriend} ${eStatus}`, onClick: onClick },
         window.SP_REACT.createElement("div", { className: `${Classes.avatarHolder} avatarHolder no-drag Medium ${eStatus}` },
             window.SP_REACT.createElement("div", { className: `${Classes.avatarStatus} avatarStatus right` }),
@@ -1863,6 +1867,11 @@ var millennium_main = (function (exports, React, ReactDOM) {
     const Localize = (token) => 
     // @ts-ignore
     LocalizationManager.LocalizeString(token);
+    /**
+     * @note
+     * There is a specific webpack module for that,
+     * but it restarts Steam instead of reloading the UI.
+     */
     const PromptReload = (onOK) => showModal(window.SP_REACT.createElement(ConfirmModal, { strTitle: Localize("#Settings_RestartRequired_Title"), strDescription: Localize("#Settings_RestartRequired_Description"), strOKButtonText: Localize("#Settings_RestartNow_ButtonText"), onOK: onOK }), pluginSelf.settingsWnd, {
         bNeverPopOut: true,
     });
