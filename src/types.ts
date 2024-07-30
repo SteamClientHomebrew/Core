@@ -56,7 +56,7 @@ export interface ConditionsStore {
 
 /**
  * High-level abstraction derived from the backend.
- * There is no garuntee a given Theme contains any elements
+ * There is no guarantee a given Theme contains any elements
  */
 export interface Theme {
     RootColors?: string, // path to root colors
