@@ -8,6 +8,7 @@ import { Logger } from "./Logger";
 import { PatchNotification } from "./ui/Notifications";
 import { Settings, SettingsStore } from "./Settings";
 import { DispatchGlobalColors } from "./patcher/v1/GlobalColors";
+import { WatchDog } from "./Events";
 
 /**
  * @note crashes steam on silent boot startup
@@ -129,6 +130,8 @@ const ProcessUpdates = (updates: UpdateItem[]) => {
 export default async function PluginMain() {
 
     const startTime = performance.now();
+
+    pluginSelf.WatchDog = WatchDog // Expose WatchDog to the global scope
     Settings.FetchAllSettings().then((result: SettingsProps) => InitializePatcher(startTime, result))
 
     // @todo: fix notificaitons modal

@@ -2,6 +2,7 @@ import Millennium, json, os # type: ignore
 
 from api.css_analyzer import ColorTypes, convert_from_hex, convert_to_hex, parse_root
 from api.themes import is_valid
+from api.watchdog import SteamUtils
 from util.webkit_handler import WebkitStack, add_browser_css
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -11,11 +12,19 @@ class ConfigFileHandler(FileSystemEventHandler):
         self.config_instance = config_instance
 
     def on_modified(self, event):
+        self.config_instance.steam_utils.handle_dispatch(event)
+
         if event.src_path == self.config_instance.config_path:
             self.config_instance.reload_config()
 
+    def on_created(self, event):
+        self.config_instance.steam_utils.handle_dispatch(event)
+
+
 class Config:
     def __init__(self):
+        self.steam_utils = SteamUtils()
+
         self.config_path = os.path.join(Millennium.steam_path(), "ext", "themes.json")
         self.config = self.get_config()
 

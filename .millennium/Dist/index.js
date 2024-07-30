@@ -2393,6 +2393,15 @@ var millennium_main = (function (exports, React, ReactDOM) {
     }`;
     };
 
+    const WatchDog = {
+        startReload: () => {
+            SteamClient.Browser.RestartJSContext();
+        },
+        startRestart: () => {
+            SteamClient.User.StartRestart(false);
+        }
+    };
+
     const PatchMissedDocuments = () => {
         // @ts-ignore
         g_PopupManager?.m_mapPopups?.data_?.forEach((element) => {
@@ -2449,6 +2458,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
     // Entry point on the front end of your plugin
     async function PluginMain() {
         const startTime = performance.now();
+        pluginSelf.WatchDog = WatchDog; // Expose WatchDog to the global scope
         Settings.FetchAllSettings().then((result) => InitializePatcher(startTime, result));
         // @todo: fix notificaitons modal
         // wrappedCallServerMethod("updater.get_update_list")
