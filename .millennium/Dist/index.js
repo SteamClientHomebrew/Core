@@ -2407,6 +2407,9 @@ var millennium_main = (function (exports, React, ReactDOM) {
         },
         startRestart: () => {
             SteamClient.User.StartRestart(false);
+        },
+        startRestartForce: () => {
+            SteamClient.User.StartRestart(true);
         }
     };
 
