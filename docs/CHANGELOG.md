@@ -1,3 +1,27 @@
+# [1.2.0](https://github.com/SteamClientHomebrew/Core/compare/v1.1.1...v1.2.0) (2024-07-31)
+
+
+### Bug Fixes
+
+* Add readme language docs ([8526b0e](https://github.com/SteamClientHomebrew/Core/commit/8526b0ed15ceefb61b2c0ed8382b5d69f0852dc7))
+* Add restart force support for CLI ([7a7ff81](https://github.com/SteamClientHomebrew/Core/commit/7a7ff81a83ee2e6dae2cf9eea82c783da075da3c))
+* bbcode -> html for active theme field description ([557e07b](https://github.com/SteamClientHomebrew/Core/commit/557e07b1770f117a2751bb2ee7cc8863582d0cb4))
+* Fix 'Open Logs Folder' on linux. ([82b4ff4](https://github.com/SteamClientHomebrew/Core/commit/82b4ff4bc7de41b8ab5e842b83b9d9f65f139ef6))
+* Fix (557e07b) not opening in system browser ([ebc3860](https://github.com/SteamClientHomebrew/Core/commit/ebc38600c51de0b1756a57a991c82de5f38e61a8))
+* Fix CSS analyzer ([9111e37](https://github.com/SteamClientHomebrew/Core/commit/9111e3733b41d70a288f0e9808cf11f77f71aed3))
+* Fix types typo ([072ac47](https://github.com/SteamClientHomebrew/Core/commit/072ac476ebd916fc2506133c0fd4b3f5ea19a71f))
+* replace Field with a custom component ([563e23b](https://github.com/SteamClientHomebrew/Core/commit/563e23be53e9d2d8f674bae8a82a0f235fc26f59))
+* selected tab state ([bdd02c5](https://github.com/SteamClientHomebrew/Core/commit/bdd02c54dacedd3ce9a0431dcdfb44b7812799fc))
+* wrong tab names ([62f5a3a](https://github.com/SteamClientHomebrew/Core/commit/62f5a3a541debbf9955e3a0a4d09ff72025a8763))
+
+
+### Features
+
+* add "useInterface" settings prop ([1157b1e](https://github.com/SteamClientHomebrew/Core/commit/1157b1ed2c2f584c736c363d334e8469216ac38e))
+* Add CLI watchdog flag support ([00fe367](https://github.com/SteamClientHomebrew/Core/commit/00fe367c5cca2f17b5bdb1172ce4aef9a2c2aa5a))
+* Add config watchdog ([13b6374](https://github.com/SteamClientHomebrew/Core/commit/13b6374c16fe4e01afcaa4b044f0f790edbed3dc))
+* use bb code for field description ([a4d973b](https://github.com/SteamClientHomebrew/Core/commit/a4d973bdd8e9368874c50966126ccb45444b4892))
+
 ## [1.1.1](https://github.com/SteamClientHomebrew/Core/compare/v1.1.0...v1.1.1) (2024-07-27)
 
 
