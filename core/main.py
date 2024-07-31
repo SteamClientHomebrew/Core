@@ -2,8 +2,6 @@ import Millennium, json, os, configparser # type: ignore
 
 from api.css_analyzer import parse_root
 from api.themes import Colors
-from util.theme_installer import serve_websocket, start_websocket_server
-
 from api.themes import find_all_themes
 from api.plugins import find_all_plugins
 from api.config import Config, cfg
