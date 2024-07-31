@@ -1,4 +1,4 @@
-import { findModuleChild } from "@millennium/ui";
+import { findModuleExport } from "@millennium/ui";
 import React, { CSSProperties, ReactNode } from "react";
 
 interface TitleBarProps {
@@ -18,14 +18,8 @@ interface TitleBarProps {
 	style?: CSSProperties;
 }
 
-export const TitleBar: React.FC<TitleBarProps> = findModuleChild((m) => {
-	if (typeof m !== "object") return undefined;
-	for (let prop in m) {
-		if (
-			typeof m[prop] === "function" &&
-			m[prop].toString().includes('className:"title-area-highlight"')
-		) {
-			return m[prop];
-		}
-	}
-});
+export const TitleBar: React.FC<TitleBarProps> = findModuleExport(
+	(m) =>
+		typeof m === "function" &&
+		m.toString().includes('className:"title-area-highlight"'),
+);
