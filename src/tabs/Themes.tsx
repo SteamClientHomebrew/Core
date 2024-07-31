@@ -8,7 +8,6 @@ import {
     classMap, 
     IconsModule, 
     pluginSelf, 
-    ShowModalProps, 
     Toggle, 
     showModal, 
 } from '@millennium/ui'
@@ -16,11 +15,11 @@ import * as CustomIcons from '../custom_components/CustomIcons'
 import { Field } from '../custom_components/Field'
 
 import { useEffect, useState } from 'react'
-import { RenderThemeEditor } from '../components/ThemeEditor'
+import { RenderThemeEditor } from '../custom_components/ThemeEditor'
 import { ComboItem, ThemeItem } from '../types'
-import { SetupAboutRenderer } from '../popups/AboutTheme'
+import { SetupAboutRenderer } from '../custom_components/AboutTheme'
 import { locale } from '../locales'
-import { ConnectionFailed } from '../components/ConnectionFailed'
+import { ConnectionFailed } from '../custom_components/ConnectionFailed'
 
 const Localize = (token: string): string =>
     // @ts-ignore

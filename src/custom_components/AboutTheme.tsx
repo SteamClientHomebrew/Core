@@ -13,7 +13,7 @@ import { CreatePopup } from "../components/CreatePopup"
 import React from "react"
 import { locale } from "../locales";
 import { devClasses, settingsClasses } from "../classes";
-import { FakeFriend } from "../custom_components/FakeFriend";
+import { FakeFriend } from "./FakeFriend";
 
 class AboutThemeRenderer extends React.Component<any> {
     

@@ -12,12 +12,12 @@ import {
     Toggle,
     pluginSelf,
   } from "@millennium/ui";
-import { BBCodeParser } from "./BBCodeParser";
+import { BBCodeParser } from "../components/BBCodeParser";
 import { Field } from "../custom_components/Field";
 import { Conditions, ConditionsStore, ICondition, ThemeItem } from "../types"
 import { settingsClasses } from "../classes"
 import { locale } from "../locales"
-import { SettingsDialogSubHeader } from "./SettingsDialogSubHeader";
+import { SettingsDialogSubHeader } from "../components/SettingsDialogSubHeader";
 
 interface ConditionalComponent {
     condition: string,
