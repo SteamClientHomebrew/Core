@@ -1454,13 +1454,17 @@ var millennium_main = (function (exports, React, ReactDOM) {
     GetLocalization();
 
     const ConnectionFailed = () => {
+        const OpenLogsFolder = () => {
+            const logsPath = [pluginSelf.steamPath, "ext", "data", "logs"].join("/");
+            SteamClient.System.OpenLocalDirectoryInSystemExplorer(logsPath);
+        };
         return (window.SP_REACT.createElement("div", { className: "__up-to-date-container", style: {
                 display: "flex", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "center"
             } },
             window.SP_REACT.createElement(IconsModule.Caution, { width: "64" }),
             window.SP_REACT.createElement("div", { className: "__up-to-date-header", style: { marginTop: "20px", color: "white", fontWeight: "500", fontSize: "15px" } }, "Failed to connect to Millennium!"),
             window.SP_REACT.createElement("p", { style: { fontSize: "12px", color: "grey", textAlign: "center", maxWidth: "76%" } }, "This issue isn't network related, you're most likely missing a file millennium needs, or are experiencing an unexpected bug."),
-            window.SP_REACT.createElement(DialogButton, { onClick: () => SteamClient.System.OpenLocalDirectoryInSystemExplorer("ext\\data\\logs\\"), style: { width: "50%", marginTop: "20px" } }, "Open Logs Folder")));
+            window.SP_REACT.createElement(DialogButton, { onClick: OpenLogsFolder, style: { width: "50%", marginTop: "20px" } }, "Open Logs Folder")));
     };
 
     const containerClasses = [
@@ -1965,26 +1969,20 @@ var millennium_main = (function (exports, React, ReactDOM) {
             return window.SP_REACT.createElement(ConnectionFailed, null);
         }
         const OpenThemesFolder = () => {
-            wrappedCallServerMethod("Millennium.steam_path")
-                .then((result) => {
-                pluginSelf.connectionFailed = false;
-                return result;
-            })
-                .then((path) => {
-                console.log(path);
-                SteamClient.System.OpenLocalDirectoryInSystemExplorer(`${path}/steamui/skins`);
-            });
+            const themesPath = [pluginSelf.steamPath, "steamui", "skins"].join("/");
+            SteamClient.System.OpenLocalDirectoryInSystemExplorer(themesPath);
+        };
+        const GetMoreThemes = () => {
+            SteamClient.System.OpenInSystemBrowser("https://steambrew.app/themes");
         };
         return (window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
-            window.SP_REACT.createElement("style", null, `.DialogDropDown._DialogInputContainer.Panel.Focusable {
-                        min-width: max-content !important;
-                    }`),
+            window.SP_REACT.createElement("style", null, `.DialogDropDown._DialogInputContainer.Panel.Focusable { min-width: max-content !important; }`),
             window.SP_REACT.createElement(DialogHeader, null, locale.settingsPanelThemes),
             window.SP_REACT.createElement(DialogBody, { className: classMap.SettingsDialogBodyFade },
                 window.SP_REACT.createElement(Field, { label: locale.themePanelClientTheme, description: window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
                         locale.themePanelThemeTooltip,
                         ". ",
-                        window.SP_REACT.createElement("a", { href: "https://steambrew.app/themes" }, locale.themePanelGetMoreThemes)) },
+                        window.SP_REACT.createElement("a", { href: "#", onClick: GetMoreThemes }, locale.themePanelGetMoreThemes)) },
                     window.SP_REACT.createElement(RenderEditTheme, { active: active }),
                     !pluginSelf.isDefaultTheme && (window.SP_REACT.createElement(DialogButton, { onClick: () => SetupAboutRenderer(active), style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, className: "_3epr8QYWw_FqFgMx38YEEm millenniumIconButton" },
                         window.SP_REACT.createElement(IconsModule.Information, { height: "16" }))),

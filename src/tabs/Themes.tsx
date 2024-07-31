@@ -192,39 +192,31 @@ const ThemeViewModal: React.FC = () => {
 	}
 
     const OpenThemesFolder = () => {
-        Millennium.callServerMethod("Millennium.steam_path")
-        .then((result: any) => {
-            pluginSelf.connectionFailed = false
-            return result
-        })
-        .then((path: string) => {
-            console.log(path)
-            SteamClient.System.OpenLocalDirectoryInSystemExplorer(`${path}/steamui/skins`)
-        })
+        const themesPath = [pluginSelf.steamPath, "steamui", "skins"].join("/");
+        SteamClient.System.OpenLocalDirectoryInSystemExplorer(themesPath);
+    }
+
+    const GetMoreThemes = () => {
+        SteamClient.System.OpenInSystemBrowser("https://steambrew.app/themes");
     }
 
     return (
         <>
-
-            <style>
-                {
-                    `.DialogDropDown._DialogInputContainer.Panel.Focusable {
-                        min-width: max-content !important;
-                    }`
-                }
-            </style>
+            <style>{`.DialogDropDown._DialogInputContainer.Panel.Focusable { min-width: max-content !important; }`}</style>
 
             <DialogHeader>{locale.settingsPanelThemes}</DialogHeader>
             <DialogBody className={classMap.SettingsDialogBodyFade}>
                 <Field
                     label={locale.themePanelClientTheme}
-                    description=<>
-                        {locale.themePanelThemeTooltip}
-                        {". "}
-                        <a href="https://steambrew.app/themes">
-                            {locale.themePanelGetMoreThemes}
-                        </a>
-                    </>
+                    description={
+                        <>
+                            {locale.themePanelThemeTooltip}
+                            {". "}
+                            <a href="#" onClick={GetMoreThemes}>
+                                {locale.themePanelGetMoreThemes}
+                            </a>
+                        </>   
+                    }       
                 >
                     <RenderEditTheme active={active} />
 
