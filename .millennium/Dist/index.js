@@ -1548,16 +1548,7 @@ var millennium_main = (function (exports, React, ReactDOM) {
         window.SP_REACT.createElement("path", { d: "M16.63,6.4A23.508,23.508,0,0,0,2.683,37.268c.031.063.052.125.083.188a8.935,8.935,0,0,0,15.662,1.526A16.713,16.713,0,0,1,26.165,32.7c.1-.04.2-.07.3-.107a6.186,6.186,0,0,1,3.859-3.453,4.865,4.865,0,0,1,.451-2.184l7.9-17.107A23.554,23.554,0,0,0,16.63,6.4ZM10.5,32.5a4,4,0,1,1,4-4A4,4,0,0,1,10.5,32.5Zm5-11.5a4,4,0,1,1,4-4A4,4,0,0,1,15.5,21Zm12-3.5a4,4,0,1,1,4-4A4,4,0,0,1,27.5,17.5Z", fill: "currentColor" }),
         window.SP_REACT.createElement("path", { d: "M45.478,4.151a1.858,1.858,0,0,0-2.4.938L32.594,27.794a2.857,2.857,0,0,0,.535,3.18,4.224,4.224,0,0,0-4.865,2.491c-1.619,3.91.942,5.625-.678,9.535a10.526,10.526,0,0,0,8.5-6.3,4.219,4.219,0,0,0-1.25-4.887,2.85,2.85,0,0,0,3.037-1.837l8.64-23.471A1.859,1.859,0,0,0,45.478,4.151Z", fill: "currentColor" })));
 
-    const BBCodeParser = findModuleChild((m) => {
-        if (typeof m !== "object")
-            return undefined;
-        for (const prop in m) {
-            if (typeof m[prop] === "function" &&
-                m[prop].toString().includes("this.ElementAccumulator")) {
-                return m[prop];
-            }
-        }
-    });
+    const BBCodeParser = findModuleExport((m) => typeof m === "function" && m.toString().includes("this.ElementAccumulator"));
 
     const devClasses = findClassModule(m => m.richPresenceLabel && m.blocked);
     const pagedSettingsClasses = findClassModule(m => m.PagedSettingsDialog_PageList);
@@ -1701,28 +1692,11 @@ var millennium_main = (function (exports, React, ReactDOM) {
         }
     }
 
-    const TitleBar = findModuleChild((m) => {
-        if (typeof m !== "object")
-            return undefined;
-        for (let prop in m) {
-            if (typeof m[prop] === "function" &&
-                m[prop].toString().includes('className:"title-area-highlight"')) {
-                return m[prop];
-            }
-        }
-    });
+    const TitleBar = findModuleExport((m) => typeof m === "function" &&
+        m.toString().includes('className:"title-area-highlight"'));
 
-    const CreatePopupBase = findModuleChild((m) => {
-        if (typeof m !== "object")
-            return undefined;
-        for (let prop in m) {
-            if (typeof m[prop] === "function" &&
-                m[prop]?.toString().includes("CreatePopup(this.m_strName") &&
-                m[prop]?.toString().includes("GetWindowRestoreDetails")) {
-                return m[prop];
-            }
-        }
-    });
+    const CreatePopupBase = findModuleExport((m) => typeof m === "function" &&
+        m?.toString().includes("CreatePopup(this.m_strName"));
 
     class CreatePopup extends CreatePopupBase {
         constructor(component, strPopupName, options) {
@@ -2007,7 +1981,10 @@ var millennium_main = (function (exports, React, ReactDOM) {
                     }`),
             window.SP_REACT.createElement(DialogHeader, null, locale.settingsPanelThemes),
             window.SP_REACT.createElement(DialogBody, { className: classMap.SettingsDialogBodyFade },
-                window.SP_REACT.createElement(Field, { label: locale.themePanelClientTheme, description: window.SP_REACT.createElement(BBCodeParser, { text: `${locale.themePanelThemeTooltip} [url=https://steambrew.app/themes]${locale.themePanelGetMoreThemes}[/url]` }) },
+                window.SP_REACT.createElement(Field, { label: locale.themePanelClientTheme, description: window.SP_REACT.createElement(window.SP_REACT.Fragment, null,
+                        locale.themePanelThemeTooltip,
+                        ". ",
+                        window.SP_REACT.createElement("a", { href: "https://steambrew.app/themes" }, locale.themePanelGetMoreThemes)) },
                     window.SP_REACT.createElement(RenderEditTheme, { active: active }),
                     !pluginSelf.isDefaultTheme && (window.SP_REACT.createElement(DialogButton, { onClick: () => SetupAboutRenderer(active), style: { margin: "0", padding: "0px 10px", marginRight: "10px" }, className: "_3epr8QYWw_FqFgMx38YEEm millenniumIconButton" },
                         window.SP_REACT.createElement(IconsModule.Information, { height: "16" }))),
