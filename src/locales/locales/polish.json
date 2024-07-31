@@ -24,8 +24,6 @@
     "viewSourceCode": "Zobacz kod źródłowy",
     "showInFolder": "Pokaż w folderze",
     "uninstall": "Odinstaluj",
-    "reloadRequired": "Wymagane ponowne załadowanie",
-    "reloadRequiredBody": "Wybrane zmiany wymagają ponownego załadowania, aby mogły zostać zastosowane. Czy chcesz ponownie załadować teraz?",
     "optionReloadNow": "Załaduj ponownie teraz",
     "optionReloadLater": "Załaduj ponownie później"
 }

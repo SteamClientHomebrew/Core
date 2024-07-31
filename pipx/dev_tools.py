@@ -24,11 +24,11 @@ class mpc:
         subprocess.run([self.__python_bin, "-m", "pip", "install", "--upgrade", "millennium"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     def start(self, config):
-        if (config.get('PackageManager', 'devtools') != 'yes'):
+        if (config.get('PackageManager', 'dev_packages') != 'yes'):
             return
 
         try:
-            if config.get('PackageManager', 'auto_update_devtools') == 'no':
+            if config.get('PackageManager', 'auto_update_dev_packages') == 'no':
                 logger.log("Millennium Dev Tools auto-update is disabled.")
                 return
 

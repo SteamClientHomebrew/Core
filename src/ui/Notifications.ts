@@ -1,8 +1,5 @@
-import { findClassModule, Millennium, pluginSelf } from "@millennium/ui"
-
-const notificationClasses = (findClassModule(m => 
-    m.GroupMessageTitle && !m.ShortTemplate && !m.TwoLine && !m.FriendIndicator && !m.AchievementIcon
-) as any)
+import { Millennium, pluginSelf } from "@millennium/ui"
+import { notificationClasses } from "../classes";
 
 /**
  * @todo use builtin notification components instead of altering 
