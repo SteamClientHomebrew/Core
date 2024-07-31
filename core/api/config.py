@@ -92,8 +92,8 @@ class Config:
 
 
     def set_config(self, dumps: str) -> None:
-        self.observer.stop()
         try:
+            self.observer.stop()
             self.observer.join()
         except Exception:
             pass
