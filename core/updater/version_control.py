@@ -4,7 +4,7 @@ import pygit2, os, json, shutil, time, requests, arrow
 from datetime import datetime
 from api.themes import find_all_themes
 from api.config import cfg
-from util import logger
+from util.logger import logger
 
 class Updater:
 
