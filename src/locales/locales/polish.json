@@ -26,4 +26,10 @@
     "uninstall": "Odinstaluj",
     "optionReloadNow": "Załaduj ponownie teraz",
     "optionReloadLater": "Załaduj ponownie później"
+    "updatePanelUpdateNotifications": "Powiadomienia push",
+    "updatePanelUpdateNotificationsTooltip": "Ustaw Millennium, aby przypominało Ci, gdy dla elementu w twojej bibliotece jest dostępna aktualizacja!",
+    "customThemeSettingsColorsHeader": "Opcje Kolorów",
+    "customThemeSettingsColorsDescription": "Dostosuj kolory swojego motywu.",
+    "customThemeSettingsConfigHeader": "Ustawienia Niestandardowe",
+    "customThemeSettingsConfigDescription": "Dostosuj ustawienia swojego motywu."
 }
